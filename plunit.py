@@ -150,7 +150,7 @@ def plunitTest(filename):
             lines.append(l)
 
     tabs = {"badgeCount":numBad,"groups":contexts}
-    feedback = {"accepted":numBad == 0, "groups":tabs, "status":"we have executed things","description":"this is a test"}
+    feedback = {"accepted":numBad == 0, "groups":tabs, "status":"correct answer" if numBad == 0 else "wrong answer","description":"this is a test"}
     print(json.dumps(feedback,indent=2, separators=(',', ': '))) 
 
 
