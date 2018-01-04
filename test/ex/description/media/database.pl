@@ -1,0 +1,9 @@
+hug(jan,tom).
+hug(tom,jan).
+hug(jan,fien).
+hug(fien,jan).
+justfriends(jan,tom).
+male(jan).
+male(tom).
+fien.
+lara.
