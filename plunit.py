@@ -116,7 +116,7 @@ def doTest(filename, testname, comments):
     
     return context,numBad
 
-def plunitTest(filename):
+def plunitTest(filename,tabname="PLUnit"):
     lines = []
     initlines = [':- consult("'+source+'").\n']
     testname = None
@@ -151,14 +151,19 @@ def plunitTest(filename):
         else:
             lines.append(l)
 
-    tabs = [{"badgeCount":numBad,"groups":contexts}]
-    feedback = {"accepted":numBad == 0, "groups":tabs, "status":"correct answer" if numBad == 0 else "wrong answer","description":"this is a test"}
-    print(json.dumps(feedback,indent=2, separators=(',', ': '))) 
+    return {"badgeCount":numBad,"description":"PLUnit","messages":{"format":"plain","description":tabname,"permission":"student"},"groups":contexts}
 
 
-
-
+def quikcheckTest(filename):
+    return {"badgeCount":1,"description":"QuickCheck","messages":{"format":"plain","description":tabname + " - not implemented","permission":"student"},"groups":[]}
 
 for f in os.listdir(home):
+    tabs = []
     if f.endswith(".plunit"):
-        plunitTest(os.path.join(home,f))
+        tabs.append(plunitTest(os.path.join(home,f),f))
+    elif f.endswith(".qc.pl"):
+        tabs.append(quikcheckTest(os.path.join(home,f),f))
+
+    numBad = sum([t["badgeCount"] for t in tabs])
+    feedback = {"accepted":numBad == 0, "groups":tabs, "status":"correct answer" if numBad == 0 else "wrong answer","description":str(numBad)+" errors"}
+    print(json.dumps(feedback,indent=2, separators=(',', ': '))) 
