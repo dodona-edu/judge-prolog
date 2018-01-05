@@ -7,7 +7,7 @@ import re
 import os 
 import sys
 import json
-from subprocess import PIPE,run
+from subprocess import PIPE,TimeoutExpired,run
 
 
 
@@ -89,10 +89,14 @@ def checkOutput(lines, testname):
     return testcases
 
 def doTest(filename, testname, comments):
-    a = run(['swipl', '-s', filename, '-q', '-t', 'run_tests', '+tty','--nosignals'],timeout=5,check=False,stderr=PIPE,cwd=workdir)
-    output = a.stderr.decode("utf-8")
-    testcases = checkOutput(output.splitlines(),testname)
-    numBad = len(testcases)
+    try:
+        a = run(['swipl', '-s', filename, '-q', '-t', 'run_tests', '+tty','--nosignals'],timeout=5,check=False,stderr=PIPE,cwd=workdir)
+        output = a.stderr.decode("utf-8")
+        testcases = checkOutput(output.splitlines(),testname)
+        numBad = len(testcases)
+    except TimeoutExpired:
+        testcases = [{"accepted": False,"description":"timeout"}]
+        numBad = 1
     messages = [{"format":"plain","description":c,"permission":"student"} for c in comments]
     if len(testcases) == 0:
         context = {
