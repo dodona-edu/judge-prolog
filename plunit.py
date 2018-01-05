@@ -27,7 +27,7 @@ plTestfile = re.compile(testfileName.replace(".","\\.")+"(:[0-9]*)?:?")
 plStatus = re.compile("^[A.!+-]+$")
 plResult = re.compile("^(ERROR|Warning): (.*)")
 plDone = re.compile("done$")
-plInfo = re.compile("^\t(.*)")
+plInfo = re.compile("^(ERROR:     |\t)(.*)")
 plBeginTest = re.compile(":- +begin_tests\(([^,]*)(,.*)?\)")
 plEndTest   = re.compile(":- +end_tests\((.*)\)")
 plComment   = re.compile("%!(.*)")
@@ -54,8 +54,8 @@ def analyse(errorType, data, errors):
     """
     if not (errorType is None or len(data) == 0):
         n = '\n'
-        d= "**"+errorType+"**: "+n.join(data)
-        a = {"accepted": False,"messages": [{"format": "markdown", "description": d, "permission": "student"}]}
+        d= n.join(data)
+        a = {"accepted": False,"description":errorType,"messages": [{"format": "code", "description": d, "permission": "student"}]}
         errors.append(a)
 
 def checkOutput(lines, testname):
@@ -73,7 +73,7 @@ def checkOutput(lines, testname):
             isResult = plResult.match(line)
             isInfo   = plInfo.match(line)
             if isInfo:
-                data.append(isInfo.group(1))
+                data.append(isInfo.group(2))
             elif isResult:
                 analyse(errorType,data,testcases)
                 moreinfo = isResult.group(2).strip()
