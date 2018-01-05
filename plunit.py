@@ -24,6 +24,7 @@ programming_language = config['programming_language']
 testfileName = '/tmp/tmp-testfile.pl';
 
 plTestfile = re.compile(testfileName.replace(".","\\.")+"(:[0-9]*)?:?")
+plMountdir=re.compile("/mnt/[^/]*/")
 plStatus = re.compile("^[A.!+-]+$")
 plResult = re.compile("^(ERROR|Warning): (.*)")
 plDone = re.compile("done$")
@@ -42,7 +43,7 @@ def removePath(s:str,testname):
         str -- The cleaned text 
     """
 
-    return re.sub(plTestfile,"",s).replace("plunit_"+testname+":","")
+    return  re.sub(plMountdir,"",re.sub(plTestfile,"",s)).replace("plunit_"+testname+":","")
 
 def analyse(errorType, data, errors):
     """Adds errors to the error array
