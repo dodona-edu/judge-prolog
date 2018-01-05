@@ -56,10 +56,7 @@ def analyse(errorType, data, errors):
         n = '\n'
         d= "**"+errorType+"**: "+n.join(data)
         a = {"accepted": False,"messages": [{"format": "markdown", "description": d, "permission": "student"}]}
-        errors.append({
-            "accepted": False,
-            "messages": [{"format": "markdown", "description": d, "permission": "student"}]
-            })
+        errors.append(a)
 
 def checkOutput(lines, testname):
     errorType = None
@@ -101,7 +98,7 @@ def doTest(filename, testname, comments):
             "accepted":True, 
             "description":{"format":"plain","description":testname,"permission":"student"},
             "messages": messages,
-            "groups":[{"accepted":True,"messages":[{"format":"plain","description":"OK","permission":"student"}]}] 
+            "groups":[{"accepted":True,"description":"OK"}] 
             }
             
     else:
