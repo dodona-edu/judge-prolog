@@ -10,4 +10,4 @@
 
 DIR="$(dirname $0)"
 
-python3 "$DIR/plunit.py"
+python3 "$DIR/run.py"

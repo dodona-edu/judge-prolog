@@ -11,16 +11,6 @@ from subprocess import PIPE,TimeoutExpired,run
 
 
 
-# extract info from exercise configuration
-config = json.load(sys.stdin)
-home = config['resources']
-source = config['source']
-workdir = config['workdir']
-judge = config.setdefault("prolog_judge","plunit")
-time_limit = int(config['time_limit'])
-memory_limit = int(config['memory_limit'])
-programming_language = config['programming_language']
-
 testfileName = '/tmp/tmp-testfile.pl';
 
 plTestfile = re.compile(testfileName.replace(".","\\.")+"(:[0-9]*)?:?")
@@ -88,7 +78,7 @@ def checkOutput(lines, testname):
     analyse(errorType,data,testcases)
     return testcases
 
-def doTest(filename, testname, comments):
+def doTest(filename, testname, comments,workdir):
     try:
         a = run(['swipl', '-s', filename, '-q', '-t', 'run_tests', '+tty','--nosignals'],timeout=5,check=False,stderr=PIPE,cwd=workdir)
         output = a.stderr.decode("utf-8")
@@ -116,9 +106,9 @@ def doTest(filename, testname, comments):
     
     return context,numBad
 
-def plunitTest(filename,tabname="PLUnit"):
+def plunitTest(config,filename,tabname="PLUnit"):
     lines = []
-    initlines = [':- consult("'+source+'").\n']
+    initlines = ['\n:- consult("{}").\n'.format(config["source"])]
     testname = None
     comments = []
 
@@ -140,7 +130,7 @@ def plunitTest(filename,tabname="PLUnit"):
             with open(testfileName,'w') as out:
                 out.writelines(initlines)
                 out.writelines(lines)
-            ctx, numNotes = doTest(testfileName,testname,comments)
+            ctx, numNotes = doTest(testfileName,testname,comments,config["workdir"])
             contexts.append(ctx)
             numBad += numNotes
             testname = None
@@ -153,17 +143,3 @@ def plunitTest(filename,tabname="PLUnit"):
 
     return {"badgeCount":numBad,"description":"PLUnit","messages":{"format":"plain","description":tabname,"permission":"student"},"groups":contexts}
 
-
-def quikcheckTest(filename):
-    return {"badgeCount":1,"description":"QuickCheck","messages":{"format":"plain","description":tabname + " - not implemented","permission":"student"},"groups":[]}
-
-for f in os.listdir(home):
-    tabs = []
-    if f.endswith(".plunit"):
-        tabs.append(plunitTest(os.path.join(home,f),f))
-    elif f.endswith(".qc.pl"):
-        tabs.append(quikcheckTest(os.path.join(home,f),f))
-
-    numBad = sum([t["badgeCount"] for t in tabs])
-    feedback = {"accepted":numBad == 0, "groups":tabs, "status":"correct answer" if numBad == 0 else "wrong answer","description":str(numBad)+" errors"}
-    print(json.dumps(feedback,indent=2, separators=(',', ': '))) 
