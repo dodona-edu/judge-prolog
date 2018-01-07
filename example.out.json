@@ -1,0 +1,156 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "badgeCount": 5,
+      "description": "PLUnit",
+      "messages": {
+        "format": "plain",
+        "description": "test.plunit",
+        "permission": "student"
+      },
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "realh",
+            "permission": "student"
+          },
+          "messages": [],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "OK"
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "realh1",
+            "permission": "student"
+          },
+          "messages": [],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "OK"
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "hugging",
+            "permission": "student"
+          },
+          "messages": [],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "test nobrohug: assertion failed\nAssertion: brohug(tom,jan)",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "test nobrohug: assertion failed\nAssertion: brohug(jan,fien)",
+                  "permission": "student"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "noname",
+            "permission": "student"
+          },
+          "messages": [],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "test brohug: assertion raised \"catch/3: Undefined procedure: lol/2\"\nAssertion: lol(jan,tom)",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "test brohug: assertion raised \"catch/3: Undefined procedure: lol/2\"\nAssertion: lol(tom,jan)",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "test brohug: assertion raised \"catch/3: Undefined procedure: lol/2\"\nAssertion: lol(jan,fien)",
+                  "permission": "student"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "badgeCount": 1,
+      "description": "QuickCheck",
+      "messages": {
+        "format": "plain",
+        "description": "test.qc.pl - not implemented",
+        "permission": "student"
+      },
+      "groups": {
+        "accepted": false,
+        "description": {
+          "format": "plain",
+          "description": "prop_reverse_twice/1",
+          "permission": "student"
+        },
+        "messages": [],
+        "groups": [
+          {
+            "accepted": false,
+            "description": "Counter example for prop_reverse_twice/1",
+            "messages": [
+              {
+                "format": "code",
+                "description": "[0]:list(integer)",
+                "permission": "student"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "status": "wrong answer",
+  "description": "6 errors"
+}

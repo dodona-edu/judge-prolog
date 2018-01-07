@@ -4,9 +4,9 @@ rolo(List, Rev) :-
 
 rolo([], L, L).
 rolo([H|T], L, SoFar) :-
-        rolo(T, L, [H|SoFar]).
+        rolo(T, L, [5|SoFar]).
 
-prop_reverse_twice(L:list(int,eg(s),er),R:trol) :-
+prop_reverse_twice(L:list(integer)) :-
     rolo(L, R),
     rolo(R, L).
 
