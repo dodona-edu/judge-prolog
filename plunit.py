@@ -141,5 +141,5 @@ def plunitTest(config,filename,tabname="PLUnit"):
         else:
             lines.append(l)
 
-    return {"badgeCount":numBad,"description":"PLUnit","messages":{"format":"plain","description":tabname,"permission":"student"},"groups":contexts}
+    return {"badgeCount":numBad,"description":"PLUnit","messages":[{"format":"plain","description":tabname,"permission":"student"}],"groups":contexts}
 

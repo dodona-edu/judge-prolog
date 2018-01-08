@@ -19,7 +19,7 @@ def checkFailOutput(lines):
     trows assertion error if lines are not correct
     """
     assert next(lines) == b'-DODONA-TEST-\n'
-    testname = next(lines).decode("utf-8")
+    testname = next(lines).decode("utf-8").strip()
     assert next(lines) == b'-DODONA-COUNTEREXAMPLE-\n'
 
     line = next(lines)
@@ -28,7 +28,11 @@ def checkFailOutput(lines):
         counterexample += line
         line = next(lines)
     counterexample = counterexample.decode("utf-8")
-    return {"accepted": False, "description": "Counter example for " + testname.strip(), "messages": [{"format": "code", "description": counterexample.rstrip(), "permission": "student"}]}
+    return {
+        "accepted": False,
+        "description": "Counter example found for {}".format(testname),
+        "messages": [{"format": "code", "description": counterexample.rstrip(), "permission": "student"}]
+    }
 
 
 def checkSuccesOutput(lines):
@@ -44,11 +48,14 @@ def checkSuccesOutput(lines):
     trows assertion error if lines are not correct
     """
     assert next(lines) == b'-DODONA-TEST-\n'
-    testname = next(lines).decode("utf-8")
+    testname = next(lines).decode("utf-8").strip()
     assert next(lines) == b'-DODONA-NUMTESTS-\n'
-    numtests = next(lines).decode("utf-8")
+    numtests = next(lines).decode("utf-8").strip()
     assert next(lines) == b'-DODONA-END-\n'
-    return {"accepted": True, "description": "Passed " + testname.strip(), "messages": [{"format": "plain", "description": "Passed {} tests".format(numtests.strip()), "permission": "student"}]}
+    return {
+        "accepted": True,
+        "description": "{}: Passed all {} tests".format(testname,numtests)
+    }
 
 
 def checkOutput(out, err, testname):
@@ -84,36 +91,40 @@ def doTest(filename, properties, comments, workdir):
             cwd=workdir)
         try:
             a.wait(timeout=1)
-
             testcases.append(checkOutput(a.stdout, a.stderr, testname))
-            numBad = len(testcases)
+            numBad += len(testcases)
         except subprocess.TimeoutExpired:
             a.terminate()
-            print(a)
-            print(a.stderr.read(2500).decode("utf-8"))
-            a.stderr.close()
+            resErr = a.stderr.read(2500).decode("utf-8")
+            resOut = a.stderr.read(2500).decode("utf-8")
 
-            testcases = [{"accepted": False, "description": "timeout"}]
-            numBad = 1
-        messages = [{"format": "plain", "description": c,
-                     "permission": "student"} for c in comments]
-        if len(testcases) == 0:
-            context = {
-                "accepted": True,
-                "description": {"format": "plain", "description": testname, "permission": "student"},
-                "messages": messages,
-                "groups": [{"accepted": True, "description": "OK"}]
-            }
+            testcases.append({
+                "accepted": False, 
+                "description": "timeout " + testname,
+                "messages": [{"format": "code", "description": "stdErr:\n"+resErr + "\n\nstdOut:\n" + resOut, "permission": "student"}]
+                })
+            numBad += 1
+        a.stderr.close()
+        a.stdout.close()
+    messages = [{"format": "plain", "description": c,
+                    "permission": "student"} for c in comments]
+    if len(testcases) == 0:
+        context = {
+            "accepted": True,
+            "description": {"format": "plain", "description": filename, "permission": "student"},
+            "messages": messages,
+            "groups": [{"accepted": True, "description": "OK"}]
+        }
 
-        else:
-            context = {
-                "accepted": False,
-                "description": {"format": "plain", "description": testname, "permission": "student"},
-                "messages": messages,
-                "groups": testcases
-            }
+    else:
+        context = {
+            "accepted": False,
+            "description": {"format": "plain", "description": filename, "permission": "student"},
+            "messages": messages,
+            "groups": testcases
+        }
 
-        return context, numBad
+    return context, numBad
 
 
 reProperty = re.compile("(prop_[^(]*)\((.*)\)\s*:-")
@@ -144,12 +155,13 @@ def quikcheckTest(filename, tabname="QuickTest"):
                                              countArgs(isProp.group(2))))
     fileinput.close()
 
-    ctx,numbad = doTest(filename, properties, [], "/tmp")
+    ctx, numbad = doTest(filename, properties, [], "/tmp")
 
-    return {"badgeCount": numbad, "description": "QuickCheck", "messages": {"format": "plain", "description": tabname + " - not implemented", "permission": "student"}, "groups": ctx}
+    return {"badgeCount": numbad, "description": "QuickCheck", "messages": [{"format": "plain", "description": tabname , "permission": "student"}], "groups": [ctx]}
 
 
 if __name__ == "__main__":
-    r = quikcheckTest("/home/beardhatcode/Documents/lp/judge/test/ex/evaluation/test.qc.pl", "wow")
+    r = quikcheckTest(
+        "/home/beardhatcode/Documents/lp/judge/test/ex/evaluation/test.qc.pl", "wow")
     import json
-    print(json.dumps(r,indent=2, separators=(',', ': ')))
+    print(json.dumps(r, indent=2, separators=(',', ': ')))
