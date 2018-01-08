@@ -9,7 +9,7 @@ import sys
 import json
 from subprocess import PIPE,TimeoutExpired,run
 from plunit import plunitTest
-from quickcheck import quikcheckTest
+from quickcheck import QuickCheck
 
 
 
@@ -36,7 +36,7 @@ config = json.load(sys.stdin)
 home = config['resources']
 source = config['source']
 workdir = config['workdir']
-judge = config.setdefault("prolog_judge","plunit")
+judge = config['judge']
 time_limit = int(config['time_limit'])
 memory_limit = int(config['memory_limit'])
 programming_language = config['programming_language']
@@ -46,8 +46,9 @@ for f in os.listdir(home):
     if f.endswith(".plunit"):
         tabs.append(plunitTest(config,os.path.join(home,f),f))
     elif f.endswith(".qc.pl"):
-        tabs.append(quikcheckTest(os.path.join(home,f),f))
+        qc = QuickCheck(config,os.path.join(home,f),f.replace(".qc.pl",""))
+        tabs.append(qc.doTest())
 
 numBad = sum([t["badgeCount"] for t in tabs])
 feedback = {"accepted":numBad == 0, "groups":tabs, "status":"correct answer" if numBad == 0 else "wrong answer","description":str(numBad)+" errors"}
-print(json.dumps(feedback,indent=2, separators=(',', ': '))) 
+print(json.dumps(feedback,indent=2, separators=(',', ': ')))
