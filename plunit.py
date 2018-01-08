@@ -8,6 +8,7 @@ import os
 import sys
 import json
 from subprocess import PIPE,TimeoutExpired,run
+from prologError import checkErrors
 
 
 
@@ -23,66 +24,12 @@ plBeginTest = re.compile(":- +begin_tests\(([^,]*)(,.*)?\)")
 plEndTest   = re.compile(":- +end_tests\((.*)\)")
 plComment   = re.compile("%!(.*)")
 
-def removePath(s:str,testname):
-    """Removes the path to the test file from the output
-    
-    Arguments:
-        s {str} -- Text to clean
-    
-    Returns:
-        str -- The cleaned text 
-    """
-
-    return  re.sub(plMountdir,"",re.sub(plTestfile,"",s)).replace("plunit_"+testname+":","")
-
-def analyse(errorType, data, errors):
-    """Adds errors to the error array
-    
-    Arguments:
-        errorType {str} -- The tye of the error
-        data {list(str)} -- a list of lines of info
-        errors {list(dict)} -- list to append to
-    """
-    if not (errorType is None or len(data) == 0):
-        n = '\n'
-        d= n.join(data)
-        a = {"accepted": False,"description":errorType,"messages": [{"format": "code", "description": d, "permission": "student"}]}
-        errors.append(a)
-
-def checkOutput(lines, testname):
-    errorType = None
-    data = []
-    testcases = []
-    
-    for line in lines:
-        line = removePath(line.rstrip(),testname)
-        isStatus = plStatus.match(line)
-        if isStatus:
-            analyse(errorType,data,testcases)
-            data = []
-        else:
-            isResult = plResult.match(line)
-            isInfo   = plInfo.match(line)
-            if isInfo:
-                data.append(isInfo.group(2))
-            elif isResult:
-                analyse(errorType,data,testcases)
-                moreinfo = isResult.group(2).strip()
-                if len(moreinfo) > 0:
-                    data = [moreinfo]
-                else:
-                    data = []
-                errorType = isResult.group(1)
-            else:
-                data.append(line)
-    analyse(errorType,data,testcases)
-    return testcases
 
 def doTest(filename, testname, comments,workdir):
     try:
         a = run(['swipl', '-s', filename, '-q', '-t', 'run_tests', '+tty','--nosignals'],timeout=5,check=False,stderr=PIPE,cwd=workdir)
         output = a.stderr.decode("utf-8")
-        testcases = checkOutput(output.splitlines(),testname)
+        testcases = checkError(output.splitlines(),testname)
         numBad = len(testcases)
     except TimeoutExpired:
         testcases = [{"accepted": False,"description":"timeout"}]
