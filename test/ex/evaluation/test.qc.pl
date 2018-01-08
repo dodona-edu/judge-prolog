@@ -16,3 +16,10 @@ prop_reverse_quad(L:list(integer)) :-
     rolo(B, C),
     rolo(C, D),
     rolo(D, A).
+
+
+lol(jan,piet).
+lol(A,B) :- lol(B,A).
+
+prop_infinite(L:list(integer)) :-
+    lol(A, A).
