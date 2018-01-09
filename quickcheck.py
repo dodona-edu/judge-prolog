@@ -28,6 +28,7 @@ class QuickCheck(object):
         self.bufsize = 2500
         self.numlines = 250
         self.lang = config["natural_language"]
+        self.result = None
 
         # Read input
         data = [l for l in fileinput.input(filename)]
@@ -62,12 +63,25 @@ class QuickCheck(object):
             f2.write(consultLine.format(
                 self.config["judge"] + '/quicktest/quickcheck.pl'))
 
-    def doTest(self):
+    def getResult(self):
+        if self.result is None:
+            self.result = self._doTest()
+        return self.result
+
+    def getSummary(self):
+        res = self.getResult()
+        if res["badgeCount"] == 0:
+            return "correct"
+        else:
+            return "QuickCheck: {} issues".format(res["badgeCount"])
+
+
+    def _doTest(self):
         totalNumBad = 0
         contexts = []
         failedTest = 0
         for testname in self.orderedProperties:
-            testcases = self.run(testname)
+            testcases = self._run(testname)
             numBad = sum([not t["accepted"]
                           for t in testcases if "accepted" in t])
 
@@ -109,7 +123,7 @@ class QuickCheck(object):
             "groups": contexts
         }
 
-    def run(self, testname):
+    def _run(self, testname):
         def oh(stdout, stderr, testname, scriptfile, config, timeout):
             testcases = []
             if timeout:
@@ -119,7 +133,7 @@ class QuickCheck(object):
                     "messages": [{"format": "code", "description": "The test timed out (more than 1s)!\n\nstdOut:\n" + ("".join(stdout))}]
                 })
             else:
-                testcases.append(self.checkOutput(stdout, testname))
+                testcases.append(self._checkOutput(stdout, testname))
 
             testcases += checkErrors(stderr, testname)
             return testcases
@@ -133,7 +147,7 @@ class QuickCheck(object):
             config=self.config)
         return testcases
 
-    def checkFailOutput(self, lines):
+    def _checkFailOutput(self, lines):
         """ Simple parser to parse
         -DODONA-FAIL-
         -DODONA-TEST-
@@ -161,7 +175,7 @@ class QuickCheck(object):
             "messages": [{"format": "code", "description": counterexample}]
         }
 
-    def checkSuccesOutput(self, lines):
+    def _checkSuccesOutput(self, lines):
         """ Simple parser to parse
         -DODONA-PASS-
         -DODONA-TEST-
@@ -183,16 +197,16 @@ class QuickCheck(object):
             "description": "{} Tests passed".format(numtests)
         }
 
-    def checkOutput(self, out, testname):
+    def _checkOutput(self, out, testname):
         lines = iter(out)
         notmatched = []
         try:
             while True:
                 line = next(lines)
                 if line == '-DODONA-FAIL-\n':
-                    return self.checkFailOutput(lines)
+                    return self._checkFailOutput(lines)
                 if line == '-DODONA-PASS-\n':
-                    return self.checkSuccesOutput(lines)
+                    return self._checkSuccesOutput(lines)
                 notmatched.append(line.strip())
         except StopIteration:
             return {

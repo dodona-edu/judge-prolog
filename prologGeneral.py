@@ -14,7 +14,7 @@ plEndTest = re.compile(r":- +end_tests\((.*)\)")
 plComment = re.compile(r"%!(.*)")
 
 
-def removePath(s: str, testname):
+def removePath(s: str, testname:str):
     """Removes the path to the test file from the output
 
     Arguments:

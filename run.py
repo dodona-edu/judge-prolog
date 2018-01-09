@@ -6,25 +6,12 @@ import re
 import os
 import sys
 import json
-from plunit import plunitTest
+from plunit import PLUnit
 from quickcheck import QuickCheck
 
-
-plMountdir = re.compile("/mnt/[^/]*/")
-
-
-def removePath(s: str, testname):
-    """Removes the path to the test file from the output
-
-    Arguments:
-        s {str} -- Text to clean
-
-    Returns:
-        str -- The cleaned text 
-    """
-
-    return re.sub(plMountdir, "", s)
-
+words = {
+    "en" : {"correct":"correct"}
+}
 
 
 # extract info from exercise configuration and set defaults
@@ -44,15 +31,24 @@ config.setdefault("prolog_trail_stack", "128M")
 if ("natural_language" not in config) or (config["natural_language"] not in ["en", "nl"]):
     config["natural_language"] = "en"
 
-tabs = []
+tests = []
 for f in os.listdir(home):
-    if f.endswith(".plunit"):
-        tabs.append(plunitTest(config, os.path.join(home, f), f))
+    test = None
+    if f.endswith(".unit.pl"):
+        test = PLUnit(config, os.path.join(home, f), f.replace(".unit.pl", ""))
     elif f.endswith(".qc.pl"):
-        qc = QuickCheck(config, os.path.join(home, f), f.replace(".qc.pl", ""))
-        tabs.append(qc.doTest())
+        test = QuickCheck(config, os.path.join(home, f), f.replace(".qc.pl", ""))
+    else:
+        continue
+    tests.append(test)
 
+tabs = [t.getResult() for t in tests]
 numBad = sum([t["badgeCount"] for t in tabs])
-feedback = {"accepted": numBad == 0, "groups": tabs, "status": "correct answer" if numBad ==
-            0 else "wrong answer", "description": str(numBad) + " errors"}
+accepted = all([t["badgeCount"] == 0 for t in tabs])
+feedback = {
+    "accepted": accepted, 
+    "groups": tabs, 
+    "status": "correct answer" if numBad == 0 else "wrong answer", 
+    "description": "issues({}).".format(numBad) if numBad > 0 else "true."
+    }
 print(json.dumps(feedback, indent=2, separators=(',', ': ')))
