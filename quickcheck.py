@@ -1,25 +1,33 @@
 import fileinput
 import re
-import os
-import sys
-import json
-import subprocess
-from prologError import checkErrors
+from prologGeneral import checkErrors, swipl
 
 
-reProperty = re.compile("(prop_[^(]*)\((.*)\)\s*:-")
-reBody = re.compile("^\s")
+reProperty = re.compile(r"(prop_[^(]*)\((.*)\)\s*:-")
+reBody = re.compile(r"^\s")
 
-reBraces = re.compile("\([^()]*\)")
+reBraces = re.compile(r"\([^()]*\)")
+
+quickCheckInfo = {
+    "nl": """**Quckcheck** controleerde **{numtests} predikaten** over jou code, hievan faalden er **{failed}**. 
+
+Hieronder zie je de code die de predicaten voorstelt en als ze faalden een tegenvoorbeeld.
+""",
+    "en": """**Quckcheck** checked  **{numtests} predicates** over your code, **{failed}** of which failed. 
+
+The results below show the code that represents the predicates. If they fail, a counterexample is given.
+"""
+}
 
 
 class QuickCheck(object):
-    def __init__(self, config, filename, tabname="QuickTest"):
+    def __init__(self, config, filename, tabname="QuickCheck"):
         self.config = config
         self.tabname = tabname
         self.timeout = 1
         self.bufsize = 2500
         self.numlines = 250
+        self.lang = config["natural_language"]
 
         # Read input
         data = [l for l in fileinput.input(filename)]
@@ -27,6 +35,7 @@ class QuickCheck(object):
 
         # get property definitions
         self.properties = {}
+        self.orderedProperties = []
         startLine = 0
         curProperty = None
         for i, l in enumerate(data + ["\n"]):
@@ -39,21 +48,25 @@ class QuickCheck(object):
                 if curProperty in self.properties:
                     self.properties[curProperty] += data[startLine:i]
                 else:
+                    self.orderedProperties.append(curProperty)
                     self.properties[curProperty] = data[startLine:i]
                 curProperty = None
 
         # Make a new testfile that consults the users solution
-        # TODO: just make a file with multiple consults (user code and test code)
+        # and the check file
         self.testfileName = filename + ".extended.pl"
+        consultLine = ':- consult("{}").\n'
         with open(self.testfileName, "w") as f2:
-            f2.write(':- consult("{}").\n'.format(config["source"]))
-            for line in data:
-                f2.write(line)
+            f2.write(consultLine.format(config["source"]))
+            f2.write(consultLine.format(filename))
+            f2.write(consultLine.format(
+                self.config["judge"] + '/quicktest/quickcheck.pl'))
 
     def doTest(self):
         totalNumBad = 0
         contexts = []
-        for testname in self.properties:
+        failedTest = 0
+        for testname in self.orderedProperties:
             testcases = self.run(testname)
             numBad = sum([not t["accepted"]
                           for t in testcases if "accepted" in t])
@@ -61,60 +74,63 @@ class QuickCheck(object):
             if numBad == 0:
                 context = {
                     "accepted": True,
-                    "description": testname,
+                    "description": testname + ": passed",
                     "groups": testcases,
                     "messages": [{
                         "format": "code",
-                        "description": "".join(self.properties[testname]),
-                        "permission": "student"
+                        "description": "".join(self.properties[testname])
                     }]
                 }
             else:
                 context = {
                     "accepted": False,
-                    "description": testname,
+                    "description": testname + ": failed",
                     "groups": testcases,
                     "messages": [{
                         "format": "code",
-                        "description": "".join(self.properties[testname]),
-                        "permission": "student"
+                        "description": "".join(self.properties[testname])
                     }]
                 }
+                failedTest += 1
+
             contexts.append(context)
             totalNumBad += numBad
 
-        return {"badgeCount": totalNumBad, "description": self.tabname, "messages": [], "groups": contexts}
+        return {
+            "badgeCount": failedTest,
+            "description": self.tabname,
+            "messages": [{
+                "format": "markdown",
+                "description": quickCheckInfo[self.lang].format(
+                    numtests=len(self.orderedProperties),
+                    failed=failedTest
+                )
+            }],
+            "groups": contexts
+        }
 
     def run(self, testname):
-        testcases = []
-        a = subprocess.Popen(
-            ['swipl', '-s', self.testfileName, '-q',
-                '-t', "quickcheck({})".format(testname),
-                '-f', self.config["judge"] + '/quicktest/quickcheck.pl',
-                '+tty',
-                '--nosignals'],
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            bufsize=self.bufsize,
-            cwd=self.config["workdir"])
-        try:
-            a.wait(timeout=self.timeout)
-            testcases.append(self.checkOutput(a.stdout, testname))
-            testcases += checkErrors(a.stderr.read(
-                self.bufsize).decode("utf-8").splitlines(), testname)
-        except subprocess.TimeoutExpired:
-            a.terminate()
-            resOut = a.stdout.read(self.bufsize).decode("utf-8")
-            testcases += checkErrors(a.stderr.read(
-                self.bufsize).decode("utf-8").splitlines(), testname)
+        def oh(stdout, stderr, testname, scriptfile, config, timeout):
+            testcases = []
+            if timeout:
+                testcases.append({
+                    "accepted": False,
+                    "description": "Timeout " + testname,
+                    "messages": [{"format": "code", "description": "The test timed out (more than 1s)!\n\nstdOut:\n" + ("".join(stdout))}]
+                })
+            else:
+                testcases.append(self.checkOutput(stdout, testname))
 
-            testcases.append({
-                "accepted": False,
-                "description": "Timeout " + testname,
-                "messages": [{"format": "code", "description": "stdOut:\n" + resOut, "permission": "student"}]
-            })
-        a.stderr.close()
-        a.stdout.close()
+            testcases += checkErrors(stderr, testname)
+            return testcases
+
+        testcases = swipl(
+            scriptfile=self.testfileName,
+            testname=testname,
+            goal="quickcheck({})".format(testname),
+            outputHandler=oh,
+            timeout=1,
+            config=self.config)
         return testcases
 
     def checkFailOutput(self, lines):
@@ -129,20 +145,20 @@ class QuickCheck(object):
         lines is iterator of lines
         trows assertion error if lines are not correct
         """
-        assert next(lines) == b'-DODONA-TEST-\n'
-        testname = next(lines).decode("utf-8").strip()
-        assert next(lines) == b'-DODONA-COUNTEREXAMPLE-\n'
+        assert next(lines) == '-DODONA-TEST-\n'
+        testname = next(lines).strip()
+        assert next(lines) == '-DODONA-COUNTEREXAMPLE-\n'
 
         line = next(lines)
-        counterexample = b''
-        while line != b'-DODONA-END-\n':
+        counterexample = ""
+        while line != "-DODONA-END-\n":
             counterexample += line
             line = next(lines)
-        counterexample = counterexample.decode("utf-8")
+        counterexample = counterexample.strip('\n')
         return {
             "accepted": False,
             "description": "Counter example",
-            "messages": [{"format": "code", "description": counterexample.strip(), "permission": "student"}]
+            "messages": [{"format": "code", "description": counterexample}]
         }
 
     def checkSuccesOutput(self, lines):
@@ -157,36 +173,32 @@ class QuickCheck(object):
         lines is iterator of lines
         trows assertion error if lines are not correct
         """
-        assert next(lines) == b'-DODONA-TEST-\n'
-        testname = next(lines).decode("utf-8").strip()
-        assert next(lines) == b'-DODONA-NUMTESTS-\n'
-        numtests = next(lines).decode("utf-8").strip()
-        assert next(lines) == b'-DODONA-END-\n'
+        assert next(lines) == "-DODONA-TEST-\n"
+        testname = next(lines).strip()
+        assert next(lines) == "-DODONA-NUMTESTS-\n"
+        numtests = next(lines).strip()
+        assert next(lines) == "-DODONA-END-\n"
         return {
             "accepted": True,
             "description": "{} Tests passed".format(numtests)
         }
 
     def checkOutput(self, out, testname):
-        data = out.readlines(self.numlines)
-        lines = iter(data)
+        lines = iter(out)
         notmatched = []
         try:
             while True:
                 line = next(lines)
-                if line == b'-DODONA-FAIL-\n':
+                if line == '-DODONA-FAIL-\n':
                     return self.checkFailOutput(lines)
-                if line == b'-DODONA-PASS-\n':
+                if line == '-DODONA-PASS-\n':
                     return self.checkSuccesOutput(lines)
-                notmatched.append(line.decode("utf-8").strip())
+                notmatched.append(line.strip())
         except StopIteration:
             return {
                 "accepted": False,
-                "description": "Out of lines",
-                "messages": [{
-                    "format": "code",
-                    "description": "s" + "".join(data),
-                    "permission": "student"}]
+                "description": "No results found",
+                "messages": []
             }
         except AssertionError:
             return {
@@ -194,8 +206,7 @@ class QuickCheck(object):
                 "description": "Could not parse results",
                 "messages": [{
                     "format": "plain",
-                    "description": "The output of our tests were badly formated, please contact the assistent.",
-                    "permission": "student"
+                    "description": "The output of our tests were badly formated, please contact the assistent."
                 }]
             }
 
