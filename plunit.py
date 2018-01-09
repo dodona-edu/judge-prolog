@@ -2,129 +2,178 @@
 # Name: Extract PLUnit results
 # By Robbert Gurdeep Singh
 ################################################################################
+"""
+PLUnit tests
+
+http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27)
+"""
+
+
 import fileinput
 import re
-import os
-import sys
-import json
-from subprocess import PIPE, TimeoutExpired, run
 from prologGeneral import checkErrors, swipl
 
 
 plUnitInfo = {
     "nl": """**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. 
+Een test kan meerdere `assert`s bevatten.
 
 Hieronder zie je de output van PLUnit.
 """,
     "en": """**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed. 
 
-The output of PLUnit is shown below
+The output of PLUnit is shown below.
 """
 }
 
 
 testfileName = '/tmp/tmp-testfile.pl'
 
-plTestfile = re.compile(testfileName.replace(".", "\\.") + "(:[0-9]*)?:?")
-plMountdir = re.compile("/mnt/[^/]*/")
-plStatus = re.compile("^[A.!+-]+$")
-plResult = re.compile("^(ERROR|Warning): (.*)")
-plDone = re.compile("done$")
-plInfo = re.compile("^(ERROR:     |\t)(.*)")
-plBeginTest = re.compile(":- +begin_tests\(([^,]*)(,.*)?\)")
-plEndTest = re.compile(":- +end_tests\((.*)\)")
-plComment = re.compile("%!(.*)")
+plTestfile = re.compile(testfileName.replace(".", "\\.") + r"(:[0-9]*)?:?")
+plMountdir = re.compile(r"/mnt/[^/]*/")
+plStatus = re.compile(r"^[A.!+-]+$")
+plResult = re.compile(r"^(ERROR|Warning): (.*)")
+plDone = re.compile(r"done$")
+plInfo = re.compile(r"^(ERROR:     |\t)(.*)")
+plBeginTest = re.compile(r":- +begin_tests\(([^,]*)(,.*)?\)")
+plEndTest = re.compile(r":- +end_tests\((.*)\)")
+plComment = re.compile(r"%!(.*)")
 
 
-def doTest(filename, testname, comments, config):
+class PLUnit(object):
+    """Executes PLUnit code"""
 
-    def oh(stdout, stderr, testname, scriptfile, config, timeout):
-        testcases = []
-        if timeout:
-            testcases.append({
-                "accepted": False,
-                "description": "Timeout " + testname,
-                "messages": [{"format": "code", "description": "The test timed out!\n\nstdOut:\n" + ("".join(stdout))}]
-            })
+    def __init__(self, config, filename, tabname="QuickCheck"):
+        self.config = config
+        self.filename = filename
+        self.testfile = filename+"-slice.pl"
+        self.lang = config["natural_language"]
+        self.tabname = tabname
+        self.result = None
 
-        testcases += checkErrors(stderr, testname)
+    def getResult(self):
+        if self.result is None:
+            self.result = self._doTest()
+        return self.result
 
-        return testcases
-
-    testcases = swipl(
-        scriptfile=filename,
-        testname=testname,
-        goal="run_tests",
-        outputHandler=oh,
-        timeout=5,
-        config=config
-    )
-
-    messages = [{"format": "plain", "description": c} for c in comments]
-    if len(testcases) == 0:
-        context = {
-            "accepted": True,
-            "description": {"format": "plain", "description": testname},
-            "messages": messages,
-            "groups": [{"accepted": True, "description": "Ok"}]
-        }
-
-    else:
-        context = {
-            "accepted": False,
-            "description": {"format": "plain", "description": testname},
-            "messages": messages,
-            "groups": testcases
-        }
-
-    return context
-
-
-def plunitTest(config, filename, tabname="PLUnit"):
-    lines = []
-    initlines = ['\n:- consult("{}").\n'.format(config["source"])]
-    testname = None
-    comments = []
-
-    contexts = []
-    numBad = 0
-    numTests = 0
-
-    for l in fileinput.input(filename):
-        isS = plBeginTest.match(l)
-        isE = plEndTest.match(l)
-        isC = plComment.match(l)
-        if isS:
-            testname = isS.group(1)
-            if len(lines) > 0:
-                initlines += [l for l in lines if len(l.strip()) > 0]
-            lines = [l]
-            comments = []
-        elif isE:
-            lines.append(l)
-            with open(testfileName, 'w') as out:
-                out.writelines(initlines)
-                out.writelines(lines)
-            ctx = doTest(testfileName, testname, comments, config)
-            numTests += 1
-            contexts.append(ctx)
-            numBad += int(not ctx["accepted"])
-            testname = None
-            lines = []
-        elif isC:
-            comments.append(isC.group(1))
-            lines.append(l)
+    def getSummary(self):
+        res = self.getResult()
+        if res["badgeCount"] == 0:
+            return "correct"
         else:
-            lines.append(l)
+            return "PLUnit: {} issues".format(res["badgeCount"])
 
-    return {
-        "badgeCount": numBad,
-        "description": "PLUnit",
-        "messages": [{
-            "format": "markdown",
-            "description": plUnitInfo[config["natural_language"]].format(
-                numtests=numTests, 
-                failed=numBad)
-        }],
-        "groups": contexts
-    }
+    def _doTest(self):
+        """ Splits up the testfile in smaler parts and execute each of them.
+
+        The file needs to be split up in order to have rusults of tests that occur
+        after a non-terminating one
+        """
+
+        lines = []
+        initlines = ['\n:- consult("{}").\n'.format(self.config["source"])]
+        testname = None
+        comments = []
+
+        contexts = []
+        numBad = 0
+        numTests = 0
+
+        # Go over the file,
+        # At :-end_tests the test is executed
+        for l in fileinput.input(self.filename):
+            isStart = plBeginTest.match(l)
+            isEnd = plEndTest.match(l)
+            isComment = plComment.match(l)
+
+            if isStart:
+                testname = isStart.group(1)
+                initlines += [l for l in lines if l.strip()]
+                lines = [l]
+                comments = []
+
+            elif isEnd:
+                lines.append(l)
+
+                # Create test file
+                with open(self.testfile, 'w') as out:
+                    out.writelines(initlines)
+                    out.writelines(lines)
+                
+                ctx = self.doRun(self.testfile, testname, comments,lines)
+                contexts.append(ctx)
+
+                numTests += 1
+                numBad += int(not ctx["accepted"])
+
+                testname = None
+                lines = []
+
+            elif isComment:
+                comments.append(isComment.group(1))
+                lines.append(l)
+
+            else:
+                lines.append(l)
+
+        return {
+            "badgeCount": numBad,
+            "description": self.tabname,
+            "messages": [{
+                "format": "markdown",
+                "description": plUnitInfo[self.lang].format(
+                    numtests=numTests, 
+                    failed=numBad)
+            }],
+            "groups": contexts
+        }
+
+
+    def doRun(self, filename, testname, comments, code):
+
+        def oh(stdout, stderr, testname, scriptfile, config, timeout):
+            """Output handler"""
+            testcases = []
+            if timeout:
+                testcases.append({
+                    "accepted": False,
+                    "description": "Timeout " + testname,
+                    "messages": [{"format": "code", "description": "The test timed out!\n\nstdOut:\n" + ("".join(stdout))}]
+                })    
+
+
+            testcases += checkErrors(stderr, testname)
+
+            return testcases
+
+        testcases = swipl(
+            scriptfile=filename,
+            testname=testname,
+            goal="run_tests",
+            outputHandler=oh,
+            timeout=1,
+            config=self.config
+        )
+
+        messages = [{"format": "plain", "description": c} for c in comments]
+        messages.append({
+            "format":"code",
+            "description": "".join(code[1:-1])
+        })
+        if len(testcases) == 0:
+            context = {
+                "accepted": True,
+                "description": {"format": "plain", "description": testname + ": Passed"},
+                "messages": messages,
+                "groups": [{"accepted": True, "description": "Ok"}]
+            }
+
+        else:
+            context = {
+                "accepted": False,
+                "description": {"format": "plain", "description": testname + ": Failed"},
+                "messages": messages,
+                "groups": testcases
+            }
+
+        return context
