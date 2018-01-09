@@ -39,11 +39,16 @@ def analyse(errorType, data, errors):
         data {list(str)} -- a list of lines of info
         errors {list(dict)} -- list to append to
     """
-    if not (errorType is None or len(data) == 0):
+    if errorType is None:
+        errorType = "compilation"
+    if len(data) > 0:
         n = '\n'
         d = n.join(data)
-        a = {"accepted": False, "description": errorType, "messages": [
-            {"format": "code", "description": d, "permission": "student"}]}
+        a = {
+            "accepted": False, 
+            "description": errorType, 
+            "messages": [{"format": "code", "description": d, "permission": "student"}]
+            }
         errors.append(a)
 
 
