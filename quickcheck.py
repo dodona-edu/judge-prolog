@@ -7,80 +7,90 @@ import subprocess
 from prologError import checkErrors
 
 
-
-
 reProperty = re.compile("(prop_[^(]*)\((.*)\)\s*:-")
 reBody = re.compile("^\s")
 
 reBraces = re.compile("\([^()]*\)")
 
+
 class QuickCheck(object):
-    def __init__(self,config, filename, tabname="QuickTest"):
+    def __init__(self, config, filename, tabname="QuickTest"):
         self.config = config
         self.tabname = tabname
         self.timeout = 1
         self.bufsize = 2500
+        self.numlines = 250
 
-        
         # Read input
         data = [l for l in fileinput.input(filename)]
         fileinput.close()
 
         # get property definitions
         self.properties = {}
-        startLine  = 0
+        startLine = 0
         curProperty = None
-        for i,l in enumerate(data+["\n"]):
+        for i, l in enumerate(data + ["\n"]):
             isProp = reProperty.match(l)
             if isProp:
                 startLine = i
-                curProperty = "{}/{}".format(isProp.group(1), countArgs(isProp.group(2)))
+                curProperty = "{}/{}".format(isProp.group(1),
+                                             countArgs(isProp.group(2)))
             elif len(l.strip()) == 0 and curProperty is not None:
                 if curProperty in self.properties:
                     self.properties[curProperty] += data[startLine:i]
                 else:
                     self.properties[curProperty] = data[startLine:i]
                 curProperty = None
-        
 
         # Make a new testfile that consults the users solution
         # TODO: just make a file with multiple consults (user code and test code)
-        self.testfileName = filename+".extended.pl"
+        self.testfileName = filename + ".extended.pl"
         with open(self.testfileName, "w") as f2:
             f2.write(':- consult("{}").\n'.format(config["source"]))
             for line in data:
                 f2.write(line)
-
 
     def doTest(self):
         totalNumBad = 0
         contexts = []
         for testname in self.properties:
             testcases = self.run(testname)
-            numBad = sum([not t["accepted"] for t in testcases])
+            numBad = sum([not t["accepted"]
+                          for t in testcases if "accepted" in t])
+
             if numBad == 0:
                 context = {
                     "accepted": True,
                     "description": testname,
-                    "groups": testcases
+                    "groups": testcases,
+                    "messages": [{
+                        "format": "code",
+                        "description": "".join(self.properties[testname]),
+                        "permission": "student"
+                    }]
                 }
             else:
                 context = {
                     "accepted": False,
                     "description": testname,
-                    "groups": testcases
+                    "groups": testcases,
+                    "messages": [{
+                        "format": "code",
+                        "description": "".join(self.properties[testname]),
+                        "permission": "student"
+                    }]
                 }
             contexts.append(context)
             totalNumBad += numBad
 
         return {"badgeCount": totalNumBad, "description": self.tabname, "messages": [], "groups": contexts}
 
-    def run(self,testname):
+    def run(self, testname):
         testcases = []
         a = subprocess.Popen(
             ['swipl', '-s', self.testfileName, '-q',
                 '-t', "quickcheck({})".format(testname),
-                '-f', self.config["judge"]+'/quicktest/quickcheck.pl',
+                '-f', self.config["judge"] + '/quicktest/quickcheck.pl',
                 '+tty',
                 '--nosignals'],
             stderr=subprocess.PIPE,
@@ -90,17 +100,19 @@ class QuickCheck(object):
         try:
             a.wait(timeout=self.timeout)
             testcases.append(self.checkOutput(a.stdout, testname))
-            testcases += checkErrors(a.stderr.read(self.bufsize).decode("utf-8").splitlines(),testname)
+            testcases += checkErrors(a.stderr.read(
+                self.bufsize).decode("utf-8").splitlines(), testname)
         except subprocess.TimeoutExpired:
             a.terminate()
             resOut = a.stdout.read(self.bufsize).decode("utf-8")
-            testcases += checkErrors(a.stderr.read(self.bufsize).decode("utf-8").splitlines(),testname)
+            testcases += checkErrors(a.stderr.read(
+                self.bufsize).decode("utf-8").splitlines(), testname)
 
             testcases.append({
-                "accepted": False, 
+                "accepted": False,
                 "description": "Timeout " + testname,
                 "messages": [{"format": "code", "description": "stdOut:\n" + resOut, "permission": "student"}]
-                })
+            })
         a.stderr.close()
         a.stdout.close()
         return testcases
@@ -130,11 +142,10 @@ class QuickCheck(object):
         return {
             "accepted": False,
             "description": "Counter example",
-            "messages": [{"format": "markdown", "description": "De waarde\n\n ```prolog\n{}\n```\n\n faalt\n\n```prolog\n{}```".format(counterexample.strip(),"".join(self.properties[testname])), "permission": "student"}]
+            "messages": [{"format": "code", "description": counterexample.strip(), "permission": "student"}]
         }
 
-
-    def checkSuccesOutput(self,lines):
+    def checkSuccesOutput(self, lines):
         """ Simple parser to parse
         -DODONA-PASS-
         -DODONA-TEST-
@@ -156,12 +167,12 @@ class QuickCheck(object):
             "description": "{} Tests passed".format(numtests)
         }
 
-
-    def checkOutput(self,out, testname):
-        lines = iter(out.readlines())
+    def checkOutput(self, out, testname):
+        data = out.readlines(self.numlines)
+        lines = iter(data)
         notmatched = []
         try:
-            for i in range(0, 250):
+            while True:
                 line = next(lines)
                 if line == b'-DODONA-FAIL-\n':
                     return self.checkFailOutput(lines)
@@ -169,12 +180,24 @@ class QuickCheck(object):
                     return self.checkSuccesOutput(lines)
                 notmatched.append(line.decode("utf-8").strip())
         except StopIteration:
-            pass
+            return {
+                "accepted": False,
+                "description": "Out of lines",
+                "messages": [{
+                    "format": "code",
+                    "description": "s" + "".join(data),
+                    "permission": "student"}]
+            }
         except AssertionError:
-            return {"accepted": False, "description": "Could not parse results", "messages": [{"format": "text", "description": "The output of our tests were badly formated, please contact the assistent.", "permission": "student"}]}
-
-        return {"accepted": False, "description": "Could not execute test"}
-        
+            return {
+                "accepted": False,
+                "description": "Could not parse results",
+                "messages": [{
+                    "format": "plain",
+                    "description": "The output of our tests were badly formated, please contact the assistent.",
+                    "permission": "student"
+                }]
+            }
 
 
 def countArgs(params):
@@ -188,4 +211,3 @@ def countArgs(params):
         elif c == ',' and depth == 0:
             commas += 1
     return commas + 1
-

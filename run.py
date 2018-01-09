@@ -52,3 +52,4 @@ for f in os.listdir(home):
 numBad = sum([t["badgeCount"] for t in tabs])
 feedback = {"accepted":numBad == 0, "groups":tabs, "status":"correct answer" if numBad == 0 else "wrong answer","description":str(numBad)+" errors"}
 print(json.dumps(feedback,indent=2, separators=(',', ': ')))
+#exit(6)

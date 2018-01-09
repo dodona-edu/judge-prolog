@@ -130,8 +130,7 @@ shrink_example(Depth0, Module, Property, Values, Example) :-
     !,
     Depth is Depth0 + 1,
     shrink_example(Depth, Module, Property, Shrunk, Example).
-% shrink_example(Depth,_,_,Example, Example) :-
-%    warn("Shrinking to depth ~d", [Depth]).
+shrink_example(_,_,_,Example, Example).
 
 
 warn(Format,Args) :-
