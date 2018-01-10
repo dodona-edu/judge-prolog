@@ -156,10 +156,10 @@ class PLUnit(object):
         )
 
         messages = [{"format": "plain", "description": c} for c in comments]
-        messages.append({
-            "format":"code",
-            "description": "".join(code[1:-1])
-        })
+        #messages.append({
+        #    "format":"code",
+        #    "description": "".join(code[1:-1])
+        #})
         if len(testcases) == 0:
             context = {
                 "accepted": True,
