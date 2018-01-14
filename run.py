@@ -8,6 +8,7 @@ import sys
 import json
 from plunit import PLUnit
 from quickcheck import QuickCheck
+from simpltest import SimpleTest
 
 words = {
     "en" : {"correct":"correct"}
@@ -35,9 +36,11 @@ tests = []
 for f in os.listdir(home):
     test = None
     if f.endswith(".unit.pl"):
-        test = PLUnit(config, os.path.join(home, f), f.replace(".unit.pl", ""))
+        test = PLUnit(config, os.path.join(home, f), "PL"+f.replace(".unit.pl", ""))
     elif f.endswith(".qc.pl"):
-        test = QuickCheck(config, os.path.join(home, f), f.replace(".qc.pl", ""))
+        test = QuickCheck(config, os.path.join(home, f), "QC"+f.replace(".qc.pl", ""))
+    elif f.endswith(".simple.pl"):
+        test = SimpleTest(config, os.path.join(home, f), "ST"+f.replace(".simple.pl", ""))
     else:
         continue
     tests.append(test)
@@ -46,9 +49,9 @@ tabs = [t.getResult() for t in tests]
 numBad = sum([t["badgeCount"] for t in tabs])
 accepted = all([t["badgeCount"] == 0 for t in tabs])
 feedback = {
-    "accepted": accepted, 
-    "groups": tabs, 
-    "status": "correct answer" if numBad == 0 else "wrong answer", 
+    "accepted": accepted,
+    "groups": tabs,
+    "status": "correct answer" if numBad == 0 else "wrong answer",
     "description": "issues({}).".format(numBad) if numBad > 0 else "true."
     }
 print(json.dumps(feedback, indent=2, separators=(',', ': ')))

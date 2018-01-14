@@ -9,7 +9,7 @@ selfCheckInfo = {
 
 Hieronder zie je de de verwachte en uitgekomen output. Het inferentielimiet was {inferencelimit} en choisepoints waren {cpallowd} toegelaten. 
 """,
-    "en": """**Quckcheck** checked  **{numtests} predicates** over your code, **{failed}** of which failed. 
+    "en": """We checked  **{numtests} facts**, **{failed}** had a different result.
 
 The results are below the inference limit was {inferencelimit} and choisepoint were {cpallowd}.
 """
@@ -58,8 +58,6 @@ class SimpleTest(object):
             return "Simplecheck: {} issues".format(res["badgeCount"])
 
     def _doTest(self):
-        failedTest = 0
-
         def oh(stdout, stderr, testname, scriptfile, config, timeout):
             testcases = []
             if timeout:
@@ -94,7 +92,7 @@ class SimpleTest(object):
             except json.decoder.JSONDecodeError:
                 res = None
 
-        resultContext = self._mkResultContext(res)
+        resultContext,failedTest = self._mkResultContext(res)
 
         return {
             "badgeCount": failedTest,
@@ -116,6 +114,7 @@ class SimpleTest(object):
         if res is not None:
             tests = [
                 {
+                    "description" : {"format": "code", "description": t["term"]},
                     "generated":str(t["got"]),
                     "expected":str(t["expected"]),
                     "accepted":str(t["got"]) == str(t["expected"])
@@ -123,15 +122,16 @@ class SimpleTest(object):
                 for t in res["result"]
             ]
 
+            numBad = sum([not t["accepted"] for t in tests])
             return {
-                "accepted": False,
+                "accepted": numBad == 0,
                 "description": "Test results",
                 "groups":[{
                     "accepted": False,
                     "description": " test",
                     "tests": tests
                 }]
-            }
+            }, numBad
         else:
             return {
                 "accepted": False,
@@ -146,12 +146,8 @@ class SimpleTest(object):
     def _mkOutputContext(self, testcases):
         return {
             "accepted": len(testcases) == 0,
-            "description": "Std error",
+            "description": "Problems shown in standard error",
             "groups": testcases,
-            "messages": [{
-                "format": "code",
-                "description": "Error stuff"
-            }]
         }
 
 
