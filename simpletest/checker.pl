@@ -45,44 +45,42 @@ verified(_, _, Limit, AllowCP, [], Result) :-
 
 % Checks what the result is of the correct code
 verified(ImplOk, ImplStud, Limit, AllowCP, [Arg|RemArgs], Result) :-
-    ignore(setup_call_catcher_cleanup(true,
+    ignore(catch(setup_call_catcher_cleanup(true,
         call_with_inference_limit(
                 apply(ImplOk,Arg),
                 Limit,
                 LimitResult),
         Caught,
         (
-            mkresult(Caught, _, LimitResult, Smry), 
+            mkresult(Caught, LimitResult, Smry), 
             verified_student(Smry, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Result)
-        ))),
+        )),_,true)),
     true.
 
 % checks the result of the students code
 % Extra catches required
 verified_student(Expected, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Result) :-
-    ignore(setup_call_catcher_cleanup(true,
-        call_with_inference_limit(
-                catch(apply(ImplStud,Arg), error(CaughtEception,_), true),
+    ignore(catch(setup_call_catcher_cleanup(true,
+            call_with_inference_limit(
+                apply(ImplStud,Arg),
                 Limit,
                 LimitResult),
         Caught,
         (
             H=..[ImplStud|Arg], swritef(C, '%q', [H]), 
-            mkresult(Caught, CaughtEception, LimitResult, Smry), 
+            mkresult(Caught, LimitResult, Smry), 
             verified(ImplOk, ImplStud, Limit, AllowCP, RemArgs, 
-                [res{expected:Expected, got:Smry, term:C}|Result]
-        )))),
+                [res{expected:Expected, got:Smry, term:C}|Result]),
+            true
+        )),_,true)),
     true.
 
 
 % Format a testresult that is JSON stringifiable
-mkresult(Catched, Exception, LimitResult, Summary) :-
-    (   ground(Exception)
-    ->  swritef(ExceptionStr, '%q', [Exception])
-    ;   ExceptionStr=null
-    ),
+mkresult(Catched, LimitResult, Summary) :-
     (   ground(LimitResult)
     ->  swritef(LimitStr, '%q', [LimitResult])
     ;   LimitStr=null
     ),
-    Summary=testres{exception:ExceptionStr, limitresult:LimitStr, returncode:Catched}.
+    swritef(CatchedStr, '%q', [Catched]),
+    Summary=testres{limitresult:LimitStr, returncode:CatchedStr}.
