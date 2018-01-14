@@ -86,11 +86,15 @@ class SimpleTest(object):
         cpallowd = False
         inferencelimit = None
         with open(self.config["workdir"]+"/result.json",'r') as f:
-            res = json.load(f)
-            results = res["result"]
-            cpallowd = res["allowcp"] == "true"
-            inferencelimit = res["inferencelimit"]
-            resultContext = self._mkResultContext(res)
+            try:
+                res = json.load(f)
+                results = res["result"]
+                cpallowd = res["allowcp"] == "true"
+                inferencelimit = res["inferencelimit"]
+            except json.decoder.JSONDecodeError:
+                res = None
+
+        resultContext = self._mkResultContext(res)
 
         return {
             "badgeCount": failedTest,
@@ -109,24 +113,34 @@ class SimpleTest(object):
 
     def _mkResultContext(self,res):
 
-        tests = [
-            {
-                "generated":str(t["got"]),
-                "expected":str(t["expected"]),
-                "accepted":str(t["got"]) == str(t["expected"])
-            }
-            for t in res["result"]
-        ]
+        if res is not None:
+            tests = [
+                {
+                    "generated":str(t["got"]),
+                    "expected":str(t["expected"]),
+                    "accepted":str(t["got"]) == str(t["expected"])
+                }
+                for t in res["result"]
+            ]
 
-        return {
-            "accepted": False,
-            "description": "Test results",
-            "groups":[{
+            return {
                 "accepted": False,
-                "description": " test",
-                "tests": tests
-            }]
-        }
+                "description": "Test results",
+                "groups":[{
+                    "accepted": False,
+                    "description": " test",
+                    "tests": tests
+                }]
+            }
+        else:
+            return {
+                "accepted": False,
+                "description": "Test results",
+                "messages": [{
+                    "format": "markdown",
+                    "description": "no results"
+                }],
+            }
 
 
     def _mkOutputContext(self, testcases):

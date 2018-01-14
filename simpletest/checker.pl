@@ -3,9 +3,8 @@
           ]).
 
 % I don't realy know why I've put these here anymore
-:- set_prolog_flag(report_error, false).
 :- set_prolog_flag(unknown, error). 
-
+:- set_prolog_flag(report_error, true).
 % Print a one line trace in case an error occurs
 % (More messes with the inference limit)
 :- use_module(library(prolog_stack)).
@@ -47,12 +46,12 @@ verified(_, _, Limit, AllowCP, [], Result) :-
 verified(ImplOk, ImplStud, Limit, AllowCP, [Arg|RemArgs], Result) :-
     ignore(catch(setup_call_catcher_cleanup(true,
         call_with_inference_limit(
-                apply(ImplOk,Arg),
+                catch(apply(ImplOk,Arg),Exception,true),
                 Limit,
                 LimitResult),
         Caught,
         (
-            mkresult(Caught, LimitResult, Smry), 
+            mkresult(Caught, LimitResult,Exception, Smry), 
             verified_student(Smry, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Result)
         )),_,true)),
     true.
@@ -60,23 +59,56 @@ verified(ImplOk, ImplStud, Limit, AllowCP, [Arg|RemArgs], Result) :-
 % checks the result of the students code
 % Extra catches required
 verified_student(Expected, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Result) :-
-    ignore(catch(setup_call_catcher_cleanup(true,
+    ignore(setup_call_catcher_cleanup(true,
             call_with_inference_limit(
-                apply(ImplStud,Arg),
+                catch(apply(ImplStud,Arg),Exception,true),
                 Limit,
                 LimitResult),
         Caught,
         (
             H=..[ImplStud|Arg], swritef(C, '%q', [H]), 
-            mkresult(Caught, LimitResult, Smry), 
+            mkresult(Caught, LimitResult, Exception, Smry), 
             verified(ImplOk, ImplStud, Limit, AllowCP, RemArgs, 
                 [res{expected:Expected, got:Smry, term:C}|Result]),
             true
-        )),_,true)),
+        ))),
     true.
 
 
 % Format a testresult that is JSON stringifiable
+
+
+mkresult(_, _,error(Exception,Context),Summary) :- ground(Exception),!,
+    swritef(Summary, '%q in %q', [Exception,Context]).
+
+mkresult(_, _,error(Exception),Summary) :- ground(Exception),!,
+    swritef(Summary, '%q', [Exception]).
+
+mkresult(_, _, Exception, Summary) :- ground(Exception),!,
+    swritef(Summary, '%q', [Exception]).
+
+
+mkresult(Caught, LimitResult,_,Summary) :- !,
+    mkresult(Caught, LimitResult,Summary).
+
+mkresult(exception(Exception),_,Summary) :- !,
+    swritef(Summary, '%q', [Exception]). 
+
+mkresult(external_exception(Exception),_,Summary) :- !,
+    swritef(Summary, '%q', [Exception]). 
+
+mkresult(fail,_,Summary) :- !,
+    swritef(Summary, '%q', [fail]). 
+
+mkresult(exit,!,Summary) :- !,
+    swritef(Summary, '%q', [exit]). 
+
+mkresult(!,true,Summary) :- !,
+    swritef(Summary, '%q', [true]). 
+
+mkresult(_,inference_limit_exceeded, Summary) :- !,
+    swritef(Summary, '%q', [inference_limit_exceeded]). 
+
 mkresult(Catched, LimitResult, Summary) :-
     (   ground(LimitResult)
     ->  swritef(LimitStr, '%q', [LimitResult])
