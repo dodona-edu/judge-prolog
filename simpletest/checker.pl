@@ -25,25 +25,37 @@ user:prolog_exception_hook(Exception, Exception, Frame, _) :-
 % The exported term dotests evaluates all tests in the dodonaevaluate module
 % Todo, allow for multiple statements
 dotests() :-
-    dodonaevaluate:tests(C, S, AllowCP, Limit, L),
-    verified(C, S, Limit, AllowCP, L).
+    findall([Name, ImplOk,ImplStud,AllowCP,Limit,Cases],dodonaevaluate:tests(Name,ImplOk,ImplStud,AllowCP,Limit,Cases),Tests),
+    dotests(Tests).
 
+
+% When everyting is parsed the testresults are the results.
+% All tets are executed and the result is stored in a test_result(Res) using asertz/1.
+% This is needed because backtracking out of setup_call_catcher_cleanup/4 destroys
+% all choisepoints taken in the catcher.
+dotests([]) :-
+    findall(R,test_result(R), Res),
+    open('result.json', write, Stream),
+    json_write(Stream,Res),
+    close(Stream).
+
+
+dotests([[Name, ImplOk,ImplStud,AllowCP,Limit,Cases]|Xs]) :-
+    verified(Name, ImplOk,ImplStud,AllowCP,Limit,Cases),
+    dotests(Xs). 
 
 
 % Start with an empty result list
-verified(ImplOk, ImplStud, Limit, AllowCP, List) :-
-    verified(ImplOk, ImplStud, Limit, AllowCP, List, []).
+verified(Name, ImplOk, ImplStud, AllowCP,Limit, List) :-
+    verified(Name, ImplOk, ImplStud, AllowCP,Limit, List, []).
 
 % When all cases are handled write the result to a file
 :- use_module(library(http/json)).
-verified(_, _, Limit, AllowCP, [], Result) :-
-    open('result.json', write, Stream),
-    json_write(Stream,
-               res{allowcp:AllowCP, inferencelimit:Limit, result:Result}),
-    close(Stream).
+verified(Name, _, _, AllowCP,Limit, [], Result) :-
+    assertz(test_result(res{name: Name,allowcp:AllowCP, inferencelimit:Limit, result:Result})).
 
 % Checks what the result is of the correct code
-verified(ImplOk, ImplStud, Limit, AllowCP, [Arg|RemArgs], Result) :-
+verified(Name, ImplOk, ImplStud, AllowCP,Limit, [Arg|RemArgs], Result) :-
     ignore(catch(setup_call_catcher_cleanup(true,
         call_with_inference_limit(
                 catch(apply(ImplOk,Arg),Exception,true),
@@ -52,12 +64,12 @@ verified(ImplOk, ImplStud, Limit, AllowCP, [Arg|RemArgs], Result) :-
         Caught,
         (
             mkresult(Caught, LimitResult,Exception, Smry), 
-            verified_student(Smry, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Result)
+            verified_student(Smry, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, Result)
         )),_,true)).
 
 % checks the result of the students code
 % Extra catches required
-verified_student(Expected, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Result) :-
+verified_student(Expected, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, Result) :-
     ignore(setup_call_catcher_cleanup(true,
             call_with_inference_limit(
                 catch(apply(ImplStud,Arg),Exception,true),
@@ -67,7 +79,7 @@ verified_student(Expected, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Resul
         (
             H=..[ImplStud|Arg], swritef(C, '%q', [H]), 
             mkresult(Caught, LimitResult, Exception, Smry), 
-            verified(ImplOk, ImplStud, Limit, AllowCP, RemArgs, 
+            verified(Name, ImplOk, ImplStud, AllowCP,Limit, RemArgs, 
                 [res{expected:Expected, got:Smry, term:C}|Result])
         ))).
 

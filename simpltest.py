@@ -7,11 +7,11 @@ from prologGeneral import checkErrors, swipl
 selfCheckInfo = {
     "nl": """Jou feiten vergeleken met onze feiten op {numtests} gevallen, hievan waren er **{failed}** niet iedentiek. 
 
-Hieronder zie je de de verwachte en uitgekomen output. Het inferentielimiet was {inferencelimit} en choisepoints waren {cpallowd} toegelaten. 
+Hieronder zie je de de verwachte en uitgekomen output. 
 """,
     "en": """We checked  **{numtests} facts**, **{failed}** had a different result.
 
-The results are below the inference limit was {inferencelimit} and choisepoint were {cpallowd}.
+The results are below.
 """
 }
 
@@ -86,13 +86,10 @@ class SimpleTest(object):
         with open(self.config["workdir"]+"/result.json",'r') as f:
             try:
                 res = json.load(f)
-                results = res["result"]
-                cpallowd = res["allowcp"] == "true"
-                inferencelimit = res["inferencelimit"]
             except json.decoder.JSONDecodeError:
                 res = None
 
-        resultContext,failedTest = self._mkResultContext(res)
+        resultContexts,numtests, failedTest = self._mkResultContext(res)
 
         return {
             "badgeCount": failedTest,
@@ -100,47 +97,50 @@ class SimpleTest(object):
             "messages": [{
                 "format": "markdown",
                 "description": selfCheckInfo[self.lang].format(
-                    numtests=12,
-                    failed=failedTest,
-                    inferencelimit=1000,
-                    cpallowd=True
+                    numtests=numtests,
+                    failed=failedTest
                 )
             }],
-            "groups": [resultContext,outputContext]
+            "groups": resultContexts + [outputContext]
         }
 
     def _mkResultContext(self,res):
+        numBadTotal = 0
+        numTests = 0
+        contexts = []
+        for curResult in res:
+            if res is not None:
+                tests = [
+                    {
+                        "description" : {"format": "code", "description": t["term"]},
+                        "generated":str(t["got"]),
+                        "expected":str(t["expected"]),
+                        "accepted":str(t["got"]) == str(t["expected"])
+                    }
+                    for t in curResult["result"]
+                ]
 
-        if res is not None:
-            tests = [
-                {
-                    "description" : {"format": "code", "description": t["term"]},
-                    "generated":str(t["got"]),
-                    "expected":str(t["expected"]),
-                    "accepted":str(t["got"]) == str(t["expected"])
-                }
-                for t in res["result"]
-            ]
-
-            numBad = sum([not t["accepted"] for t in tests])
-            return {
-                "accepted": numBad == 0,
-                "description": "Test results",
-                "groups":[{
+                numBad = sum([not t["accepted"] for t in tests])
+                numBadTotal += numBad
+                numTests += len(tests)
+                contexts.append({
+                    "accepted": numBad == 0,
+                    "groups":[{
+                        "description": "Test results " + curResult["name"],
+                        "accepted": numBad == 0,
+                        "tests": tests
+                    }]
+                })
+            else:
+                contexts.append({
                     "accepted": False,
-                    "description": " test",
-                    "tests": tests
-                }]
-            }, numBad
-        else:
-            return {
-                "accepted": False,
-                "description": "Test results",
-                "messages": [{
-                    "format": "markdown",
-                    "description": "no results"
-                }],
-            }
+                    "description": "Test results",
+                    "messages": [{
+                        "format": "markdown",
+                        "description": "no results"
+                    }],
+                })
+        return contexts, numTests, numBadTotal
 
 
     def _mkOutputContext(self, testcases):
