@@ -1,5 +1,6 @@
 import re
 import subprocess
+import sys
 
 testfileName = '/tmp/tmp-testfile.pl'
 
@@ -113,7 +114,6 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
         bufsize).decode("utf-8")).splitlines(True)
     a.stderr.close()
     a.stdout.close()
-
     testcases += outputHandler(
         stdout=resStdOut,
         stderr=resStdErr,
