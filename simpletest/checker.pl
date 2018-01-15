@@ -53,8 +53,7 @@ verified(ImplOk, ImplStud, Limit, AllowCP, [Arg|RemArgs], Result) :-
         (
             mkresult(Caught, LimitResult,Exception, Smry), 
             verified_student(Smry, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Result)
-        )),_,true)),
-    true.
+        )),_,true)).
 
 % checks the result of the students code
 % Extra catches required
@@ -69,10 +68,8 @@ verified_student(Expected, ImplOk, ImplStud, Limit, AllowCP, Arg, RemArgs, Resul
             H=..[ImplStud|Arg], swritef(C, '%q', [H]), 
             mkresult(Caught, LimitResult, Exception, Smry), 
             verified(ImplOk, ImplStud, Limit, AllowCP, RemArgs, 
-                [res{expected:Expected, got:Smry, term:C}|Result]),
-            true
-        ))),
-    true.
+                [res{expected:Expected, got:Smry, term:C}|Result])
+        ))).
 
 
 % Format a testresult that is JSON stringifiable
