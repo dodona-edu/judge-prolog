@@ -1,7 +1,8 @@
 import fileinput
 import re
 import json
-from prologGeneral import checkErrors, swipl
+import random
+from prologGeneral import checkErrors, swipl, removeMountDir
 
 
 selfCheckInfo = {
@@ -15,6 +16,32 @@ The results are below.
 """
 }
 
+hiddenRowInfo = {
+    "nl" : {
+        True : "*{num}* andere *geslaagde* testen worden niet getoond.",
+        False: "*{num}* andere *gefaalde* testen worden niet getoond."
+    },
+    "en" : {
+        True : "Another *{num} succeeded* tests are not listed.",
+        False: "Another *{num} failed* tests are not listed."
+    }
+}
+
+
+testResultsInfo = {
+    "nl" : '### Testresultaten voor "*{name}*"',
+    "en" : '### Test results for "*{name}*"'
+}
+
+stdErrInfo = {
+    "nl" : "### Output was niet leeg",
+    "en" : "### Output was not empty",
+}
+
+syntaxInfo = {
+    "nl" : "### Syntax fouten",
+    "en" : "### syntax errors",
+}
 
 # consult line regexp
 # %- consult public file
@@ -23,6 +50,7 @@ The results are below.
 # %- consult private [file,file]
 consultRe = re.compile(r"^%-\s+consult\s+(public|private)\s+(\[\s*(\"([^\"]|\\\")+\"\s*,\s*)*\"([^\"]|\\\")+\"\s*\]|(\"([^\"]|\\\")+\")+)\s*\.\s*$")
 
+NUM_SHOW = {True: 5, False: 20}
 
 class SimpleTest(object):
     def __init__(self, config, filename, tabname="QuickCheck"):
@@ -89,6 +117,21 @@ class SimpleTest(object):
                 })
 
             testcases += checkErrors(stderr, testname)
+
+            if stderr:
+                testcases.append({
+                    "accepted": False,
+                    "description": "Stderr ",
+                    "messages": [{"format": "code", "description": removeMountDir("".join(stderr))}]
+                })
+
+            if stdout:
+                testcases.append({
+                    "accepted": False,
+                    "description": "Stdout ",
+                    "messages": [{"format": "code", "description": removeMountDir("".join(stderr))}]
+                })
+
             return testcases
 
         outputContext = self._mkOutputContext(swipl(
@@ -126,35 +169,58 @@ class SimpleTest(object):
                     failed=failedTest
                 )
             }],
-            "groups": resultContexts + [outputContext]
+            "groups": outputContext+resultContexts
         }
 
-    def _mkResultContext(self,res):
+    def translate(self,text,result):
+        translations = {
+            "exit" :  "true.",
+            "fail" :  "false.",
+            "true" :  "true; (checkpoints remaining)",
+            "inference_limit_exceeded" :  "Exceeded inference limit of {}".format(result["inferencelimit"]),
+        }
+
+        if(text in translations):
+            return translations[text]
+        else:
+            return text
+
+    def _mkResultContext(self, res):
         numBadTotal = 0
         numTests = 0
         contexts = []
         if res is not None:
             for curResult in res:
-                tests = [
-                    {
-                        "description" : {"format": "code", "description": t["term"]},
-                        "generated":str(t["got"]),
-                        "expected":str(t["expected"]),
-                        "accepted":str(t["got"]) == str(t["expected"])
-                    }
-                    for t in curResult["result"]
-                ]
+                numBad = 0
+                tests = {True:[] , False:[]}
+                
+                for t in curResult["result"]:
+                    accepted = str(t["got"]) == str(t["expected"])
+                    if not accepted:
+                        numBad += 1
+                    tests[accepted].append(
+                        {
+                            "description":  {
+                                "format": "code", 
+                                "description": t["term"]+"."
+                                },
+                            "accepted": accepted,
+                            "tests": [{
+                                "generated": self.translate(t["got"],curResult),
+                                "expected":self.translate(t["expected"],curResult),
+                                "accepted":accepted
+                            }]
+                        }
+                    )
 
-                numBad = sum([not t["accepted"] for t in tests])
+                self.limitTests(tests)
+
                 numBadTotal += numBad
-                numTests += len(tests)
+                numTests += len(curResult["result"])
                 contexts.append({
                     "accepted": numBad == 0,
-                    "groups":[{
-                        "description": "Test results " + curResult["name"],
-                        "accepted": numBad == 0,
-                        "tests": tests
-                    }]
+                    "description": {"format": "markdown", "description":testResultsInfo[self.lang].format(name = curResult["name"])},
+                    "groups": tests[False] + tests[True],
                 })
         else:
             contexts.append({
@@ -169,13 +235,40 @@ class SimpleTest(object):
 
 
     def _mkOutputContext(self, testcases):
-        return {
-            "accepted": len(testcases) == 0,
-            "description": "Problems shown in standard error",
-            "groups": testcases,
-        }
+        if testcases:
+            syntaxErrors = [t for t in testcases if ": Syntax error:" in t["messages"][0]["description"] and t["description"] == "ERROR"]
+            if(syntaxErrors):
+                return [{
+                "accepted": False,
+                "description": {
+                    "format": "markdown", "description": syntaxInfo[self.lang]
+                },
+                "groups": syntaxErrors,
+                }]
+            else:
+                return [{
+                    "accepted": len(testcases) == 0,
+                    "description": {
+                        "format": "markdown", "description": stdErrInfo[self.lang]
+                    },
+                    "groups": testcases,
+                }]
+        else:
+            return []
 
 
+
+    def limitTests(self, tests):
+        for t in [True, False]:
+            if len(tests[t]) >  NUM_SHOW[t] + 1:
+                tests[t] = random.sample(tests[t], NUM_SHOW[t]) + [{
+                    "description":  {
+                        "format": "markdown",
+                        "description": hiddenRowInfo[self.lang][t].format(num=len(tests[t]) - NUM_SHOW[t])
+                    },
+                    "accepted": t,
+                }]  
+    
 
 if __name__ == '__main__':
     t = SimpleTest({

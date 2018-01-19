@@ -25,8 +25,11 @@ def removePath(s: str, testname:str):
         str -- The cleaned text 
     """
 
-    return re.sub(plMountdir, "", re.sub(plTestfile, "", s)).replace("plunit_" + testname + ":", "")
+    return re.sub(plTestfile, "", removeMountDir(s)).replace("plunit_" + testname + ":", "")
 
+
+def removeMountDir(s: str):
+    return re.sub(plMountdir, "", s)
 
 def analyse(errorType, data, errors):
     """Adds errors to the error array
