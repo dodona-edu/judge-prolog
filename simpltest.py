@@ -15,6 +15,15 @@ The results are below.
 """
 }
 
+
+# consult line regexp
+# %- consult public file
+# %- consult private file
+# %- consult public [file,file]
+# %- consult private [file,file]
+consultRe = re.compile(r"^%-\s+consult\s+(public|private)\s+(\[\s*(\"([^\"]|\\\")+\"\s*,\s*)*\"([^\"]|\\\")+\"\s*\]|(\"([^\"]|\\\")+\")+)\s*\.\s*$")
+
+
 class SimpleTest(object):
     def __init__(self, config, filename, tabname="QuickCheck"):
         self.config = config
@@ -25,20 +34,32 @@ class SimpleTest(object):
         self.lang = config["natural_language"]
         self.result = None
 
+        consults = {"public": [], "private":[]}
         # Read input
-        data = [l for l in fileinput.input(filename)]
+        for l in fileinput.input(filename):
+            l.strip()
+            isConsult  = consultRe.match(l)
+            if(isConsult):
+                consults[isConsult.group(1)].append(isConsult.group(2))
+            
+
         fileinput.close()
 
         # Make a new testfile that consults the users solution
         # and the check file
         self.testfileName = filename + ".extended.pl"
         
-
         with open(self.testfileName, "w") as f2:
+
+            for c in consults["public"]:
+                f2.write(':- consult({}).\n'.format(c))
+            for c in consults["private"]:
+                f2.write(':- consult({}{}).\n'.format(config["resources"],c))
+
             f2.write("""
         :- use_module("{judgePath}/simpletest/checker.pl").
         :- consult("{sumbissionPath}").
-        :- load_files("{testfile}",[module(dodonaevaluate)]).
+        :- use_module("{testfile}").
         """.format(
             judgePath = config["judge"],
             sumbissionPath = config["source"],
@@ -83,11 +104,15 @@ class SimpleTest(object):
         results = []
         cpallowd = False
         inferencelimit = None
-        with open(self.config["workdir"]+"/result.json",'r') as f:
-            try:
-                res = json.load(f)
-            except json.decoder.JSONDecodeError:
-                res = None
+        res = None
+        try:
+            with open(self.config["workdir"]+"/result.json",'r') as f:
+                try:
+                    res = json.load(f)
+                except json.decoder.JSONDecodeError:
+                    pass
+        except IOError:
+            pass
 
         resultContexts,numtests, failedTest = self._mkResultContext(res)
 
@@ -108,8 +133,8 @@ class SimpleTest(object):
         numBadTotal = 0
         numTests = 0
         contexts = []
-        for curResult in res:
-            if res is not None:
+        if res is not None:
+            for curResult in res:
                 tests = [
                     {
                         "description" : {"format": "code", "description": t["term"]},
@@ -131,15 +156,15 @@ class SimpleTest(object):
                         "tests": tests
                     }]
                 })
-            else:
-                contexts.append({
-                    "accepted": False,
-                    "description": "Test results",
-                    "messages": [{
-                        "format": "markdown",
-                        "description": "no results"
-                    }],
-                })
+        else:
+            contexts.append({
+                "accepted": False,
+                "description": "Test results",
+                "messages": [{
+                    "format": "markdown",
+                    "description": "no results"
+                }],
+            })
         return contexts, numTests, numBadTotal
 
 

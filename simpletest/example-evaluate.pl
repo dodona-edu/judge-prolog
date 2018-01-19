@@ -1,3 +1,4 @@
+%- consult database.pl
 :- module(dodonaevaluate, [tests/5]).
 
 correct(3,4).

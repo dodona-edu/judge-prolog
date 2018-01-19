@@ -11,3 +11,7 @@ $DIR/../run <<HERE
     "programming_language":"prolog"
 }
 HERE
+
+cd $DIR/..
+find -iname "*.extended.pl" -exec rm "{}" \; ; rm test/ex/workdir/result.json
+cd -
