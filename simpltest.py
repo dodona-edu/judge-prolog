@@ -190,12 +190,19 @@ class SimpleTest(object):
         numTests = 0
         contexts = []
         if res is not None:
+
             for curResult in res:
+                if curResult["allowcp"]:
+                    transformer = lambda x: "exit" if x == "true" else x
+                else:
+                    transformer = lambda x: x
                 numBad = 0
                 tests = {True:[] , False:[]}
                 
                 for t in curResult["result"]:
-                    accepted = str(t["got"]) == str(t["expected"])
+                    got = transformer(t["got"])
+                    expected = transformer(t["expected"])
+                    accepted = str(got) == str(expected)
                     if not accepted:
                         numBad += 1
                     tests[accepted].append(
@@ -206,8 +213,8 @@ class SimpleTest(object):
                                 },
                             "accepted": accepted,
                             "tests": [{
-                                "generated": self.translate(t["got"],curResult),
-                                "expected":self.translate(t["expected"],curResult),
+                                "generated": self.translate(got,curResult),
+                                "expected":self.translate(expected,curResult),
                                 "accepted":accepted
                             }]
                         }
