@@ -1,17 +1,20 @@
 #!/bin/bash
 DIR="$(dirname $0 | xargs readlink -m)"
+EXDIR="$(dirname $0 | xargs readlink -m)"
+rm -rf /tmp/dodona-test
+mkdir -p /tmp/dodona-test/workdir
+cp $2 /tmp/dodona-test/submission.pl
+cp -r $1/* /tmp/dodona-test
+
 $DIR/../run <<HERE
 {
-    "resources": "$DIR/ex/evaluation",
+    "resources": "/tmp/dodona-test/evaluation",
     "judge": "$DIR/..",
-    "workdir": "$DIR/ex/workdir",
-    "time_limit": 30,
+    "workdir": "/tmp/dodona-test/workdir",
+    "time_limit": 60,
     "memory_limit": 100000000,
-    "source": "$DIR/ex/solution/input.pl",
+    "source": "/tmp/dodona-test/submission.pl",
     "programming_language":"prolog"
 }
 HERE
 
-cd $DIR/..
-find -iname "*.extended.pl" -exec rm "{}" \; ; rm test/ex/workdir/result.json
-cd -
