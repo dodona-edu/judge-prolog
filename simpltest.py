@@ -6,11 +6,11 @@ from prologGeneral import checkErrors, swipl, removeMountDir
 
 
 selfCheckInfo = {
-    "nl": """Jou feiten vergeleken met onze feiten op {numtests} gevallen, hievan waren er **{failed}** niet iedentiek. 
+    "nl": """We roepten controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. 
 
 Hieronder zie je de de verwachte en uitgekomen output. 
 """,
-    "en": """We checked  **{numtests} facts**, **{failed}** had a different result.
+    "en": """We checked  **{numtests} facts**, **{failed}** of them were incorrect.
 
 The results are below.
 """
@@ -40,7 +40,7 @@ stdErrInfo = {
 
 syntaxInfo = {
     "nl" : "### Syntax fouten",
-    "en" : "### syntax errors",
+    "en" : "### Syntax errors",
 }
 
 # consult line regexp
