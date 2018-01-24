@@ -44,10 +44,10 @@ syntaxInfo = {
 }
 
 # consult line regexp
-# %- consult public file
-# %- consult private file
-# %- consult public [file,file]
-# %- consult private [file,file]
+# %- consult public file.
+# %- consult private file.
+# %- consult public [file,file].
+# %- consult private [file,file].
 consultRe = re.compile(r"^%-\s+consult\s+(public|private)\s+(\[\s*(\"([^\"]|\\\")+\"\s*,\s*)*\"([^\"]|\\\")+\"\s*\]|(\"([^\"]|\\\")+\")+)\s*\.\s*$")
 
 NUM_SHOW = {True: 5, False: 20}
@@ -56,7 +56,7 @@ class SimpleTest(object):
     def __init__(self, config, filename, tabname="QuickCheck"):
         self.config = config
         self.tabname = tabname
-        self.timeout = 1
+        self.timeout = 10
         self.bufsize = 2500
         self.numlines = 250
         self.lang = config["natural_language"]
@@ -113,7 +113,7 @@ class SimpleTest(object):
                 testcases.append({
                     "accepted": False,
                     "description": "Timeout " + testname,
-                    "messages": [{"format": "code", "description": "The test timed out (more than 1s)!\n\nstdOut:\n" + ("".join(stdout))}]
+                    "messages": [{"format": "code", "description": "The test timed out (more than "+str(self.timeout)+"s)!\n\nstdOut:\n" + ("".join(stdout))}]
                 })
 
             testcases += checkErrors(stderr, testname)
@@ -122,14 +122,14 @@ class SimpleTest(object):
                 testcases.append({
                     "accepted": False,
                     "description": "Stderr ",
-                    "messages": [{"format": "code", "description": removeMountDir("".join(stderr))}]
+                    "messages": [{"format": "code", "description": "".join(stderr)}]
                 })
 
             if stdout:
                 testcases.append({
                     "accepted": False,
                     "description": "Stdout ",
-                    "messages": [{"format": "code", "description": removeMountDir("".join(stderr))}]
+                    "messages": [{"format": "code", "description": "".join(stdout)}]
                 })
 
             return testcases
@@ -139,7 +139,7 @@ class SimpleTest(object):
             testname="ll",
             goal="dodonacheck:dotests()",
             outputHandler=oh,
-            timeout=5,
+            timeout=self.timeout,
             config=self.config))
         
 
@@ -160,6 +160,7 @@ class SimpleTest(object):
         resultContexts,numtests, failedTest = self._mkResultContext(res)
 
         return {
+            "accepted": all([c["accepted"] for c in outputContext+resultContexts]),
             "badgeCount": failedTest,
             "description": self.tabname,
             "messages": [{
@@ -235,7 +236,7 @@ class SimpleTest(object):
                 "description": "Test results",
                 "messages": [{
                     "format": "markdown",
-                    "description": "no results"
+                    "description": "No results found"
                 }],
             })
         return contexts, numTests, numBadTotal
