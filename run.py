@@ -47,11 +47,28 @@ for f in os.listdir(home):
 
 tabs = [t.getResult() for t in tests]
 numBad = sum([t["badgeCount"] for t in tabs])
-accepted = all([t["badgeCount"] == 0 for t in tabs])
+accepted = all([t["accepted"] for t in tabs])
+
+description = "issues({}).".format(numBad)
+
+if accepted:
+    if numBad == 0:
+        description = "true."
+    else:
+        description = "notes({}).".format(numBad)
+    status = "correct"
+else:
+    if numBad == 0:
+        description = "error."
+        status = "runtime error";
+    else:
+        status = "wrong"
+
+
 feedback = {
     "accepted": accepted,
     "groups": tabs,
-    "status": "correct answer" if numBad == 0 else "wrong answer",
-    "description": "issues({}).".format(numBad) if numBad > 0 else "true."
+    "status": status,
+    "description": description
     }
 print(json.dumps(feedback, indent=2, separators=(',', ': ')))
