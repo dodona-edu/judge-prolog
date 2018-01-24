@@ -1,6 +1,8 @@
+import io
 import re
 import subprocess
 import sys
+from threading import Thread
 
 testfileName = '/tmp/tmp-testfile.pl'
 
@@ -83,11 +85,10 @@ def checkErrors(lines, testname):
     return testcases
 
 
-
-
 def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=2500):
     testcases = []
-    a = subprocess.Popen(
+
+    runner = subprocess.Popen(
         ['swipl',
          '-s', scriptfile,
          '-t', goal,
@@ -100,23 +101,32 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
         ],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
-        bufsize=bufsize,
+        bufsize=None,
         cwd=config["workdir"])
+
+    stdBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stderr)
+    errBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stdout)
 
     didTimeout = None
     try:
-        a.wait(timeout=timeout)
+        runner.wait(timeout=timeout)
         didTimeout = False
     except subprocess.TimeoutExpired:
-        a.terminate()
+        runner.terminate()
         didTimeout = True
 
-    resStdOut = re.sub(plMountdir, "", a.stdout.read(
-        bufsize).decode("utf-8")).splitlines(True)
-    resStdErr = re.sub(plMountdir, "", a.stderr.read(
-        bufsize).decode("utf-8")).splitlines(True)
-    a.stderr.close()
-    a.stdout.close()
+    resStdOut = stdBuf.retreive_and_stop()
+    resStdErr = errBuf.retreive_and_stop()
+    runner.stderr.close()
+    runner.stdout.close()
+
+    # Clean output and split in lines
+    resStdOut = removeMountDir(resStdOut).splitlines(True)
+    resStdErr = removeMountDir(resStdErr).splitlines(True)
+
+    print("STD", "".join(resStdOut), file=sys.stderr)
+    print("ERR", "".join(resStdErr), file=sys.stderr)
+
     testcases += outputHandler(
         stdout=resStdOut,
         stderr=resStdErr,
@@ -127,3 +137,77 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
     )
 
     return testcases
+
+
+class SilentLimitedBuffer(io.StringIO):
+    """Buffer that only read the first `maxsize` bytes of a 
+    """
+
+    def __init__(self, maxsize=5 * 1000 * 1000):
+        io.StringIO.__init__(self, None)
+        self.cursize = 0
+        self.currealsize = 0
+        self.maxsize = maxsize
+        self.tooMuch = False
+        self.done = False
+
+    def write(self, s):
+        l = len(s)
+        self.currealsize += l
+        if self.currealsize > self.maxsize:
+            self.tooMuch = True
+            return
+        else:
+            self.cursize += l
+            return io.StringIO.write(self, s)
+
+    def set_done(self):
+        """Indicate that the reader should stop processing the input given via
+        procces
+        """
+
+        self.done = True
+
+    def getvalue(self):
+        """Return the value that has been written the text "ERROR:    TRUNCATED 
+        X bytes ignored" is added
+
+        Returns:
+            string -- The written text as utf-8 string
+        """
+
+        if self.tooMuch:
+            return io.StringIO.getvalue(self) + "\n\nERROR:    TRUNCATED\n{} bytes ignored\n".format(self.currealsize - self.cursize)
+        else:
+            return io.StringIO.getvalue(self)
+
+    def procces(self, stream):
+        """Continiously read stream in thread until no more data comes trough 
+        or the procces in closed by calling set_done() 
+
+        Arguments:
+            stream {file} -- something that is `.read` able
+
+        Returns:
+            SilentLimitedBuffer -- self, for chaining
+        """
+
+        def write_deamon(buff, stream):
+            while(not buff.done):
+                data = stream.read(100).decode("utf-8")
+                if not data:
+                    break  # no more data
+                buff.write(data)
+
+        Thread(target=write_deamon, args=(self, stream), daemon=True).start()
+        return self
+
+    def retreive_and_stop(self):
+        """get the value up to this point and and stop the reading procces.
+
+        Returns:
+            string -- The written text as utf-8 string
+        """
+
+        self.set_done()
+        return self.getvalue()
