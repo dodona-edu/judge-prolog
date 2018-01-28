@@ -4,9 +4,8 @@ import json
 import random
 from prologGeneral import checkErrors, swipl, removeMountDir
 
-
 selfCheckInfo = {
-    "nl": """We roepten controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. 
+    "nl": """We controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. 
 
 Hieronder zie je de de verwachte en uitgekomen output. 
 """,
