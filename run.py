@@ -9,6 +9,7 @@ import json
 from plunit import PLUnit
 from quickcheck import QuickCheck
 from simpltest import SimpleTest
+from formcheck import FormCheck
 
 words = {
     "en" : {"correct":"correct"}
@@ -32,7 +33,7 @@ config.setdefault("prolog_trail_stack", "128M")
 if ("natural_language" not in config) or (config["natural_language"] not in ["en", "nl"]):
     config["natural_language"] = "en"
 
-tests = []
+tests = [FormCheck(config)]
 for f in os.listdir(home):
     test = None
     if f.endswith(".unit.pl"):
@@ -45,7 +46,8 @@ for f in os.listdir(home):
         continue
     tests.append(test)
 
-tabs = [t.getResult() for t in tests]
+
+tabs = [t.getResult() for t in tests if t.getResult() is not None]
 numBad = sum([t["badgeCount"] for t in tabs])
 accepted = all([t["accepted"] for t in tabs])
 
