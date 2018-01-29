@@ -4,42 +4,30 @@ import json
 import random
 from prologGeneral import checkErrors, swipl, removeMountDir
 
-selfCheckInfo = {
-    "nl": """We controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. 
 
-Hieronder zie je de de verwachte en uitgekomen output. 
-""",
-    "en": """We checked  **{numtests} facts**, **{failed}** of them were incorrect.
-
-The results are below.
-"""
-}
-
-hiddenRowInfo = {
-    "nl" : {
-        True : "*{num}* andere *geslaagde* testen worden niet getoond.",
-        False: "*{num}* andere *gefaalde* testen worden niet getoond."
-    },
+LANG = {
     "en" : {
-        True : "Another *{num} succeeded* tests are not listed.",
-        False: "Another *{num} failed* tests are not listed."
+        "description" : "We checked  **{numtests} facts**, **{failed}** of them were incorrect.\n\nThe results are below.",
+        "hiddenrow"   : {
+            True : "Another *{num} succeeded* tests are not listed.",
+            False: "Another *{num} failed* tests are not listed."
+        },
+        "testresults" : '### Test results for "*{name}*',
+        "stdnotempty" : "### Output was not empty",
+        "syntaxerror" : "### Syntax errors",
+        "timeout"     : "The test timed out ({seconds}s)"
+    },
+    "nl": {
+        "description" : "We controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. \n\nHieronder zie je de de verwachte en uitgekomen output.",
+        "hiddenrow" : {
+            True : "*{num}* andere *geslaagde* testen worden niet getoond.",
+            False: "*{num}* andere *gefaalde* testen worden niet getoond."
+        },
+        "testresults" : '### Testresultaten voor "*{name}*"',
+        "stdnotempty" : "### Output was niet leeg",
+        "syntaxerror" : "### Syntax fouten",
+        "timeout"     : "De test overschreed het tijdslimiet ({seconds}s)"
     }
-}
-
-
-testResultsInfo = {
-    "nl" : '### Testresultaten voor "*{name}*"',
-    "en" : '### Test results for "*{name}*"'
-}
-
-stdErrInfo = {
-    "nl" : "### Output was niet leeg",
-    "en" : "### Output was not empty",
-}
-
-syntaxInfo = {
-    "nl" : "### Syntax fouten",
-    "en" : "### Syntax errors",
 }
 
 # consult line regexp
@@ -49,6 +37,7 @@ syntaxInfo = {
 # %- consult private [file,file].
 consultRe = re.compile(r"^%-\s+consult\s+(public|private)\s+(\[\s*(\"([^\"]|\\\")+\"\s*,\s*)*\"([^\"]|\\\")+\"\s*\]|(\"([^\"]|\\\")+\")+)\s*\.\s*$")
 
+# Number of succesfull (True) and failed (False) results to show
 NUM_SHOW = {True: 5, False: 20}
 
 class SimpleTest(object):
@@ -60,6 +49,7 @@ class SimpleTest(object):
         self.numlines = 250
         self.lang = config["natural_language"]
         self.result = None
+        self.words = LANG[self.lang]
 
         consults = {"public": [], "private":[]}
         # Read input
@@ -111,8 +101,8 @@ class SimpleTest(object):
             if timeout:
                 testcases.append({
                     "accepted": False,
-                    "description": "Timeout " + testname,
-                    "messages": [{"format": "code", "description": "The test timed out (more than "+str(self.timeout)+"s)!\n\nstdOut:\n" + ("".join(stdout))}]
+                    "description": "Timeout",
+                    "messages": [{"format": "markdown", "description": self.words["timeout"].format(seconds = self.timeout)}]
                 })
 
             testcases += checkErrors(stderr, testname)
@@ -159,17 +149,17 @@ class SimpleTest(object):
         resultContexts,numtests, failedTest = self._mkResultContext(res)
 
         return {
-            "accepted": all([c["accepted"] for c in outputContext+resultContexts]),
+            "accepted": all([c["accepted"] for c in resultContexts+outputContext]),
             "badgeCount": failedTest,
             "description": self.tabname,
             "messages": [{
                 "format": "markdown",
-                "description": selfCheckInfo[self.lang].format(
+                "description": self.words["description"].format(
                     numtests=numtests,
                     failed=failedTest
                 )
             }],
-            "groups": outputContext+resultContexts
+            "groups": resultContexts+outputContext
         }
 
     def translate(self,text,result):
@@ -183,7 +173,7 @@ class SimpleTest(object):
         if(text in translations):
             return translations[text]
         else:
-            return text
+            return text.replace("dodonacheck:","")
 
     def _mkResultContext(self, res):
         numBadTotal = 0
@@ -226,7 +216,7 @@ class SimpleTest(object):
                 numTests += len(curResult["result"])
                 contexts.append({
                     "accepted": numBad == 0,
-                    "description": {"format": "markdown", "description":testResultsInfo[self.lang].format(name = curResult["name"])},
+                    "description": {"format": "markdown", "description":self.words["testresults"].format(name = curResult["name"])},
                     "groups": tests[False] + tests[True],
                 })
         else:
@@ -248,7 +238,7 @@ class SimpleTest(object):
                 return [{
                 "accepted": False,
                 "description": {
-                    "format": "markdown", "description": syntaxInfo[self.lang]
+                    "format": "markdown", "description": self.words["syntaxerror"]
                 },
                 "groups": syntaxErrors,
                 }]
@@ -256,7 +246,7 @@ class SimpleTest(object):
                 return [{
                     "accepted": len(testcases) == 0,
                     "description": {
-                        "format": "markdown", "description": stdErrInfo[self.lang]
+                        "format": "markdown", "description": self.words["stdnotempty"]
                     },
                     "groups": testcases,
                 }]
@@ -271,7 +261,7 @@ class SimpleTest(object):
                 tests[t] = random.sample(tests[t], NUM_SHOW[t]) + [{
                     "description":  {
                         "format": "markdown",
-                        "description": hiddenRowInfo[self.lang][t].format(num=len(tests[t]) - NUM_SHOW[t])
+                        "description": self.words["hiddenrow"][t].format(num=len(tests[t]) - NUM_SHOW[t])
                     },
                     "accepted": t,
                 }]  

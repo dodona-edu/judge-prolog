@@ -1,6 +1,7 @@
 :- module(dodonacheck,
           [ dotests/0
           ]).
+:- dynamic test_result/1.
 
 % I don't realy know why I've put these here anymore
 :- set_prolog_flag(unknown, error). 
