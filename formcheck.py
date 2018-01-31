@@ -1,7 +1,11 @@
 """
 ## Form check
 
-The form check checks the form of submissions. It is not driven by a test file,
+The form check checks the form of submissions. This is absicly a linter
+
+### Test specification
+
+It is not driven by a test file,
 but by the exercise configuration. Following keys can be inclused in the
 `evaluation` directive:
 

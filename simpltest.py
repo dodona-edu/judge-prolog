@@ -1,3 +1,60 @@
+"""
+## Simple test
+
+Compares the output (that is true/false) of the students predicates with that
+of a verified correct solution.
+
+### Test specification
+
+Test files ending in `.simple.pl` will automatically be be executed by this
+file. Such a test file should be a module that exports one predicate: `test/6`.
+The form is:
+
+```prolog
+%- consult public "database.pl".
+:- module(dodonaevaluate, [tests/6]).
+
+% ...
+
+tests("markdown name",dodonaevaluate:thepredicate,thepredicate,true,10000, L) :-
+    Pers = [waldo,odlaw,swi,wilma,whitebeard,woof,watchers],
+    setof([X,Y],(member(X,Pers),member(Y,Pers)),L).
+```
+
+The `test/6` predicate has 6 arguments
+
+1. The name, a string (double quotes), that is rendered as markdown
+2. The functor name of a correct implementation (mostly of the form `dodonaevaluate:....`)
+3. The functor name of the student implementation
+4. A Boolean value indicating is cuts are allowed (does not work properly yet)
+5. An inference limit
+6. A list of argument lists
+    - Example for a one argument predicate : [[1],[2],[3]]
+    - Example for a two argument predicate : [[1,a],[2,a],[3,a]]
+    - Example for a one argument predicate that takes lists : [[[1,a]],[[2,a,9,8]],[[3,a,4]]
+
+To make files available to both the user and test code, use one of the following lines
+
+```
+%- consult public "file.pl".
+%- consult private "file.pl".
+%- consult public ["file1.pl","file2.pl"].
+%- consult private ["file1.pl","file2.pl"].
+```
+### Implementation
+
+The prolog checker code is contained in [simpletest/checker.pl](simpletest/checker.pl) it is loaded 
+together with the student code as follows, with a copy of the workspace folder as workspace and 
+`dotests` as goal for `swipl`.
+
+```
+:- use_module("{judgePath}/simpletest/checker.pl").
+:- consult("/mnt/.../submission/submission.pl").
+:- use_module("/mnt/.../evaluation/.....simple.pl").
+```
+
+The results stored in `workspace/results.json` are then consulted to build the feedback table
+"""
 import fileinput
 import re
 import json
@@ -6,27 +63,27 @@ from prologGeneral import checkErrors, swipl, removeMountDir
 
 
 LANG = {
-    "en" : {
-        "description" : "We checked  **{numtests} facts**, **{failed}** of them were incorrect.\n\nThe results are below.",
-        "hiddenrow"   : {
-            True : "Another *{num} succeeded* tests are not listed.",
+    "en": {
+        "description": "We checked  **{numtests} facts**, **{failed}** of them were incorrect.\n\nThe results are below.",
+        "hiddenrow": {
+            True: "Another *{num} succeeded* tests are not listed.",
             False: "Another *{num} failed* tests are not listed."
         },
-        "testresults" : '### Test results for "*{name}*',
-        "stdnotempty" : "### Output was not empty",
-        "syntaxerror" : "### Syntax errors",
-        "timeout"     : "The test timed out ({seconds}s)"
+        "testresults": '### Test results for "*{name}*',
+        "stdnotempty": "### Output was not empty",
+        "syntaxerror": "### Syntax errors",
+        "timeout": "The test timed out ({seconds}s)"
     },
     "nl": {
-        "description" : "We controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. \n\nHieronder zie je de de verwachte en uitgekomen output.",
-        "hiddenrow" : {
-            True : "*{num}* andere *geslaagde* testen worden niet getoond.",
+        "description": "We controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. \n\nHieronder zie je de de verwachte en uitgekomen output.",
+        "hiddenrow": {
+            True: "*{num}* andere *geslaagde* testen worden niet getoond.",
             False: "*{num}* andere *gefaalde* testen worden niet getoond."
         },
-        "testresults" : '### Testresultaten voor "*{name}*"',
-        "stdnotempty" : "### Output was niet leeg",
-        "syntaxerror" : "### Syntax fouten",
-        "timeout"     : "De test overschreed het tijdslimiet ({seconds}s)"
+        "testresults": '### Testresultaten voor "*{name}*"',
+        "stdnotempty": "### Output was niet leeg",
+        "syntaxerror": "### Syntax fouten",
+        "timeout": "De test overschreed het tijdslimiet ({seconds}s)"
     }
 }
 
@@ -35,10 +92,12 @@ LANG = {
 # %- consult private file.
 # %- consult public [file,file].
 # %- consult private [file,file].
-consultRe = re.compile(r"^%-\s+consult\s+(public|private)\s+(\[\s*(\"([^\"]|\\\")+\"\s*,\s*)*\"([^\"]|\\\")+\"\s*\]|(\"([^\"]|\\\")+\")+)\s*\.\s*$")
+consultRe = re.compile(
+    r"^%-\s+consult\s+(public|private)\s+(\[\s*(\"([^\"]|\\\")+\"\s*,\s*)*\"([^\"]|\\\")+\"\s*\]|(\"([^\"]|\\\")+\")+)\s*\.\s*$")
 
 # Number of succesfull (True) and failed (False) results to show
 NUM_SHOW = {True: 5, False: 20}
+
 
 class SimpleTest(object):
     def __init__(self, config, filename, tabname="QuickCheck"):
@@ -51,37 +110,36 @@ class SimpleTest(object):
         self.result = None
         self.words = LANG[self.lang]
 
-        consults = {"public": [], "private":[]}
+        consults = {"public": [], "private": []}
         # Read input
         for l in fileinput.input(filename):
             l.strip()
-            isConsult  = consultRe.match(l)
+            isConsult = consultRe.match(l)
             if(isConsult):
                 consults[isConsult.group(1)].append(isConsult.group(2))
-            
 
         fileinput.close()
 
         # Make a new testfile that consults the users solution
         # and the check file
         self.testfileName = filename + ".extended.pl"
-        
+
         with open(self.testfileName, "w") as f2:
 
             for c in consults["public"]:
                 f2.write(':- consult({}).\n'.format(c))
             for c in consults["private"]:
-                f2.write(':- consult({}{}).\n'.format(config["resources"],c))
+                f2.write(':- consult({}{}).\n'.format(config["resources"], c))
 
             f2.write("""
         :- use_module("{judgePath}/simpletest/checker.pl").
         :- consult("{sumbissionPath}").
         :- use_module("{testfile}").
         """.format(
-            judgePath = config["judge"],
-            sumbissionPath = config["source"],
-            testfile = filename
-        ))
+                judgePath=config["judge"],
+                sumbissionPath=config["source"],
+                testfile=filename
+            ))
 
     def getResult(self):
         if self.result is None:
@@ -102,7 +160,7 @@ class SimpleTest(object):
                 testcases.append({
                     "accepted": False,
                     "description": "Timeout",
-                    "messages": [{"format": "markdown", "description": self.words["timeout"].format(seconds = self.timeout)}]
+                    "messages": [{"format": "markdown", "description": self.words["timeout"].format(seconds=self.timeout)}]
                 })
 
             testcases += checkErrors(stderr, testname)
@@ -130,15 +188,13 @@ class SimpleTest(object):
             outputHandler=oh,
             timeout=self.timeout,
             config=self.config))
-        
-
 
         results = []
         cpallowd = False
         inferencelimit = None
         res = None
         try:
-            with open(self.config["workdir"]+"/result.json",'r') as f:
+            with open(self.config["workdir"]+"/result.json", 'r') as f:
                 try:
                     res = json.load(f)
                 except json.decoder.JSONDecodeError:
@@ -146,7 +202,7 @@ class SimpleTest(object):
         except IOError:
             pass
 
-        resultContexts,numtests, failedTest = self._mkResultContext(res)
+        resultContexts, numtests, failedTest = self._mkResultContext(res)
 
         return {
             "accepted": all([c["accepted"] for c in resultContexts+outputContext]),
@@ -162,18 +218,18 @@ class SimpleTest(object):
             "groups": resultContexts+outputContext
         }
 
-    def translate(self,text,result):
+    def translate(self, text, result):
         translations = {
-            "exit" :  "true.",
-            "fail" :  "false.",
-            "true" :  "true; (checkpoints remaining)",
-            "inference_limit_exceeded" :  "Exceeded inference limit of {}".format(result["inferencelimit"]),
+            "exit":  "true.",
+            "fail":  "false.",
+            "true":  "true; (checkpoints remaining)",
+            "inference_limit_exceeded":  "Exceeded inference limit of {}".format(result["inferencelimit"]),
         }
 
         if(text in translations):
             return translations[text]
         else:
-            return text.replace("dodonacheck:","")
+            return text.replace("dodonacheck:", "")
 
     def _mkResultContext(self, res):
         numBadTotal = 0
@@ -183,12 +239,12 @@ class SimpleTest(object):
 
             for curResult in res:
                 if curResult["allowcp"]:
-                    transformer = lambda x: "exit" if x == "true" else x
+                    def transformer(x): return "exit" if x == "true" else x
                 else:
-                    transformer = lambda x: x
+                    def transformer(x): return x
                 numBad = 0
-                tests = {True:[] , False:[]}
-                
+                tests = {True: [], False: []}
+
                 for t in curResult["result"]:
                     got = transformer(t["got"])
                     expected = transformer(t["expected"])
@@ -198,14 +254,14 @@ class SimpleTest(object):
                     tests[accepted].append(
                         {
                             "description":  {
-                                "format": "code", 
+                                "format": "code",
                                 "description": t["term"]+"."
-                                },
+                            },
                             "accepted": accepted,
                             "tests": [{
-                                "generated": self.translate(got,curResult),
-                                "expected":self.translate(expected,curResult),
-                                "accepted":accepted
+                                "generated": self.translate(got, curResult),
+                                "expected": self.translate(expected, curResult),
+                                "accepted": accepted
                             }]
                         }
                     )
@@ -216,7 +272,7 @@ class SimpleTest(object):
                 numTests += len(curResult["result"])
                 contexts.append({
                     "accepted": numBad == 0,
-                    "description": {"format": "markdown", "description":self.words["testresults"].format(name = curResult["name"])},
+                    "description": {"format": "markdown", "description": self.words["testresults"].format(name=curResult["name"])},
                     "groups": tests[False] + tests[True],
                 })
         else:
@@ -230,17 +286,17 @@ class SimpleTest(object):
             })
         return contexts, numTests, numBadTotal
 
-
     def _mkOutputContext(self, testcases):
         if testcases:
-            syntaxErrors = [t for t in testcases if ": Syntax error:" in t["messages"][0]["description"] and t["description"] == "ERROR"]
+            syntaxErrors = [t for t in testcases if ": Syntax error:" in t["messages"]
+                            [0]["description"] and t["description"] == "ERROR"]
             if(syntaxErrors):
                 return [{
-                "accepted": False,
-                "description": {
-                    "format": "markdown", "description": self.words["syntaxerror"]
-                },
-                "groups": syntaxErrors,
+                    "accepted": False,
+                    "description": {
+                        "format": "markdown", "description": self.words["syntaxerror"]
+                    },
+                    "groups": syntaxErrors,
                 }]
             else:
                 return [{
@@ -253,39 +309,37 @@ class SimpleTest(object):
         else:
             return []
 
-
-
     def limitTests(self, tests):
         for t in [True, False]:
-            if len(tests[t]) >  NUM_SHOW[t] + 1:
+            if len(tests[t]) > NUM_SHOW[t] + 1:
                 tests[t] = random.sample(tests[t], NUM_SHOW[t]) + [{
                     "description":  {
                         "format": "markdown",
                         "description": self.words["hiddenrow"][t].format(num=len(tests[t]) - NUM_SHOW[t])
                     },
                     "accepted": t,
-                }]  
-    
+                }]
+
 
 if __name__ == '__main__':
     t = SimpleTest({
-        "natural_language" : "nl",
-        "workdir" : "/tmp",
-        "source" : "/home/beardhatcode/Documents/lp/judge/simpletest/example-submission.pl" ,
-        "judge" : "/home/beardhatcode/Documents/lp/judge",
-        "prolog_local_stack" : "128M",
-        "prolog_global_stack" : "128M",
-        "prolog_trail_stack" : "128M",
-    },"/home/beardhatcode/Documents/lp/judge/simpletest/example-evaluate.pl")
+        "natural_language": "nl",
+        "workdir": "/tmp",
+        "source": "/home/beardhatcode/Documents/lp/judge/simpletest/example-submission.pl",
+        "judge": "/home/beardhatcode/Documents/lp/judge",
+        "prolog_local_stack": "128M",
+        "prolog_global_stack": "128M",
+        "prolog_trail_stack": "128M",
+    }, "/home/beardhatcode/Documents/lp/judge/simpletest/example-evaluate.pl")
 
     tests = [t]
     tabs = [t.getResult() for t in tests]
     numBad = sum([t["badgeCount"] for t in tabs])
     accepted = all([t["badgeCount"] == 0 for t in tabs])
     feedback = {
-        "accepted": accepted, 
-        "groups": tabs, 
-        "status": "correct answer" if numBad == 0 else "wrong answer", 
+        "accepted": accepted,
+        "groups": tabs,
+        "status": "correct answer" if numBad == 0 else "wrong answer",
         "description": "issues({}).".format(numBad) if numBad > 0 else "true."
-        }
+    }
     print(json.dumps(feedback, indent=2, separators=(',', ': ')))
