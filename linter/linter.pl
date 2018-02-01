@@ -25,13 +25,8 @@
 %   }
 % ]
 % 
-
-
 :- use_module(library(http/json)).
 :- dynamic cres/1.
-
-:- multifile  prolog:message/3.
-
 
 message_hook(M, _, _):-
     M=check(D),
@@ -50,15 +45,13 @@ message_hook(M,_,_):-
     M=error(_,_),
     message_to_string(M,S),
     assertz(cres(point{type:error,msg:S})),
-    fail.
+    true.
 
 
 
-'dodonacheck all the things' :- !,
+'dodona lint' :- !,
     check:check,
     findall(R,cres(R), Res),
     open('result.json', write, Stream),
     json_write(Stream,Res),
     close(Stream).
-
-:- consult("b.pl").
