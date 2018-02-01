@@ -60,7 +60,7 @@ import fileinput
 import re
 import json
 import random
-from prologGeneral import checkErrors, swipl, removeMountDir
+from prologGeneral import checkErrors, swipl
 
 
 LANG = {
@@ -324,7 +324,7 @@ class SimpleTest(object):
 
 
 if __name__ == '__main__':
-    t = SimpleTest({
+    tabs = [SimpleTest({
         "natural_language": "nl",
         "workdir": "/tmp",
         "source": "/home/beardhatcode/Documents/lp/judge/simpletest/example-submission.pl",
@@ -332,16 +332,14 @@ if __name__ == '__main__':
         "prolog_local_stack": "128M",
         "prolog_global_stack": "128M",
         "prolog_trail_stack": "128M",
-    }, "/home/beardhatcode/Documents/lp/judge/simpletest/example-evaluate.pl")
+    }, "/home/beardhatcode/Documents/lp/judge/simpletest/example-evaluate.pl").getResult()]
 
-    tests = [t]
-    tabs = [t.getResult() for t in tests]
-    numBad = sum([t["badgeCount"] for t in tabs])
-    accepted = all([t["badgeCount"] == 0 for t in tabs])
+
+    nb = sum([t["badgeCount"] for t in tabs])
     feedback = {
-        "accepted": accepted,
+        "accepted": all([t["badgeCount"] == 0 for t in tabs]),
         "groups": tabs,
-        "status": "correct answer" if numBad == 0 else "wrong answer",
-        "description": "issues({}).".format(numBad) if numBad > 0 else "true."
+        "status": "correct answer" if nb == 0 else "wrong answer",
+        "description": "issues({}).".format(nb) if nb > 0 else "true."
     }
     print(json.dumps(feedback, indent=2, separators=(',', ': ')))

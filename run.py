@@ -2,7 +2,14 @@
 # Name: Extract PLUnit results
 # By Robbert Gurdeep Singh
 ################################################################################
-import re
+"""
+The runner called by run,
+
+Finds testfiles and executes them in the correct subjudge
+Also executes the formatcheck for linting
+
+"""
+
 import os
 import sys
 import json
@@ -62,7 +69,7 @@ if accepted:
 else:
     if numBad == 0:
         description = "error."
-        status = "runtime error";
+        status = "runtime error"
     else:
         status = "wrong"
 
