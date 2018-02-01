@@ -37,11 +37,11 @@ tests = [FormCheck(config)]
 for f in os.listdir(home):
     test = None
     if f.endswith(".unit.pl"):
-        test = PLUnit(config, os.path.join(home, f), "PL"+f.replace(".unit.pl", ""))
+        test = PLUnit(config, os.path.join(home, f), f.replace(".unit.pl", ""))
     elif f.endswith(".qc.pl"):
-        test = QuickCheck(config, os.path.join(home, f), "QC"+f.replace(".qc.pl", ""))
+        test = QuickCheck(config, os.path.join(home, f), f.replace(".qc.pl", ""))
     elif f.endswith(".simple.pl"):
-        test = SimpleTest(config, os.path.join(home, f), "ST"+f.replace(".simple.pl", ""))
+        test = SimpleTest(config, os.path.join(home, f), f.replace(".simple.pl", ""))
     else:
         continue
     tests.append(test)
