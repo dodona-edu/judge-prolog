@@ -71,7 +71,10 @@ class PLUnit(object):
         """
 
         lines = []
-        initlines = ['\n:- consult("{}").\n'.format(self.config["source"])]
+        initlines = [
+            ':- style_check(-singleton).',
+            '\n:- consult("{}").\n'.format(self.config["source"])
+            ]
         testname = None
         comments = []
 
@@ -117,6 +120,7 @@ class PLUnit(object):
                 lines.append(l)
 
         return {
+            "accepted" : numBad == 0,
             "badgeCount": numBad,
             "description": self.tabname,
             "messages": [{
@@ -143,6 +147,7 @@ class PLUnit(object):
 
 
             testcases += checkErrors(stderr, testname)
+            testcases += checkErrors(stdout, testname)
 
             return testcases
 
@@ -156,10 +161,10 @@ class PLUnit(object):
         )
 
         messages = [{"format": "plain", "description": c} for c in comments]
-        #messages.append({
-        #    "format":"code",
-        #    "description": "".join(code[1:-1])
-        #})
+        messages.append({
+            "format":"code",
+            "description": "".join(code[1:-1])
+        })
         if len(testcases) == 0:
             context = {
                 "accepted": True,

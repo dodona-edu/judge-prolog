@@ -49,6 +49,7 @@ together with the student code as follows, with a copy of the workspace folder a
 
 ```
 :- use_module("{judgePath}/simpletest/checker.pl").
+:- style_check(-singleton).
 :- consult("/mnt/.../submission/submission.pl").
 :- use_module("/mnt/.../evaluation/.....simple.pl").
 ```
@@ -133,6 +134,7 @@ class SimpleTest(object):
 
             f2.write("""
         :- use_module("{judgePath}/simpletest/checker.pl").
+        :- style_check(-singleton).
         :- consult("{sumbissionPath}").
         :- use_module("{testfile}").
         """.format(
