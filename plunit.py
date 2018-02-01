@@ -56,6 +56,9 @@ class PLUnit(object):
             self.result = self._doTest()
         return self.result
 
+    def getAnnotations(self):
+        return None
+
     def getSummary(self):
         res = self.getResult()
         if res["badgeCount"] == 0:

@@ -13,6 +13,7 @@ Also executes the formatcheck for linting
 import os
 import sys
 import json
+import itertools
 from plunit import PLUnit
 from quickcheck import QuickCheck
 from simpltest import SimpleTest
@@ -55,6 +56,7 @@ for f in os.listdir(home):
 
 
 tabs = [t.getResult() for t in tests if t.getResult() is not None]
+annotations = list(itertools.chain.from_iterable([t.getAnnotations() for t in tests if t.getAnnotations() is not None]))
 numBad = sum([t["badgeCount"] for t in tabs])
 accepted = all([t["accepted"] for t in tabs])
 
@@ -78,6 +80,7 @@ feedback = {
     "accepted": accepted,
     "groups": tabs,
     "status": status,
-    "description": description
+    "description": description,
+    "annotations": annotations
     }
 print(json.dumps(feedback, indent=2, separators=(',', ': ')))
