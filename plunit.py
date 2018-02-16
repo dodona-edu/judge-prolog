@@ -75,7 +75,8 @@ class PLUnit(object):
 
         lines = []
         initlines = [
-            ':- style_check(-singleton).',
+            ':- style_check(-singleton).\n',
+            ':- style_check(-discontiguous).\n'
             '\n:- consult("{}").\n'.format(self.config["source"])
             ]
         testname = None

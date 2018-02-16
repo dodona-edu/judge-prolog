@@ -1,7 +1,7 @@
 """
 ## Form check
 
-The form check checks the form of submissions. This is absicly a linter
+The form check checks the form of submissions. This is basicly a linter
 
 ### Test specification
 
@@ -82,8 +82,9 @@ class FormCheck(object):
         self.config = config
         self.words = LANG[config["natural_language"]]
         self.tabname = self.words["tabname"]
-        self.result = None
+        self.result = False
         self.annotations = []
+
         # Read input
         self.data = [x for x in fileinput.input(config["source"])]
         fileinput.close()
@@ -95,13 +96,13 @@ class FormCheck(object):
             self.tests.append(self.checkCut)
 
     def getResult(self):
-        if self.result is None:
-            self.result = self._doTest()
+        if self.result is False:
+            self._doTest()
         return self.result
 
     def getAnnotations(self):
-        if self.result is None:
-            self.result = self._doTest()
+        if self.result is False:
+            self._doTest()
         return self.annotations
 
     def getSummary(self):
@@ -116,7 +117,7 @@ class FormCheck(object):
         results = [x for x in [f() for f in self.tests] if x is not None]
 
         if results:
-            return {
+            self.result = {
                 "accepted": False,
                 "badgeCount": len(results),
                 "description": self.tabname,
@@ -127,11 +128,11 @@ class FormCheck(object):
                 "groups": results,
             }
         else:
-            return None
+            self.result = None
 
     def checkCut(self):
         texts = self.words["tests"]["checkCut"]
-        if any(["!" in line for line in self.data]):
+        if any(["!" in line.split("%")[0] for line in self.data]):
             doTree = random.random() > 0.9
             return {
                 "accepted": False,
@@ -175,7 +176,7 @@ class FormCheck(object):
                     sumbissionPath=self.config["source"]
                 ))
 
-        def oh(stdout, stderr, testname, scriptfile, config, timeout):
+        def oh(stdout, testname, timeout, **kwargs):
             testcases = []
             lints = []
             if timeout:
@@ -187,19 +188,23 @@ class FormCheck(object):
 
             if stdout:
                 plResult = re.compile(r"^(ERROR|Warning):\s+submission/source:([0-9]+)(:([0-9]+))?:(.*)")
-                curRes =  None
+                curRes =  {}
                 for line in stdout:
                     isResult = plResult.match(line)
                     line = line.strip()
                     if isResult:
-                        if curRes is not None:
-                            lints.append({"location" : curRes[1:3],"message":"\n".join(curRes[3:]).strip(),"type": curRes[0]})
-                        curRes = [isResult.group(n) for n in (1,2,4,5)]
+                        if curRes:
+                            lints.append(curRes)
+                        curRes = {
+                            "location" : (isResult.group(2),isResult.group(4)),
+                            "message": isResult.group(5).strip(),
+                            "type": isResult.group(1)
+                        }
                     else:
-                        if curRes is not None:
-                            curRes.append(line)
-                if curRes is not None:
-                    lints.append({"location" : curRes[1:3],"message":"\n".join(curRes[3:]).strip(),"type": curRes[0]})
+                        if curRes:
+                            curRes["message"] += "\n" + line
+                if curRes:
+                    lints.append(curRes)
 
             return testcases,lints
 
@@ -218,28 +223,37 @@ class FormCheck(object):
                     os.remove(self.config["workdir"]+"/result.json")
                     plResult = re.compile(r"/mnt/[^:]*:([0-9]+)(:([0-9]+))?")
                     for p in res:
-                        m = removeMountDir(p["msg"])
-                        
+                        m = removeMountDir(p["msg"]).strip()
+                        m = p["type"].replace("_"," ").title() + ": "+m
+                        errType = "error" if p["type"] in ["undefined","error"] else "info"
+                            
+
                         for x in plResult.finditer(p["msg"]):
-                            lints.append({"location" : [x.group(1),x.group(3)],"message": m, "type": p["type"]})
+                            lints.append({
+                                "location" : (x.group(1),x.group(3)),
+                                "message": m, 
+                                "type": errType
+                                })
                 except json.decoder.JSONDecodeError:
                     pass
         except IOError:
             pass
 
-        annotations = []
         for l in lints:
-            r={
+            errType = l["type"].lower()
+            if errType not in ["error","warning","info"]:
+                errType = "warning"
+
+            r = {
                 "row" : int(l["location"][0])-1,
-                "text" : l["message"],
-                "type" : "warning",
+                "text" : l["message"].strip(),
+                "type" : errType,
             }
             if l["location"][1] is not None:
                 r["col"] = int(l["location"][1])-1
-            annotations.append(r)
+            self.annotations.append(r)
 
 
-        self.annotations += annotations
         if testcases:
             return {
                 "accepted": False,
