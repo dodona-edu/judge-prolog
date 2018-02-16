@@ -63,10 +63,17 @@ accepted = all([t["accepted"] for t in tabs])
 description = "issues({}).".format(numBad)
 
 if accepted:
-    if numBad == 0:
-        description = "true."
-    else:
-        description = "notes({}).".format(numBad)
+    description = "true."
+    if annotations:
+        counts = {"error":0, "warning":0, "info":0}
+        for a in annotations:
+            counts[a["type"]] += 1
+        
+        for t in ["error", "warning", "info"]:
+            if counts[t] > 0:
+                description = "{}s({}).".format(t,counts[t])
+                break
+
     status = "correct"
 else:
     if numBad == 0:

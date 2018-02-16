@@ -135,6 +135,7 @@ class SimpleTest(object):
             f2.write("""
         :- use_module("{judgePath}/simpletest/checker.pl").
         :- style_check(-singleton).
+        :- style_check(-discontiguous).
         :- consult("{sumbissionPath}").
         :- use_module("{testfile}").
         """.format(
