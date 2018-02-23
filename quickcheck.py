@@ -114,6 +114,7 @@ class QuickCheck(object):
             totalNumBad += numBad
 
         return {
+            "accepted" : failedTest == 0,
             "badgeCount": failedTest,
             "description": self.tabname,
             "messages": [{
