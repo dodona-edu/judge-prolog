@@ -92,7 +92,7 @@ quickcheck(Module:Property/Arity) :-
     ( Result = ok ->
         printok(Property,Arity, TestCount)
     ; Result = fail(Example) ->
-        printviolating(Property,Arity, Example),
+        printviolating(Property,Arity, TestCount, Example),
         fail
     ).
 
@@ -137,18 +137,40 @@ warn(Format,Args) :-
     format(user_error,Format,Args),
     format(user_error,"~n",[]).
 
-printviolating(Test,Arity,Example) :-
-    write(user_output,"\n-DODONA-FAIL-"),
-    write(user_output,"\n-DODONA-TEST-\n"),
-    format(user_output,"~q",Test/Arity),
-    write(user_output,"\n-DODONA-COUNTEREXAMPLE-\n"),
-    format(user_output,"~q",Example),
-    write(user_output,"\n-DODONA-END-\n").
+:- use_module(library(http/json)).
+
+
+simplify_example(Value:Type,cexample{value:ValueStr,type:TypeStr}) :-
+    swritef(ValueStr, '%q', [Value]),
+    swritef(TypeStr, '%q', [Type]).
+
+example_value(Value:_,Value).
+
+make_result_file(Res) :-
+    open('result.json', write, Stream),
+    json_write(Stream,Res),
+    close(Stream).
+
+printviolating(Test,Arity,NumTests,Example) :-
+    maplist(simplify_example, Example, ExampleSimple),
+    maplist(example_value, Example, ExampleArgs),
+    Head =.. [Test|ExampleArgs],
+    swritef(Name, '%q', [Test/Arity]),
+    swritef(HeadN, '%q', [Head]),
+    make_result_file(point{
+        accepted:false,
+        name:Name,
+        testcount: NumTests,
+        counterparams: ExampleSimple,
+        counterterm: HeadN
+    }).
 
 printok(Test,Arity,NumTests) :-
-    write(user_output,"\n-DODONA-PASS-"),
-    write(user_output,"\n-DODONA-TEST-\n"),
-    format(user_output,"~q",Test/Arity),
-    write(user_output,"\n-DODONA-NUMTESTS-\n"),
-    format(user_output,"~q",NumTests),
-    write(user_output,"\n-DODONA-END-\n").
+    swritef(Name, '%q', [Test/Arity]),
+    make_result_file(point{
+        accepted:true,
+        name:Name,
+        testcount: NumTests,
+        counterparams: [],
+        counterterm: null
+    }).

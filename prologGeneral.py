@@ -2,6 +2,7 @@ import io
 import re
 import subprocess
 import sys
+import os
 from threading import Thread
 
 testfileName = '/tmp/tmp-testfile.pl'
@@ -139,6 +140,12 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
     return testcases
 
 
+def removeFile(filename):
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
 class SilentLimitedBuffer(io.StringIO):
     """Buffer that only read the first `maxsize` bytes of a 
     """
@@ -211,3 +218,4 @@ class SilentLimitedBuffer(io.StringIO):
 
         self.set_done()
         return self.getvalue()
+
