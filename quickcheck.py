@@ -43,7 +43,7 @@ class QuickCheck(object):
     def __init__(self, config, filename, tabname="QuickCheck"):
         self.config = config
         self.tabname = tabname
-        self.timeout = 1
+        self.timeout = 5
         self.lang = config["natural_language"]
         self.result = None
 
@@ -105,8 +105,7 @@ class QuickCheck(object):
         failedTest = 0
         for testname in self.orderedProperties:
             testcases = self._run(testname)
-            numBad = sum([not t["accepted"]
-                          for t in testcases if "accepted" in t])
+            numBad = sum([not t["accepted"] for t in testcases])
 
             context = {
                 "accepted": numBad == 0,
@@ -118,7 +117,7 @@ class QuickCheck(object):
                 }]
             }
 
-            failedTest += numBad == 0
+            failedTest += numBad > 0
 
             contexts.append(context)
             totalNumBad += numBad
@@ -144,20 +143,25 @@ class QuickCheck(object):
                 testcases.append({
                     "accepted": False,
                     "description": "Timeout " + testname,
-                    "messages": [{"format": "code", "description": "The test timed out (more than 1s)!\n\nstdOut:\n" + ("".join(stdout))}]
+                    "messages": [
+                        {"format": "plain", "description": "The test timed out (more than 1s)!"},
+                        {"format": "plain", "description": "StdOut:\n"+("\n".join(stdout))},
+                        {"format": "plain", "description": "StdErr:\n"+("\n".join(stderr))}]
                 })
             else:
+                outputJsonFile = self.config["workdir"]+"/result.json"
                 try:
-                    with open(self.config["workdir"]+"/result.json", 'r') as f:
+                    with open(outputJsonFile, 'r') as f:
                         res = json.load(f)
-                        testcases.append(self._handleResult(res))
+                    os.remove(outputJsonFile)
                 except (IOError, json.decoder.JSONDecodeError):
                     testcases.append({
                         "accepted": False,
                         "description": "No testresults found " + testname,
+                        "messages": [{"format":"code","description": "\n".join(stdout)}]
                     })
-                os.remove(self.config["workdir"]+"/result.json")
-
+                else:
+                    testcases.append(self._handleResult(res))
             testcases += checkErrors(stderr, testname)
             return testcases
 
@@ -205,6 +209,9 @@ class QuickCheck(object):
 def countArgs(params):
     depth = 0
     commas = 0
+    if params.replace(" ","").strip() in ["","()"]:
+        return 0
+
     for c in params:
         if c in ['(', '[']:
             depth += 1
