@@ -176,7 +176,7 @@ class QuickCheck(object):
         return testcases
 
     def _handleResult(self,res):
-        print(res, file=sys.stderr)
+        print("WOW",res, file=sys.stderr)
         if res and "accepted" in res and res["accepted"] == "true":
             return {
                 "accepted": True,
