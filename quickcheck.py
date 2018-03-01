@@ -2,6 +2,7 @@ import fileinput
 import re
 import os
 import json
+import sys
 from prologGeneral import checkErrors, swipl
 
 
@@ -175,7 +176,8 @@ class QuickCheck(object):
         return testcases
 
     def _handleResult(self,res):
-        if res["accepted"] == "true":
+        print(res, file=sys.stderr)
+        if res and "accepted" in res and res["accepted"] == "true":
             return {
                 "accepted": True,
                 "description": "All {testcount} tests  passed ".format(**res),
