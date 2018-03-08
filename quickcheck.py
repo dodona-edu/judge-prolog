@@ -1,10 +1,9 @@
 import fileinput
-import re
-import os
+import html
 import json
-import sys
-from prologGeneral import checkErrors, swipl, removeFile
+import re
 
+from prologGeneral import checkErrors, removeFile, swipl
 
 reProperty = re.compile(r"(prop_[^(]*)\((.*)\)\s*:-")
 reBody = re.compile(r"^\s")
@@ -12,7 +11,7 @@ reBody = re.compile(r"^\s")
 reBraces = re.compile(r"\([^()]*\)")
 
 quickCheckInfo = {
-    "nl": """**Quckcheck** controleerde **{numtests} predikaten** die allemaal waar zouden moeten zijn, hievan waren er **{failed} onwaar**.
+    "nl": """**Quickcheck** controleerde **{numtests} predikaten** die allemaal waar zouden moeten zijn, hievan waren er **{failed} onwaar**.
 
 Hieronder zie je de code die de predicaten voorstelt en als ze faalden een tegenvoorbeeld.
 """,
@@ -185,7 +184,7 @@ class QuickCheck(object):
             }
         else:
             rowfmt = "<tr><td>{i}</td><td class='code'>{type}</td><td class='code'>{value}</td></tr>"
-            body = "".join([rowfmt.format(i=i, **arg)
+            body = "".join([rowfmt.format(i=i, type=arg["type"], value=html.escape(arg["value"]))
                             for i, arg in enumerate(res["counterparams"])])
             
             tbl = errorArgumentsTable[self.lang].format(body=body)
