@@ -228,7 +228,7 @@ class SimpleTest(object):
         translations = {
             "exit":  "true.",
             "fail":  "false.",
-            "true":  "true; (checkpoints remaining)",
+            "true":  "true; (choice point remaining)",
             "inference_limit_exceeded":  "Exceeded inference limit of {}".format(result["inferencelimit"]),
         }
 
@@ -244,10 +244,11 @@ class SimpleTest(object):
         if res is not None:
 
             for curResult in res:
-                if curResult["allowcp"]:
+                if curResult["allowcp"] == "true":
                     def transformer(x): return "exit" if x == "true" else x
                 else:
                     def transformer(x): return x
+                
                 numBad = 0
                 tests = {True: [], False: []}
 
