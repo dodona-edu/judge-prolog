@@ -15,7 +15,7 @@ quickCheckInfo = {
 
 Hieronder zie je de code die de predicaten voorstelt en als ze faalden een tegenvoorbeeld.
 """,
-    "en": """**Quckcheck** checked  **{numtests} predicates** that should be true, **{failed}** of which failed. 
+    "en": """**Quickcheck** checked  **{numtests} predicates** that should be true, **{failed}** of which failed. 
 
 The results below show the code that represents the predicates. If they fail, a counterexample is given.
 """
