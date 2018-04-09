@@ -20,7 +20,8 @@ from simpltest import SimpleTest
 from formcheck import FormCheck
 
 words = {
-    "en" : {"correct":"correct"}
+    "en" : {"notes":"There are annotations for your code in the code tab"},
+    "nl" : {"notes":"Er zijn annotaties op u code in het code tabblad"}
 }
 
 
@@ -62,31 +63,51 @@ accepted = all([t["accepted"] for t in tabs])
 
 description = "issues({}).".format(numBad)
 
+messages = []
+
+annotationDescription = None
+annotationCount = {"error":0, "warning":0, "info":0}
+if annotations:
+    for a in annotations:
+        annotationCount[a["type"]] += 1
+    
+    for t in ["error", "warning", "info"]:
+        if annotationCount[t] > 0:
+            annotationDescription = "{}s({}).".format(t,annotationCount[t])
+            break
+
 if accepted:
     description = "true."
-    if annotations:
-        counts = {"error":0, "warning":0, "info":0}
-        for a in annotations:
-            counts[a["type"]] += 1
-        
-        for t in ["error", "warning", "info"]:
-            if counts[t] > 0:
-                description = "{}s({}).".format(t,counts[t])
-                break
-
     status = "correct"
+    
+    if annotationDescription:
+        description = annotationDescription
+        if annotationCount["error"] > 0:
+            status = "compilation error"
+            accepted = False
+
 else:
     if numBad == 0:
         description = "error."
         status = "runtime error"
     else:
         status = "wrong"
+    if annotationCount["error"] > 0:
+        status = "compilation error"
 
+
+if annotations:
+    annotationKinds = ", ".join([str(annotationCount[t])+ " " + t for t in ["error", "warning", "info"] if annotationCount[t] > 0]);
+    messages.append({
+        "format": "code", 
+        "description": "  "+words[config["natural_language"]]["notes"] + " (" + annotationKinds + ")"
+    })
 
 feedback = {
     "accepted": accepted,
     "groups": tabs,
     "status": status,
+    "messages": messages,
     "description": description,
     "annotations": annotations
     }
