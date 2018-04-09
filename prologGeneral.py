@@ -125,8 +125,8 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
     resStdOut = removeMountDir(resStdOut).splitlines(True)
     resStdErr = removeMountDir(resStdErr).splitlines(True)
 
-    print("STD", "".join(resStdOut), file=sys.stderr)
-    print("ERR", "".join(resStdErr), file=sys.stderr)
+    #print("STD", "".join(resStdOut), file=sys.stderr)
+    #print("ERR", "".join(resStdErr), file=sys.stderr)
 
     testcases += outputHandler(
         stdout=resStdOut,
