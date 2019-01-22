@@ -21,7 +21,7 @@ from formcheck import FormCheck
 
 words = {
     "en" : {"notes":"There are annotations for your code in the code tab"},
-    "nl" : {"notes":"Er zijn annotaties op u code in het code tabblad"}
+    "nl" : {"notes":"Er zijn annotaties voor jouw code in het code tabblad"}
 }
 
 
