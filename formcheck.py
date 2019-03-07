@@ -242,7 +242,7 @@ class FormCheck(object):
 
         for l in lints:
             errType = l["type"].lower()
-            if errType not in ["error","warning","info"]:
+            if errType not in ["error", "warning", "info"]:
                 errType = "warning"
 
             r = {
