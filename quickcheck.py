@@ -10,23 +10,24 @@ reBody = re.compile(r"^\s")
 
 reBraces = re.compile(r"\([^()]*\)")
 
-quickCheckInfo = {
-    "nl": CondFormatString(
-        lambda **d: d["failed"] > 0,
-        """**Quickcheck** controleerde **{numtests} predikaten** die altijd waar zouden moeten zijn. Er werden **{failed} tegenvoorbeelden** gevonden.
-
-Hieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeeld.
-""",
-        "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."),
-    "en": CondFormatString(
-        lambda **d: d["failed"] > 0,
-        """**Quickcheck** validated  **{numtests} predicates** that should always be true. However, **{failed} counterexamples** were found. 
-
-The results below show the code that represents the predicates. If they fail, a counterexample is shown.
-""",
-        "**Quickcheck** validated **{numtests} predicates** and could not find a counterexample.")
+LANG = {
+    "nl": {
+        "info": CondFormatString(
+            lambda **d: d["failed"] > 0,
+            "**Quickcheck** controleerde **{numtests} predikaten** die altijd waar zouden moeten zijn. Er werden **{failed} tegenvoorbeelden** gevonden.\n\nHieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeelden.",
+            "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."),
+        "no_counter": "Geen tegenvoorbeelden gevonden ({testcount} testen geslaagd)",
+        "no_results": "Test kon niet worden uitgevoerd"
+    },
+    "en": {
+        "info": CondFormatString(
+            lambda **d: d["failed"] > 0,
+            "**Quickcheck** validated  **{numtests} predicates** that should always be true. However, **{failed} counterexamples** were found.\n\nThe results below show the code that represents the predicates. If they fail, a counterexample is shown.",
+            "**Quickcheck** validated **{numtests} predicates** and could not find a counterexample."),
+        "no_counter": "All {testcount} tests passed, no counterexample found ",
+        "no_results": "Could not execute test"
+    }
 }
-
 
 errorArgumentsTable = {
     "nl": """
@@ -134,7 +135,7 @@ class QuickCheck(object):
             "description": self.tabname,
             "messages": [{
                 "format": "markdown",
-                "description": quickCheckInfo[self.lang].format(
+                "description": LANG[self.lang]["info"].format(
                     numtests=len(self.orderedProperties),
                     failed=failedTest
                 )
@@ -166,7 +167,7 @@ class QuickCheck(object):
                 except (IOError, json.decoder.JSONDecodeError):
                     testcases.append({
                         "accepted": False,
-                        "description": "No testresults found " + testname,
+                        "description": LANG[self.lang]["no_results"],
                         "messages": [{"format": "code", "description": "\n".join(stdout)}]
                     })
                 else:
@@ -188,7 +189,7 @@ class QuickCheck(object):
         if res["accepted"] == "true":
             return {
                 "accepted": True,
-                "description": "All {testcount} tests  passed ".format(**res),
+                "description": LANG[self.lang]["no_counter"].format(**res),
             }
         else:
             rowfmt = "<tr><td>{i}</td><td class='code'>{type}</td><td class='code'>{value}</td></tr>"
