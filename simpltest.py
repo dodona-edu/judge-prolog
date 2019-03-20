@@ -60,12 +60,16 @@ import fileinput
 import re
 import json
 import random
-from prologGeneral import checkErrors, swipl
+from prologGeneral import checkErrors, swipl, CondFormatString
+
 
 
 LANG = {
     "en": {
-        "description": "We checked  **{numtests} facts**, **{failed}** of them were incorrect.\n\nThe results are below.",
+        "description": CondFormatString(
+            lambda **d: d["failed"] > 0,
+            "We checked **{numtests} facts**, **{failed}** of them were incorrect.\n\nThe results are below.",
+            "We checked **{numtests} facts**, they were all correct."),
         "hiddenrow": {
             True: "Another *{num} succeeded* tests are not listed.",
             False: "Another *{num} failed* tests are not listed."
@@ -76,7 +80,10 @@ LANG = {
         "timeout": "The test timed out ({seconds}s)"
     },
     "nl": {
-        "description": "We controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. \n\nHieronder zie je de de verwachte en uitgekomen output.",
+        "description": CondFormatString(
+            lambda **d: d["failed"] > 0,
+            "We controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. \n\nHieronder zie je de de verwachte en uitgekomen output.",
+            "We controleerden **{numtests} feiten**, ze waren allemaal correct. "),
         "hiddenrow": {
             True: "*{num}* andere *geslaagde* testen worden niet getoond.",
             False: "*{num}* andere *gefaalde* testen worden niet getoond."
