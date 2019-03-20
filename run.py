@@ -19,11 +19,6 @@ from quickcheck import QuickCheck
 from simpltest import SimpleTest
 from formcheck import FormCheck
 
-words = {
-    "en": {"notes": "There are annotations for your code in the code tab"},
-    "nl": {"notes": "Er zijn annotaties voor jouw code in het code tabblad"}
-}
-
 
 # extract info from exercise configuration and set defaults
 config = json.load(sys.stdin)
@@ -98,14 +93,6 @@ else:
     if annotationCount["error"] > 0:
         status = "compilation error"
 
-
-if annotations:
-    annotationKinds = ", ".join([str(annotationCount[t]) + " " + t for t in [
-                                "error", "warning", "info"] if annotationCount[t] > 0])
-    messages.append({
-        "format": "code",
-        "description": "  "+words[config["natural_language"]]["notes"] + " (" + annotationKinds + ")"
-    })
 
 feedback = {
     "accepted": accepted,
