@@ -78,7 +78,7 @@ class PLUnit(object):
             ':- style_check(-singleton).\n',
             ':- style_check(-discontiguous).\n'
             '\n:- consult("{}").\n'.format(self.config["source"])
-            ]
+        ]
         testname = None
         comments = []
 
@@ -106,8 +106,8 @@ class PLUnit(object):
                 with open(self.testfile, 'w') as out:
                     out.writelines(initlines)
                     out.writelines(lines)
-                
-                ctx = self.doRun(self.testfile, testname, comments,lines)
+
+                ctx = self.doRun(self.testfile, testname, comments, lines)
                 contexts.append(ctx)
 
                 numTests += 1
@@ -124,18 +124,17 @@ class PLUnit(object):
                 lines.append(l)
 
         return {
-            "accepted" : numBad == 0,
+            "accepted": numBad == 0,
             "badgeCount": numBad,
             "description": self.tabname,
             "messages": [{
                 "format": "markdown",
                 "description": plUnitInfo[self.lang].format(
-                    numtests=numTests, 
+                    numtests=numTests,
                     failed=numBad)
             }],
             "groups": contexts
         }
-
 
     def doRun(self, filename, testname, comments, code):
 
@@ -147,8 +146,7 @@ class PLUnit(object):
                     "accepted": False,
                     "description": "Timeout " + testname,
                     "messages": [{"format": "code", "description": "The test timed out!\n\nstdOut:\n" + ("".join(stdout))}]
-                })    
-
+                })
 
             testcases += checkErrors(stderr, testname)
             testcases += checkErrors(stdout, testname)
@@ -166,10 +164,10 @@ class PLUnit(object):
 
         messages = [{"format": "plain", "description": c} for c in comments]
         messages.append({
-            "format":"code",
+            "format": "code",
             "description": "".join(code[1:-1])
         })
-        if len(testcases) == 0:
+        if testcases:
             context = {
                 "accepted": True,
                 "description": {"format": "plain", "description": testname + ": Passed"},

@@ -23,13 +23,13 @@ The results below show the code that represents the predicates. If they fail, a 
 
 
 errorArgumentsTable = {
-    "nl" : """
+    "nl": """
 <table class="table">
     <caption>Waarden argumenten tegenvoorbeeld</caption>
     <thead> <tr> <th>#</th> <th>Type</th> <th>Waarde</th></tr> </thead>
     <tbody>{body}</tbody>
 </table>""",
-    "en" : """
+    "en": """
 <table class="table">
     <caption>Counter example arguments</caption>
     <thead> <tr> <th>#</th> <th>Type</th> <th>Value</th></tr> </thead>
@@ -146,8 +146,10 @@ class QuickCheck(object):
                     "accepted": False,
                     "description": "Timeout " + testname,
                     "messages": [
-                        {"format": "plain", "description": "The test timed out (more than 1s)!"},
-                        {"format": "plain", "description": "StdOut:\n"+("\n".join(stdout))},
+                        {"format": "plain",
+                            "description": "The test timed out (more than 1s)!"},
+                        {"format": "plain", "description": "StdOut:\n" +
+                            ("\n".join(stdout))},
                         {"format": "plain", "description": "StdErr:\n"+("\n".join(stderr))}]
                 })
             else:
@@ -159,7 +161,7 @@ class QuickCheck(object):
                     testcases.append({
                         "accepted": False,
                         "description": "No testresults found " + testname,
-                        "messages": [{"format":"code","description": "\n".join(stdout)}]
+                        "messages": [{"format": "code", "description": "\n".join(stdout)}]
                     })
                 else:
                     testcases.append(self._handleResult(res))
@@ -186,7 +188,7 @@ class QuickCheck(object):
             rowfmt = "<tr><td>{i}</td><td class='code'>{type}</td><td class='code'>{value}</td></tr>"
             body = "".join([rowfmt.format(i=i, type=arg["type"], value=html.escape(arg["value"]))
                             for i, arg in enumerate(res["counterparams"])])
-            
+
             tbl = errorArgumentsTable[self.lang].format(body=body)
 
             return {
@@ -208,10 +210,11 @@ class QuickCheck(object):
                 ]
             }
 
+
 def countArgs(params):
     depth = 0
     commas = 0
-    if params.replace(" ","").strip() in ["","()"]:
+    if params.replace(" ", "").strip() in ["", "()"]:
         return 0
 
     for c in params:

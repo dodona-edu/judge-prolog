@@ -20,8 +20,8 @@ from simpltest import SimpleTest
 from formcheck import FormCheck
 
 words = {
-    "en" : {"notes":"There are annotations for your code in the code tab"},
-    "nl" : {"notes":"Er zijn annotaties voor jouw code in het code tabblad"}
+    "en": {"notes": "There are annotations for your code in the code tab"},
+    "nl": {"notes": "Er zijn annotaties voor jouw code in het code tabblad"}
 }
 
 
@@ -48,16 +48,19 @@ for f in os.listdir(home):
     if f.endswith(".unit.pl"):
         test = PLUnit(config, os.path.join(home, f), f.replace(".unit.pl", ""))
     elif f.endswith(".qc.pl"):
-        test = QuickCheck(config, os.path.join(home, f), f.replace(".qc.pl", ""))
+        test = QuickCheck(config, os.path.join(
+            home, f), f.replace(".qc.pl", ""))
     elif f.endswith(".simple.pl"):
-        test = SimpleTest(config, os.path.join(home, f), f.replace(".simple.pl", ""))
+        test = SimpleTest(config, os.path.join(home, f),
+                          f.replace(".simple.pl", ""))
     else:
         continue
     tests.append(test)
 
 
 tabs = [t.getResult() for t in tests if t.getResult() is not None]
-annotations = list(itertools.chain.from_iterable([t.getAnnotations() for t in tests if t.getAnnotations() is not None]))
+annotations = list(itertools.chain.from_iterable(
+    [t.getAnnotations() for t in tests if t.getAnnotations() is not None]))
 numBad = sum([t["badgeCount"] for t in tabs])
 accepted = all([t["accepted"] for t in tabs])
 
@@ -66,20 +69,20 @@ description = "issues({}).".format(numBad)
 messages = []
 
 annotationDescription = None
-annotationCount = {"error":0, "warning":0, "info":0}
+annotationCount = {"error": 0, "warning": 0, "info": 0}
 if annotations:
     for a in annotations:
         annotationCount[a["type"]] += 1
-    
+
     for t in ["error", "warning", "info"]:
         if annotationCount[t] > 0:
-            annotationDescription = "{}s({}).".format(t,annotationCount[t])
+            annotationDescription = "{}s({}).".format(t, annotationCount[t])
             break
 
 if accepted:
     description = "true."
     status = "correct"
-    
+
     if annotationDescription:
         description = annotationDescription
         if annotationCount["error"] > 0:
@@ -97,9 +100,10 @@ else:
 
 
 if annotations:
-    annotationKinds = ", ".join([str(annotationCount[t])+ " " + t for t in ["error", "warning", "info"] if annotationCount[t] > 0]);
+    annotationKinds = ", ".join([str(annotationCount[t]) + " " + t for t in [
+                                "error", "warning", "info"] if annotationCount[t] > 0])
     messages.append({
-        "format": "code", 
+        "format": "code",
         "description": "  "+words[config["natural_language"]]["notes"] + " (" + annotationKinds + ")"
     })
 
@@ -110,5 +114,5 @@ feedback = {
     "messages": messages,
     "description": description,
     "annotations": annotations
-    }
+}
 print(json.dumps(feedback, indent=2, separators=(',', ': ')))

@@ -63,7 +63,6 @@ import random
 from prologGeneral import checkErrors, swipl, CondFormatString
 
 
-
 LANG = {
     "en": {
         "description": CondFormatString(
@@ -255,7 +254,7 @@ class SimpleTest(object):
                     def transformer(x): return "exit" if x == "true" else x
                 else:
                     def transformer(x): return x
-                
+
                 numBad = 0
                 tests = {True: [], False: []}
 
@@ -345,7 +344,6 @@ if __name__ == '__main__':
         "prolog_global_stack": "128M",
         "prolog_trail_stack": "128M",
     }, "/home/beardhatcode/Documents/lp/judge/simpletest/example-evaluate.pl").getResult()]
-
 
     nb = sum([t["badgeCount"] for t in tabs])
     feedback = {

@@ -18,7 +18,7 @@ plEndTest = re.compile(r":- +end_tests\((.*)\)")
 plComment = re.compile(r"%!(.*)")
 
 
-def removePath(s: str, testname:str):
+def removePath(s: str, testname: str):
     """Removes the path to the test file from the output
 
     Arguments:
@@ -33,6 +33,7 @@ def removePath(s: str, testname:str):
 
 def removeMountDir(s: str):
     return re.sub(plMountdir, "", s)
+
 
 def analyse(errorType, data, errors):
     """Adds errors to the error array
@@ -99,7 +100,7 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
          "-L" + config["prolog_local_stack"],
          "-G" + config["prolog_global_stack"],
          "-T" + config["prolog_trail_stack"]
-        ],
+         ],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
         bufsize=None,
@@ -145,6 +146,7 @@ def removeFile(filename):
         os.remove(filename)
     except OSError:
         pass
+
 
 class SilentLimitedBuffer(io.StringIO):
     """Buffer that only read the first `maxsize` bytes of a 
@@ -219,7 +221,8 @@ class SilentLimitedBuffer(io.StringIO):
         self.set_done()
         return self.getvalue()
 
-class CondFormatString: # pylint: disable=too-few-public-methods
+
+class CondFormatString:  # pylint: disable=too-few-public-methods
     """
     A class that can be used instead of string when using format
 
@@ -235,12 +238,13 @@ class CondFormatString: # pylint: disable=too-few-public-methods
     print(a.format(failed = 0, numtests = 9)) # -> All 9 tests correct
     """
     _fun = None
+
     def __init__(self, cond, sTrue, sFalse):
         self._cond = cond
         self._sTrue = sTrue
         self._sFalse = sFalse
 
-    def format(self ,*args, **kwargs):
+    def format(self, *args, **kwargs):
         """
             Pass on calls to format to the condition evaluator and pick the right
             String to use
