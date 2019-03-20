@@ -13,14 +13,14 @@ reBraces = re.compile(r"\([^()]*\)")
 quickCheckInfo = {
     "nl": CondFormatString(
         lambda **d: d["failed"] > 0,
-        """**Quickcheck** controleerde **{numtests} predikaten** door tegenvoorbeelden te zoeken. Er werden **{failed} tegenvoorbeelden** gevonden.
+        """**Quickcheck** controleerde **{numtests} predikaten** die altijd waar zouden moeten zijn. Er werden **{failed} tegenvoorbeelden** gevonden.
 
 Hieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeeld.
 """,
         "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."),
     "en": CondFormatString(
         lambda **d: d["failed"] > 0,
-        """**Quickcheck** validated  **{numtests} predicates** by looking for counterexamples. **{failed} counterexamples** were found. 
+        """**Quickcheck** validated  **{numtests} predicates** that should always be true. However, **{failed} counterexamples** were found. 
 
 The results below show the code that represents the predicates. If they fail, a counterexample is shown.
 """,
