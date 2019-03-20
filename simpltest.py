@@ -67,7 +67,7 @@ LANG = {
     "en": {
         "description": CondFormatString(
             lambda **d: d["failed"] > 0,
-            "We checked **{numtests} facts**, **{failed}** of them were incorrect.\n\nThe results are below.",
+            "We checked **{numtests} facts**, **{failed}** of them were incorrect.",
             "We checked **{numtests} facts**, they were all correct."),
         "hiddenrow": {
             True: "Another *{num} succeeded* tests are not listed.",
@@ -81,7 +81,7 @@ LANG = {
     "nl": {
         "description": CondFormatString(
             lambda **d: d["failed"] > 0,
-            "We controleerden **{numtests} feiten**, hievan waren er **{failed} niet correct**. \n\nHieronder zie je de de verwachte en uitgekomen output.",
+            "We controleerden **{numtests} feiten**, hievan waren er **{failed} niet correct**.",
             "We controleerden **{numtests} feiten**, ze waren allemaal correct. "),
         "hiddenrow": {
             True: "*{num}* andere *geslaagde* testen worden niet getoond.",
