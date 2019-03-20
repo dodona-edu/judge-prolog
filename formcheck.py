@@ -138,7 +138,7 @@ class FormCheck(object):
                 "accepted": False,
                 "description": {
                     "format": "markdown", 
-                    "description": "### "+texts["title"],
+                    "description": "#### "+texts["title"],
                 },
                 "messages": [{
                     "format": "html" if doTree else "markdown",
@@ -154,7 +154,7 @@ class FormCheck(object):
                 "accepted": False,
                 "description": {
                     "format": "markdown", 
-                    "description": "### "+texts["title"]
+                    "description": "#### "+texts["title"]
                 },
                 "messages": [{
                     "format": "markdown",
@@ -260,7 +260,7 @@ class FormCheck(object):
                 "accepted": False,
                 "description": {
                     "format": "markdown",
-                    "description": "### "+self.words["tests"]["checkChecker"]["title"]
+                    "description": "#### "+self.words["tests"]["checkChecker"]["title"]
                 },
                 "groups": testcases,
             }

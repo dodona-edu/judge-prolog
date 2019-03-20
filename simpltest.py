@@ -73,9 +73,9 @@ LANG = {
             True: "Another *{num} succeeded* tests are not listed.",
             False: "Another *{num} failed* tests are not listed."
         },
-        "testresults": '### Test results for "*{name}*"',
-        "stdnotempty": "### Output was not empty",
-        "syntaxerror": "### Syntax errors",
+        "testresults": '#### Test results for "*{name}*"',
+        "stdnotempty": "#### Output was not empty",
+        "syntaxerror": "#### Syntax errors",
         "timeout": "The test timed out ({seconds}s)"
     },
     "nl": {
@@ -87,9 +87,9 @@ LANG = {
             True: "*{num}* andere *geslaagde* testen worden niet getoond.",
             False: "*{num}* andere *gefaalde* testen worden niet getoond."
         },
-        "testresults": '### Testresultaten voor "*{name}*"',
-        "stdnotempty": "### Output was niet leeg",
-        "syntaxerror": "### Syntax fouten",
+        "testresults": '#### Testresultaten voor "*{name}*"',
+        "stdnotempty": "#### Output was niet leeg",
+        "syntaxerror": "#### Syntax fouten",
         "timeout": "De test overschreed het tijdslimiet ({seconds}s)"
     }
 }

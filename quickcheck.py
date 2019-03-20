@@ -115,7 +115,7 @@ class QuickCheck(object):
 
             context = {
                 "accepted": numBad == 0,
-                "description": {"description": "### {}".format(testname[5:].split("/")[0].replace("_", " ").title()), "format": "markdown"},
+                "description": {"description": "#### {}".format(testname[5:].split("/")[0].replace("_", " ").title()), "format": "markdown"},
                 "groups": testcases,
                 "messages": [{
                     "format": "prolog",
