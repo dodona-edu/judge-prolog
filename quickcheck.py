@@ -3,7 +3,7 @@ import html
 import json
 import re
 
-from prologGeneral import checkErrors, removeFile, swipl
+from prologGeneral import checkErrors, removeFile, swipl, CondFormatString
 
 reProperty = re.compile(r"(prop_[^(]*)\((.*)\)\s*:-")
 reBody = re.compile(r"^\s")
@@ -11,14 +11,20 @@ reBody = re.compile(r"^\s")
 reBraces = re.compile(r"\([^()]*\)")
 
 quickCheckInfo = {
-    "nl": """**Quickcheck** controleerde **{numtests} predikaten** die allemaal waar zouden moeten zijn, hievan waren er **{failed} onwaar**.
+    "nl": CondFormatString(
+        lambda **d: d["failed"] > 0,
+        """**Quickcheck** controleerde **{numtests} predikaten** door tegenvoorbeelden te zoeken. Er werden **{failed} tegenvoorbeelden** gevonden.
 
-Hieronder zie je de code die de predicaten voorstelt en als ze faalden een tegenvoorbeeld.
+Hieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeeld.
 """,
-    "en": """**Quickcheck** checked  **{numtests} predicates** that should be true, **{failed}** of which failed. 
+        "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."),
+    "en": CondFormatString(
+        lambda **d: d["failed"] > 0,
+        """**Quickcheck** validated  **{numtests} predicates** by looking for counterexamples. **{failed} counterexamples** were found. 
 
-The results below show the code that represents the predicates. If they fail, a counterexample is given.
-"""
+The results below show the code that represents the predicates. If they fail, a counterexample is shown.
+""",
+        "**Quickcheck** validated **{numtests} predicates** and could not find a counterexample.")
 }
 
 
