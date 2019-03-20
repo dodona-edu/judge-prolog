@@ -73,7 +73,7 @@ LANG = {
             True: "Another *{num} succeeded* tests are not listed.",
             False: "Another *{num} failed* tests are not listed."
         },
-        "testresults": '### Test results for "*{name}*',
+        "testresults": '### Test results for "*{name}*"',
         "stdnotempty": "### Output was not empty",
         "syntaxerror": "### Syntax errors",
         "timeout": "The test timed out ({seconds}s)"
