@@ -219,3 +219,33 @@ class SilentLimitedBuffer(io.StringIO):
         self.set_done()
         return self.getvalue()
 
+class CondFormatString: # pylint: disable=too-few-public-methods
+    """
+    A class that can be used instead of string when using format
+
+    a = CondFormatString(lambda x: x > 0,"{} was positive", "{} was negative")
+    print(a.format(9)) # -> "9 was positive"
+    print(a.format(-1)) # -> "-1 was negative"
+
+    a = CondFormatString(
+                lambda **d: d["failed"] > 0,
+                "{failed} wrong of {numtests}",
+                "All {numtests} tests correct")
+    print(a.format(failed = 5, numtests = 9)) # -> 5 wrong of 9
+    print(a.format(failed = 0, numtests = 9)) # -> All 9 tests correct
+    """
+    _fun = None
+    def __init__(self, cond, sTrue, sFalse):
+        self._cond = cond
+        self._sTrue = sTrue
+        self._sFalse = sFalse
+
+    def format(self ,*args, **kwargs):
+        """
+            Pass on calls to format to the condition evaluator and pick the right
+            String to use
+        """
+        if self._cond(*args, **kwargs):
+            return self._sTrue.format(*args, **kwargs)
+        else:
+            return self._sFalse.format(*args, **kwargs)
