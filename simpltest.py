@@ -82,7 +82,7 @@ LANG = {
     "nl": {
         "description": CondFormatString(
             lambda **d: d["failed"] > 0,
-            "We controleerden **{numtests} feiten**, hievan hadden waren er **{failed} niet correct**. \n\nHieronder zie je de de verwachte en uitgekomen output.",
+            "We controleerden **{numtests} feiten**, hievan waren er **{failed} niet correct**. \n\nHieronder zie je de de verwachte en uitgekomen output.",
             "We controleerden **{numtests} feiten**, ze waren allemaal correct. "),
         "hiddenrow": {
             True: "*{num}* andere *geslaagde* testen worden niet getoond.",
