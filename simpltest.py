@@ -267,7 +267,7 @@ class SimpleTest(object):
                     tests[accepted].append(
                         {
                             "description":  {
-                                "format": "code",
+                                "format": "prolog",
                                 "description": t["term"]+"."
                             },
                             "accepted": accepted,

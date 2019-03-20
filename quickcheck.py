@@ -118,7 +118,7 @@ class QuickCheck(object):
                 "description": {"description": "### {}".format(testname[5:].split("/")[0].replace("_", " ").title()), "format": "markdown"},
                 "groups": testcases,
                 "messages": [{
-                    "format": "code",
+                    "format": "prolog",
                     "description": " \n"+"".join(self.properties[testname])+"\n"
                 }]
             }
@@ -200,7 +200,7 @@ class QuickCheck(object):
             return {
                 "accepted": False,
                 "description":  {
-                    "format": "code",
+                    "format": "prolog",
                     "description": res["counterterm"]+"."
                 },
                 "tests": [{
