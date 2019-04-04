@@ -164,7 +164,7 @@ class PLUnit(object):
 
         messages = [{"format": "plain", "description": c} for c in comments]
         messages.append({
-            "format": "code",
+            "format": "prolog",
             "description": "".join(code[1:-1])
         })
         if len(testcases) == 0:
