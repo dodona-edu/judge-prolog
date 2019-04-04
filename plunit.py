@@ -167,7 +167,7 @@ class PLUnit(object):
             "format": "code",
             "description": "".join(code[1:-1])
         })
-        if testcases:
+        if len(testcases) == 0:
             context = {
                 "accepted": True,
                 "description": {"format": "plain", "description": testname + ": Passed"},
