@@ -140,20 +140,20 @@ class PLUnit(object):
 
         def oh(stdout, stderr, testname, scriptfile, config, timeout):
             """Output handler"""
-            testcases = []
+            failedTests = []
             if timeout:
-                testcases.append({
+                failedTests.append({
                     "accepted": False,
                     "description": "Timeout " + testname,
                     "messages": [{"format": "code", "description": "The test timed out!\n\nstdOut:\n" + ("".join(stdout))}]
                 })
 
-            testcases += checkErrors(stderr, testname)
-            testcases += checkErrors(stdout, testname)
+            failedTests += checkErrors(stderr, testname)
+            failedTests += checkErrors(stdout, testname)
 
-            return testcases
+            return failedTests
 
-        testcases = swipl(
+        failedTests = swipl(
             scriptfile=filename,
             testname=testname,
             goal="run_tests",
@@ -167,20 +167,19 @@ class PLUnit(object):
             "format": "prolog",
             "description": "".join(code[1:-1])
         })
-        if len(testcases) == 0:
+        if failedTests:
+            context = {
+                "accepted": False,
+                "description": {"format": "plain", "description": testname + ": Failed"},
+                "messages": messages,
+                "groups": failedTests
+            }
+        else:
             context = {
                 "accepted": True,
                 "description": {"format": "plain", "description": testname + ": Passed"},
                 "messages": messages,
                 "groups": [{"accepted": True, "description": "Ok"}]
-            }
-
-        else:
-            context = {
-                "accepted": False,
-                "description": {"format": "plain", "description": testname + ": Failed"},
-                "messages": messages,
-                "groups": testcases
             }
 
         return context
