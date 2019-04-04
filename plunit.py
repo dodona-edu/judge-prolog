@@ -11,19 +11,18 @@ http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%2
 
 import fileinput
 import re
-from prologGeneral import checkErrors, swipl
+from prologGeneral import checkErrors, swipl, CondFormatString
 
 
 plUnitInfo = {
-    "nl": """**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. 
-Een test kan meerdere `assert`s bevatten.
-
-Hieronder zie je de output van PLUnit.
-""",
-    "en": """**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed. 
-
-The output of PLUnit is shown below.
-"""
+    "nl": CondFormatString(
+        lambda **d: d["failed"] > 0,
+        """**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. Een test kan meerdere `assert`s bevatten.""",
+        "Alle **PLUnit** testen slaagden."),
+    "en": CondFormatString(
+        lambda **d: d["failed"] > 0,
+        """**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed.""",
+        "All **PLUnit** tests passed.")
 }
 
 
