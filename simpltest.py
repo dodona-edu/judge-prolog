@@ -43,8 +43,8 @@ To make files available to both the user and test code, use one of the following
 ```
 ### Implementation
 
-The prolog checker code is contained in [simpletest/checker.pl](simpletest/checker.pl) it is loaded 
-together with the student code as follows, with a copy of the workspace folder as workspace and 
+The prolog checker code is contained in [simpletest/checker.pl](simpletest/checker.pl) it is loaded
+together with the student code as follows, with a copy of the workspace folder as workspace and
 `dotests` as goal for `swipl`.
 
 ```
@@ -122,7 +122,7 @@ class SimpleTest(object):
         for l in fileinput.input(filename):
             l.strip()
             isConsult = consultRe.match(l)
-            if(isConsult):
+            if isConsult:
                 consults[isConsult.group(1)].append(isConsult.group(2))
 
         fileinput.close()
@@ -139,12 +139,12 @@ class SimpleTest(object):
                 f2.write(':- consult({}{}).\n'.format(config["resources"], c))
 
             f2.write("""
-        :- use_module("{judgePath}/simpletest/checker.pl").
-        :- style_check(-singleton).
-        :- style_check(-discontiguous).
-        :- consult("{sumbissionPath}").
-        :- use_module("{testfile}").
-        """.format(
+            :- use_module("{judgePath}/simpletest/checker.pl").
+            :- style_check(-singleton).
+            :- style_check(-discontiguous).
+            :- consult("{sumbissionPath}").
+            :- use_module("{testfile}").
+            """.format(
                 judgePath=config["judge"],
                 sumbissionPath=config["source"],
                 testfile=filename
@@ -172,7 +172,9 @@ class SimpleTest(object):
                 testcases.append({
                     "accepted": False,
                     "description": "Timeout",
-                    "messages": [{"format": "markdown", "description": self.words["timeout"].format(seconds=self.timeout)}]
+                    "messages": [{
+                        "format": "markdown",
+                        "description": self.words["timeout"].format(seconds=self.timeout)}]
                 })
 
             testcases += checkErrors(stderr, testname)
@@ -201,12 +203,9 @@ class SimpleTest(object):
             timeout=self.timeout,
             config=self.config))
 
-        results = []
-        cpallowd = False
-        inferencelimit = None
         res = None
         try:
-            with open(self.config["workdir"]+"/result.json", 'r') as f:
+            with open(self.config["workdir"] + "/result.json", 'r') as f:
                 try:
                     res = json.load(f)
                 except json.decoder.JSONDecodeError:
@@ -217,7 +216,7 @@ class SimpleTest(object):
         resultContexts, numtests, failedTest = self._mkResultContext(res)
 
         return {
-            "accepted": all([c["accepted"] for c in resultContexts+outputContext]),
+            "accepted": all([c["accepted"] for c in resultContexts + outputContext]),
             "badgeCount": failedTest,
             "description": self.tabname,
             "messages": [{
@@ -227,18 +226,22 @@ class SimpleTest(object):
                     failed=failedTest
                 )
             }],
-            "groups": resultContexts+outputContext
+            "groups": resultContexts + outputContext
         }
 
     def translate(self, text, result):
+        """
+        Translate the output of the checker program to results that the 
+        repl would show
+        """
         translations = {
-            "exit":  "true.",
-            "fail":  "false.",
-            "true":  "true; (choice point remaining)",
-            "inference_limit_exceeded":  "Exceeded inference limit of {}".format(result["inferencelimit"]),
+            "exit": "true.",
+            "fail": "false.",
+            "true": "true; (choice point remaining)",
+            "inference_limit_exceeded": "Exceeded inference limit of {}".format(result["inferencelimit"]),
         }
 
-        if(text in translations):
+        if text in translations:
             return translations[text]
         else:
             return text.replace("dodonacheck:", "")
@@ -251,9 +254,11 @@ class SimpleTest(object):
 
             for curResult in res:
                 if curResult["allowcp"] == "true":
-                    def transformer(x): return "exit" if x == "true" else x
+                    def transformer(x):
+                        return "exit" if x == "true" else x
                 else:
-                    def transformer(x): return x
+                    def transformer(x):
+                        return x
 
                 numBad = 0
                 tests = {True: [], False: []}
@@ -266,9 +271,9 @@ class SimpleTest(object):
                         numBad += 1
                     tests[accepted].append(
                         {
-                            "description":  {
+                            "description": {
                                 "format": "prolog",
-                                "description": t["term"]+"."
+                                "description": t["term"] + "."
                             },
                             "accepted": accepted,
                             "tests": [{
@@ -283,11 +288,14 @@ class SimpleTest(object):
 
                 numBadTotal += numBad
                 numTests += len(curResult["result"])
-                contexts.append({
-                    "accepted": numBad == 0,
-                    "description": {"format": "markdown", "description": self.words["testresults"].format(name=curResult["name"])},
-                    "groups": tests[False] + tests[True],
-                })
+                contexts.append(
+                    {
+                        "accepted": numBad == 0,
+                        "description": {
+                            "format": "markdown",
+                            "description": self.words["testresults"].format(name=curResult["name"])},
+                        "groups": tests[False] + tests[True],
+                    })
         else:
             contexts.append({
                 "accepted": False,
@@ -303,7 +311,7 @@ class SimpleTest(object):
         if testcases:
             syntaxErrors = [t for t in testcases if ": Syntax error:" in t["messages"]
                             [0]["description"] and t["description"] == "ERROR"]
-            if(syntaxErrors):
+            if syntaxErrors:
                 return [{
                     "accepted": False,
                     "description": {
@@ -326,7 +334,7 @@ class SimpleTest(object):
         for t in [True, False]:
             if len(tests[t]) > NUM_SHOW[t] + 1:
                 tests[t] = random.sample(tests[t], NUM_SHOW[t]) + [{
-                    "description":  {
+                    "description": {
                         "format": "markdown",
                         "description": self.words["hiddenrow"][t].format(num=len(tests[t]) - NUM_SHOW[t])
                     },

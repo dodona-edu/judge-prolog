@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # Name: Extract PLUnit results
 # By Robbert Gurdeep Singh
-################################################################################
+##########################################################################
 """
 The runner called by run,
 
@@ -34,23 +34,26 @@ config.setdefault("prolog_local_stack", "128M")
 config.setdefault("prolog_global_stack", "128M")
 config.setdefault("prolog_trail_stack", "128M")
 
-if ("natural_language" not in config) or (config["natural_language"] not in ["en", "nl"]):
+# Fallback for natural lanugage
+if config.get("natural_language", None) not in ["en", "nl"]:
     config["natural_language"] = "en"
 
+
+# Collect tests to perform
+# Always FormCheck, add others if the correct files exist
 tests = [FormCheck(config)]
 for f in os.listdir(home):
     test = None
+    fullPath = os.path.join(home, f)
     if f.endswith(".unit.pl"):
-        test = PLUnit(config, os.path.join(home, f), f.replace(".unit.pl", ""))
+        test = PLUnit(config, fullPath, f.replace(".unit.pl", ""))
     elif f.endswith(".qc.pl"):
-        test = QuickCheck(config, os.path.join(
-            home, f), f.replace(".qc.pl", ""))
+        test = QuickCheck(config, fullPath, f.replace(".qc.pl", ""))
     elif f.endswith(".simple.pl"):
-        test = SimpleTest(config, os.path.join(home, f),
-                          f.replace(".simple.pl", ""))
-    else:
-        continue
-    tests.append(test)
+        test = SimpleTest(config, fullPath, f.replace(".simple.pl", ""))
+
+    if test is not None:
+        tests.append(test)
 
 
 tabs = [t.getResult() for t in tests if t.getResult() is not None]
