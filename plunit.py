@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # Name: Extract PLUnit results
 # By Robbert Gurdeep Singh
-################################################################################
+##########################################################################
 """
 PLUnit tests
 
@@ -17,13 +17,12 @@ from prologGeneral import checkErrors, swipl, CondFormatString
 plUnitInfo = {
     "nl": CondFormatString(
         lambda **d: d["failed"] > 0,
-        """**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. Een test kan meerdere `assert`s bevatten.""",
+        "**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. Een test kan meerdere `assert`s bevatten.",
         "Alle **PLUnit** testen slaagden."),
     "en": CondFormatString(
         lambda **d: d["failed"] > 0,
-        """**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed.""",
-        "All **PLUnit** tests passed.")
-}
+        "**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed.",
+        "All **PLUnit** tests passed.")}
 
 
 testfileName = '/tmp/tmp-testfile.pl'
@@ -45,7 +44,7 @@ class PLUnit(object):
     def __init__(self, config, filename, tabname="QuickCheck"):
         self.config = config
         self.filename = filename
-        self.testfile = filename+"-slice.pl"
+        self.testfile = filename + "-slice.pl"
         self.lang = config["natural_language"]
         self.tabname = tabname
         self.result = None
@@ -144,7 +143,10 @@ class PLUnit(object):
                 failedTests.append({
                     "accepted": False,
                     "description": "Timeout " + testname,
-                    "messages": [{"format": "code", "description": "The test timed out!\n\nstdOut:\n" + ("".join(stdout))}]
+                    "messages": [{
+                        "format": "code",
+                        "description": "The test timed out!\n\nstdOut:\n" + ("".join(stdout))
+                    }]
                 })
 
             failedTests += checkErrors(stderr, testname)
@@ -169,14 +171,18 @@ class PLUnit(object):
         if failedTests:
             context = {
                 "accepted": False,
-                "description": {"format": "plain", "description": testname + ": Failed"},
+                "description": {
+                    "format": "plain",
+                    "description": testname + ": Failed"
+                },
                 "messages": messages,
-                "groups": failedTests
-            }
+                "groups": failedTests}
         else:
             context = {
                 "accepted": True,
-                "description": {"format": "plain", "description": testname + ": Passed"},
+                "description": {
+                    "format": "plain",
+                    "description": testname + ": Passed"},
                 "messages": messages,
                 "groups": [{"accepted": True, "description": "Ok"}]
             }

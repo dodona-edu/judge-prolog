@@ -120,7 +120,7 @@ class QuickCheck(object):
                 "groups": testcases,
                 "messages": [{
                     "format": "prolog",
-                    "description": " \n"+"".join(self.properties[testname])+"\n"
+                    "description": " \n" + "".join(self.properties[testname]) + "\n"
                 }]
             }
 
@@ -144,7 +144,7 @@ class QuickCheck(object):
         }
 
     def _run(self, testname):
-        outputJsonFile = self.config["workdir"]+"/result.json"
+        outputJsonFile = self.config["workdir"] + "/result.json"
 
         def oh(stdout, stderr, testname, timeout, **_):
             testcases = []
@@ -157,7 +157,7 @@ class QuickCheck(object):
                             "description": "The test timed out (more than 1s)!"},
                         {"format": "plain", "description": "StdOut:\n" +
                             ("\n".join(stdout))},
-                        {"format": "plain", "description": "StdErr:\n"+("\n".join(stderr))}]
+                        {"format": "plain", "description": "StdErr:\n" + ("\n".join(stderr))}]
                 })
             else:
                 try:
@@ -193,16 +193,20 @@ class QuickCheck(object):
             }
         else:
             rowfmt = "<tr><td>{i}</td><td class='code'>{type}</td><td class='code'>{value}</td></tr>"
-            body = "".join([rowfmt.format(i=i, type=arg["type"], value=html.escape(arg["value"]))
-                            for i, arg in enumerate(res["counterparams"])])
+            body = "".join([
+                rowfmt.format(i=i,
+                              type=arg["type"],
+                              value=html.escape(arg["value"]))
+                for i, arg in enumerate(res["counterparams"])
+            ])
 
             tbl = errorArgumentsTable[self.lang].format(body=body)
 
             return {
                 "accepted": False,
-                "description":  {
+                "description": {
                     "format": "prolog",
-                    "description": res["counterterm"]+"."
+                    "description": res["counterterm"] + "."
                 },
                 "tests": [{
                     "generated": "false.",

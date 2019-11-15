@@ -1,7 +1,6 @@
 import io
 import re
 import subprocess
-import sys
 import os
 from threading import Thread
 
@@ -25,10 +24,11 @@ def removePath(s: str, testname: str):
         s {str} -- Text to clean
 
     Returns:
-        str -- The cleaned text 
+        str -- The cleaned text
     """
 
-    return re.sub(plTestfile, "", removeMountDir(s)).replace("plunit_" + testname + ":", "")
+    return (re.sub(plTestfile, "", removeMountDir(s))
+            .replace("plunit_" + testname + ":", ""))
 
 
 def removeMountDir(s: str):
@@ -49,11 +49,8 @@ def analyse(errorType, data, errors):
     if data:
         n = '\n'
         d = n.join(data)
-        a = {
-            "accepted": False,
-            "description": errorType,
-            "messages": [{"format": "code", "description": d, "permission": "student"}]
-        }
+        a = {"accepted": False, "description": errorType, "messages": [
+            {"format": "code", "description": d, "permission": "student"}]}
         errors.append(a)
 
 
@@ -149,7 +146,7 @@ def removeFile(filename):
 
 
 class SilentLimitedBuffer(io.StringIO):
-    """Buffer that only read the first `maxsize` bytes of a 
+    """Buffer that only read the first `maxsize` bytes of a
     """
 
     def __init__(self, maxsize=5 * 1000 * 1000):
@@ -178,21 +175,23 @@ class SilentLimitedBuffer(io.StringIO):
         self.done = True
 
     def getvalue(self):
-        """Return the value that has been written the text "ERROR:    TRUNCATED 
-        X bytes ignored" is added
+        """Return the value that has been written the text 
+        "ERROR:    TRUNCATED X bytes ignored" is added
 
         Returns:
             string -- The written text as utf-8 string
         """
 
         if self.tooMuch:
-            return io.StringIO.getvalue(self) + "\n\nERROR:    TRUNCATED\n{} bytes ignored\n".format(self.currealsize - self.cursize)
-        else:
-            return io.StringIO.getvalue(self)
+            return (io.StringIO.getvalue(self) +
+                    "\n\n" +
+                    "ERROR:    TRUNCATED {} bytes ignored".format(self.currealsize - self.cursize))
+
+        return io.StringIO.getvalue(self)
 
     def procces(self, stream):
-        """Continiously read stream in thread until no more data comes trough 
-        or the procces in closed by calling set_done() 
+        """Continiously read stream in thread until no more data comes trough
+        or the procces in closed by calling set_done()
 
         Arguments:
             stream {file} -- something that is `.read` able
@@ -202,7 +201,7 @@ class SilentLimitedBuffer(io.StringIO):
         """
 
         def write_deamon(buff, stream):
-            while(not buff.done):
+            while not buff.done:
                 data = stream.read(100).decode("utf-8")
                 if not data:
                     break  # no more data
