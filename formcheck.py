@@ -39,16 +39,16 @@ FALENTREE = """<svg xmlns="http://www.w3.org/2000/svg" width="201" height="100" 
 LANG = {
     "en": {
         "tabname": "Format",
-        "description": "Your submission cound not be accepted because it has an incorect form. \n\nThe issues below should be resolved before your submission can be accepted.",
+        "description": "Your submission could not be accepted because it has an incorrect form. \n\nYou should resolve the issues below before we can accept your submission.",
         "tests": {
             "checkCut": {
                 "title": "Usage of cut",
-                "description": "The usage of cut (`!`) is not required for this exercise. Unneeded use of cut is considered to be bad style",
+                "description": "The usage of cut (`!`) is not required for this exercise. Unneeded use of cut is considered to be bad style.",
                 "treetext": "Save the tree, don't use cut <code>!</code>"
             },
             "checkCheat": {
                 "title": "Cheaters",
-                "description": "Submissions may not use the module `dodonaevaluate`"
+                "description": "Submissions may not use the module `dodonaevaluate`."
             },
             "checkChecker": {
                 "title": "Problems found with `check:check/0`"
@@ -57,7 +57,7 @@ LANG = {
     },
     "nl": {
         "tabname": "Vorm",
-        "description": "Jou oplossing kon niet aanvaard worden omdat er vorm fouten waren.\n\nLos de problemen hieronder op.",
+        "description": "Je oplossing kon niet aanvaard worden, omdat ze niet van de juiste vorm was.\n\nLos de problemen hieronder op voordat je opnieuw indient.",
         "tests": {
             "checkCut": {
                 "title": "Gebruik van cut",
@@ -65,7 +65,7 @@ LANG = {
                 "treetext": "Red de boom, gebruik geen cut <code>!</code>"
             },
             "checkCheat": {
-                "title": "Valspeler",
+                "title": "Valsspeler",
                 "description": "Het gebruik van de module `dodonaevaluate` is niet toegestaan door studentencode"
             },
             "checkChecker": {
