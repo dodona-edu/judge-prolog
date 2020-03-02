@@ -206,7 +206,7 @@ class FormCheck(object):
                         if curRes:
                             lints.append(curRes)
                         curRes = {
-                            "location": (isResult.group(2), isResult.group(4)),
+                            "location": isResult.group(2),
                             "message": isResult.group(5).strip(),
                             "type": isResult.group(1)
                         }
