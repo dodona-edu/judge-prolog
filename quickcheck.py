@@ -17,7 +17,8 @@ LANG = {
             "**Quickcheck** controleerde **{numtests} predikaten** die altijd waar zouden moeten zijn. Er werden **{failed} tegenvoorbeelden** gevonden.\n\nHieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeelden.",
             "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."),
         "no_counter": "Geen tegenvoorbeelden gevonden ({testcount} testen geslaagd)",
-        "no_results": "Test kon niet worden uitgevoerd"
+        "no_results": "Test kon niet worden uitgevoerd",
+        "timeout": "Het tijdslimiet ({timeout}s) voor deze test werd overschreden!"
     },
     "en": {
         "info": CondFormatString(
@@ -25,7 +26,8 @@ LANG = {
             "**Quickcheck** validated  **{numtests} predicates** that should always be true. However, **{failed} counterexamples** were found.\n\nThe results below show the code that represents the predicates. If they fail, a counterexample is shown.",
             "**Quickcheck** validated **{numtests} predicates** and could not find a counterexample."),
         "no_counter": "All {testcount} tests passed, no counterexample found ",
-        "no_results": "Could not execute test"
+        "no_results": "Could not execute test",
+        "timeout": "The execution of this test exceeded the time limit ({timeout}s)!"
     }
 }
 
@@ -149,16 +151,19 @@ class QuickCheck(object):
         def oh(stdout, stderr, testname, timeout, **_):
             testcases = []
             if timeout:
-                testcases.append({
+                messages = [LANG[self.lang]["timeout"].format(timeout=self.timeout)]
+                if stdout:
+                    messages.append("StdOut:\n" + "\n".join(stdout))
+                if stderr:
+                    messages.append("StdErr:\n" + "\n".join(stderr))
+
+                timeoutCase = {
                     "accepted": False,
                     "description": "Timeout " + testname,
-                    "messages": [
-                        {"format": "plain",
-                            "description": "The test timed out (more than 1s)!"},
-                        {"format": "plain", "description": "StdOut:\n" +
-                            ("\n".join(stdout))},
-                        {"format": "plain", "description": "StdErr:\n" + ("\n".join(stderr))}]
-                })
+                    "messages": [{"format": "plain", "description": d} for d in messages]
+                }
+
+                testcases.append(timeoutCase)
             else:
                 try:
                     with open(outputJsonFile, 'r') as f:
