@@ -18,7 +18,7 @@ LANG = {
             "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."),
         "no_counter": "Geen tegenvoorbeelden gevonden ({testcount} testen geslaagd)",
         "no_results": "Test kon niet worden uitgevoerd",
-        "timeout": "Het tijdslimiet ({timeout}s) voor deze test werd overschreden!"
+        "timeout": "De tijdslimiet ({timeout}s) voor deze test werd overschreden!"
     },
     "en": {
         "info": CondFormatString(
