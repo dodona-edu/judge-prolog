@@ -232,15 +232,19 @@ class FormCheck(object):
                 try:
                     res = json.load(f)
                     removeFile(self.config["workdir"] + "/result.json")
-                    plResult = re.compile(r"/mnt/[^:]*:([0-9]+)(:([0-9]+))?")
+                    plResult = re.compile(r"(/mnt/[^:]*|" + re.escape(self.config["source"]) +r"):([0-9]+)(:([0-9]+))?")
+                    plErrorCore = re.compile(r"^Error: " + re.escape(self.config["source"]) + ":([0-9]+)(:([0-9]+))?:")
+
                     for p in res:
                         m = removeMountDir(p["msg"]).strip()
                         m = p["type"].replace("_", " ").title() + ": " + m
                         errType = "error" if p["type"] in ["undefined", "error"] else "info"
 
+                        m=re.sub(plErrorCore,"",m,count=1)
+
                         for x in plResult.finditer(p["msg"]):
                             lints.append({
-                                "location": (x.group(1), x.group(3)),
+                                "location": x.group(2),
                                 "message": m,
                                 "type": errType
                             })
@@ -255,12 +259,11 @@ class FormCheck(object):
                 errType = "warning"
 
             r = {
-                "row": int(l["location"][0]) - 1,
+                "row": int(l["location"]) - 1,
                 "text": l["message"].strip(),
                 "type": errType,
             }
-            if l["location"][1] is not None:
-                r["col"] = int(l["location"][1]) - 1
+
             self.annotations.append(r)
 
         if testcases:
