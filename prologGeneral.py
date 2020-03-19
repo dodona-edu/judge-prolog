@@ -84,7 +84,7 @@ def checkErrors(lines, testname):
     return testcases
 
 
-def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=2500):
+def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=2500,removeMounts=True):
     testcases = []
 
     runner = subprocess.Popen(
@@ -120,8 +120,12 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
     runner.stdout.close()
 
     # Clean output and split in lines
-    resStdOut = removeMountDir(resStdOut).splitlines(True)
-    resStdErr = removeMountDir(resStdErr).splitlines(True)
+    if removeMounts:
+        resStdOut = removeMountDir(resStdOut).splitlines(True)
+        resStdErr = removeMountDir(resStdErr).splitlines(True)
+    else:
+        resStdOut = resStdOut.splitlines(True)
+        resStdErr = resStdErr.splitlines(True)
 
     #print("STD", "".join(resStdOut), file=sys.stderr)
     #print("ERR", "".join(resStdErr), file=sys.stderr)
