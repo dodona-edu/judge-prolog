@@ -14,7 +14,9 @@ LANG = {
     "nl": {
         "info": CondFormatString(
             lambda **d: d["failed"] > 0,
-            "**Quickcheck** controleerde **{numtests} predikaten** die altijd waar zouden moeten zijn. Er werden **{failed} tegenvoorbeelden** gevonden.\n\nHieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeelden.",
+            "**Quickcheck** controleerde **{numtests} predikaten** die altijd waar zouden moeten zijn. "
+            " Er werden **{failed} tegenvoorbeelden** gevonden.\n\n"
+            "Hieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeelden.",
             "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."),
         "no_counter": "Geen tegenvoorbeelden gevonden ({testcount} testen geslaagd)",
         "no_results": "Test kon niet worden uitgevoerd",
@@ -23,7 +25,9 @@ LANG = {
     "en": {
         "info": CondFormatString(
             lambda **d: d["failed"] > 0,
-            "**Quickcheck** validated  **{numtests} predicates** that should always be true. However, **{failed} counterexamples** were found.\n\nThe results below show the code that represents the predicates. If they fail, a counterexample is shown.",
+            "**Quickcheck** validated  **{numtests} predicates** that should always be true. "
+            "However, **{failed} counterexamples** were found.\n\n"
+            "The results below show the code that represents the predicates. If they fail, a counterexample is shown.",
             "**Quickcheck** validated **{numtests} predicates** and could not find a counterexample."),
         "no_counter": "All {testcount} tests passed, no counterexample found ",
         "no_results": "Could not execute test",
@@ -55,6 +59,8 @@ class QuickCheck(object):
         self.timeout = 5
         self.lang = config["natural_language"]
         self.result = None
+        self.properties = {}
+        self.orderedProperties = []
 
         # get property definitions
         self.getPropertyDefinitions(filename)
@@ -75,8 +81,6 @@ class QuickCheck(object):
     def getPropertyDefinitions(self, filename):
         data = [l for l in fileinput.input(filename)]
         fileinput.close()
-        self.properties = {}
-        self.orderedProperties = []
         startLine = 0
         curProperty = None
         for i, l in enumerate(data + ["\n"]):
@@ -118,7 +122,10 @@ class QuickCheck(object):
 
             context = {
                 "accepted": numBad == 0,
-                "description": {"description": "#### {}".format(testname[5:].split("/")[0].replace("_", " ").title()), "format": "markdown"},
+                "description": {
+                    "description": "#### {}".format(testname[5:].split("/")[0].replace("_", " ").title()),
+                    "format": "markdown"
+                },
                 "groups": testcases,
                 "messages": [{
                     "format": "prolog",

@@ -1,60 +1,67 @@
 # judge-prolog
 
-Currently a PLUnit tester only
+A judge for the Prolog language.
 
-Can be tested with:
+## Format of the QuickCheck tests
 
-```bash
-docker run --rm  -v $(realpath .):/home/runner/workdir dodona-prolog ./test/test.bash
+QuickCheck testfiles should be named with a name ending in `.qc.pl`. The name
+before the extension will be used as tabname.
+
+All tests must have a name starting with `prop_`. There should be at least one
+blank line separating the definition from other things. A property must not
+contain empty lines in its definition (you may use comments to fill the space).
+Tests may contain comments. Comments within the test will be shown to the
+student, comments outside it wil not.
+
+The name of the QuickCheck predicates should start with `prop_`
+
+```prolog
+prop_reverse_twice(L:list(integer)) :-
+    % This comment is shown to students
+    my_reverse(L, R),
+    my_reverse(R, L).
 ```
-
-After a build using
-
-```bash
-docker build -t dodona-prolog .
-```
-
-
-The `main.sh` file is form the [docker-images](https://github.ugent.be/dodona/docker-images) repo, it should not be edited and will be removed.
-
-
-## Todos
-
-- [x] Memory management
-- [ ] Using the partial format
-- [x] Add quickcheck (see the `feature/quickcheck` branch and PR)
-- [ ] make text below clearer
-
-## Format of the Quickcheck tests
-
-All tests must have a name starting with `prop_`. There should be at least one blank line sparating the definition from other thing. Tests may contain comments. Comments within the test will be shown to the student, comments outside it wil not.
 
 ## Format of PLUnit testfiles
 
-The file will be splitted up in parts between the tags `:- begin_tests(...).` and `:- end_tests(...).`. All the lines specified between the parst above the current part wil be used.
+PLUnit testfiles should be named with a name ending in `.unit.pl`. The name
+before the extension will be used as tabname.
 
+The testfile will be splitted up in parts between the tags
+`:- begin_tests(...).` and `:- end_tests(...).`. All the lines specified before
+the `begin_tests` and not in an other part can be used.
 
+```prolog
+:- consult(database).
 
-# Availible tests
+:- begin_tests(groupname).
+test(name_of_the_test) :- clause(largest(A,B,A),true).
+test(name_of_an_other_test) :- clause(largest(A,B,A),true).
+:- end_tests(groupname).
+```
+
+Regular
+[PLUnit](<https://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27)>)
+can be used
 
 ## Form check
 
-The form check checks the form of submissions. This is absicly a linter
+The form check checks the form of submissions. This is basicly a linter.
 
 ### Test specification
 
-It is not driven by a test file,
-but by the exercise configuration. Following keys can be inclused in the
-`evaluation` directive:
+It is not driven by a test file, but by the exercise configuration. Following
+keys can be inclused in the `evaluation` directive:
 
 - `cutallowed`: A boolean value indicationg if cuts are allowed (default false)
 - `predefined`: List of predefined predicates in `Name/Arrity` form, if this is
-   set, `check:check` will be executed (may be the empty list)
+  set, `check:check` will be executed (may be the empty list)
 
-The checkCheat test is always executed, it looks for obeccurences of
+The checkCheat test is always executed, it looks for ocurrences of
 `dodonaevaluate` and marks them as errorous.
 
 example config
+
 ```
 ...
  "evaluation":{
@@ -64,10 +71,10 @@ example config
 ...
 ```
 
-## Simple test
+## Format of Simple Test testfiles
 
-Compares the output (that is true/false) of the students predicates with that
-of a verified correct solution.
+Compares the output (that is true/false) of the students predicates with that of
+a supplied correct solution.
 
 ### Test specification
 
@@ -81,7 +88,7 @@ The form is:
 
 % ...
 
-tests("markdown name",dodonaevaluate:thepredicate,thepredicate,true,10000, L) :- 
+tests("markdown name",dodonaevaluate:thepredicate,thepredicate,true,10000, L) :-
     Pers = [waldo,odlaw,swi,wilma,whitebeard,woof,watchers],
     setof([X,Y],(member(X,Pers),member(Y,Pers)),L).
 ```
@@ -89,16 +96,19 @@ tests("markdown name",dodonaevaluate:thepredicate,thepredicate,true,10000, L) :-
 The `test/6` predicate has 6 arguments
 
 1. The name, a string (double quotes), that is rendered as markdown
-2. The functor name of a correct implementation (mostly of the form `dodonaevaluate:....`)
+2. The functor name of a correct implementation (mostly of the form
+   `dodonaevaluate:....`)
 3. The functor name of the student implementation
 4. A Boolean value indicating is cuts are allowed (does not work properly yet)
 5. An inference limit
 6. A list of argument lists
-    - Example for a one argument predicate : [[1],[2],[3]]
-    - Example for a two argument predicate : [[1,a],[2,a],[3,a]]
-    - Example for a one argument predicate that takes lists : [[[1,a]],[[2,a,9,8]],[[3,a,4]]
+   - Example for a one argument predicate : [[1],[2],[3]]
+   - Example for a two argument predicate : [[1,a],[2,a],[3,a]]
+   - Example for a one argument predicate that takes lists :
+     [[[1,a]],[[2,a,9,8]],[[3,a,4]]
 
-To make files available to both the user and test code, use one of the following lines
+To make files available to both the user and test code, use one of the following
+lines
 
 ```
 %- consult public "file.pl".
@@ -106,11 +116,13 @@ To make files available to both the user and test code, use one of the following
 %- consult public ["file1.pl","file2.pl"].
 %- consult private ["file1.pl","file2.pl"].
 ```
+
 ### Implementation
 
-The prolog checker code is contained in [simpletest/checker.pl](simpletest/checker.pl) it is loaded together
-with the student code as follows, with a copy of the workspace folder as workspace and `dotests` as 
-goals for `swipl`.
+The prolog checker code is contained in
+[simpletest/checker.pl](simpletest/checker.pl) it is loaded together with the
+student code as follows, with a copy of the workspace folder as workspace and
+`dotests` as goals for `swipl`.
 
 ```
 :- use_module("{judgePath}/simpletest/checker.pl").
@@ -118,4 +130,10 @@ goals for `swipl`.
 :- use_module("/mnt/.../evaluation/.....simple.pl").
 ```
 
-The results stored in `workspace/results.json` are then consulted to build the feedback table
+The results stored in `workspace/results.json` are then consulted to build the
+feedback table
+
+## Todos
+
+- [ ] Using the partial format
+- [ ] make text below clearer

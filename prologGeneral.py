@@ -11,7 +11,7 @@ plMountdir = re.compile(r"/mnt/[^/]*/")
 plStatus = re.compile(r"^[A.!+-]+$")
 plResult = re.compile(r"^(ERROR|Warning): (.*)")
 plDone = re.compile(r"done$")
-plInfo = re.compile(r"^(ERROR:     |\t)(.*)")
+plInfo = re.compile(r"^(ERROR: {5}|\t)(.*)")
 plBeginTest = re.compile(r":- +begin_tests\(([^,]*)(,.*)?\)")
 plEndTest = re.compile(r":- +end_tests\((.*)\)")
 plComment = re.compile(r"%!(.*)")
@@ -84,7 +84,7 @@ def checkErrors(lines, testname):
     return testcases
 
 
-def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=2500,removeMounts=True):
+def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=2500, removeMounts=True):
     testcases = []
 
     runner = subprocess.Popen(
@@ -106,13 +106,12 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
     stdBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stderr)
     errBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stdout)
 
-    didTimeout = None
+    didTimeout = True
     try:
         runner.wait(timeout=timeout)
         didTimeout = False
     except subprocess.TimeoutExpired:
         runner.terminate()
-        didTimeout = True
 
     resStdOut = stdBuf.retreive_and_stop()
     resStdErr = errBuf.retreive_and_stop()
@@ -127,8 +126,8 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
         resStdOut = resStdOut.splitlines(True)
         resStdErr = resStdErr.splitlines(True)
 
-    #print("STD", "".join(resStdOut), file=sys.stderr)
-    #print("ERR", "".join(resStdErr), file=sys.stderr)
+    # print("STD", "".join(resStdOut), file=sys.stderr)
+    # print("ERR", "".join(resStdErr), file=sys.stderr)
 
     testcases += outputHandler(
         stdout=resStdOut,
@@ -162,13 +161,13 @@ class SilentLimitedBuffer(io.StringIO):
         self.done = False
 
     def write(self, s):
-        l = len(s)
-        self.currealsize += l
+        size = len(s)
+        self.currealsize += size
         if self.currealsize > self.maxsize:
             self.tooMuch = True
             return
         else:
-            self.cursize += l
+            self.cursize += size
             return io.StringIO.write(self, s)
 
     def set_done(self):
@@ -179,7 +178,7 @@ class SilentLimitedBuffer(io.StringIO):
         self.done = True
 
     def getvalue(self):
-        """Return the value that has been written the text 
+        """Return the value that has been written the text
         "ERROR:    TRUNCATED X bytes ignored" is added
 
         Returns:
