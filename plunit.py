@@ -5,14 +5,18 @@
 """
 PLUnit tests
 
+Splits up the testfile ending in ".unit.pl" in separate tests and reports
+the output for each group.
+
+See:
 http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%27)
 """
 
 
 import fileinput
 import re
-from prologGeneral import checkErrors, swipl, CondFormatString
 
+from prologGeneral import checkErrors, swipl, CondFormatString
 
 plUnitInfo = {
     "nl": CondFormatString(
@@ -25,14 +29,6 @@ plUnitInfo = {
         "All **PLUnit** tests passed.")}
 
 
-testfileName = '/tmp/tmp-testfile.pl'
-
-plTestfile = re.compile(testfileName.replace(".", "\\.") + r"(:[0-9]*)?:?")
-plMountdir = re.compile(r"/mnt/[^/]*/")
-plStatus = re.compile(r"^[A.!+-]+$")
-plResult = re.compile(r"^(ERROR|Warning): (.*)")
-plDone = re.compile(r"done$")
-plInfo = re.compile(r"^(ERROR:     |\t)(.*)")
 plBeginTest = re.compile(r":- +begin_tests\(([^,]*)(,.*)?\)")
 plEndTest = re.compile(r":- +end_tests\((.*)\)")
 plComment = re.compile(r"%!(.*)")
@@ -65,17 +61,28 @@ class PLUnit(object):
             return "PLUnit: {} issues".format(res["badgeCount"])
 
     def _doTest(self):
-        """ Splits up the testfile in smaler parts and execute each of them.
+        """ Splits up the testfile in smaller parts and execute each of them.
 
-        The file needs to be split up in order to have rusults of tests that occur
+        The file needs to be split up in order to have results of tests that occur
         after a non-terminating one
+
+        We create a file
+            :- style_check(-singleton). % <- these errors are reported by FormCheck
+            :- style_check(-discontiguous). % <- also reported by FormCheck
+            :- consult(STUDENT_SOURCE_FILE).
+            
+            LINES OF ONE plUnit test in the file
+        
+        Run it and accumulate the results
+
         """
 
         lines = []
         initlines = [
             ':- style_check(-singleton).\n',
-            ':- style_check(-discontiguous).\n'
-            '\n:- consult("{}").\n'.format(self.config["source"])
+            ':- style_check(-discontiguous).\n',
+            '\n',
+            ':- consult("{}").\n'.format(self.config["source"])
         ]
         testname = None
         comments = []
@@ -91,13 +98,13 @@ class PLUnit(object):
             isEnd = plEndTest.match(l)
             isComment = plComment.match(l)
 
-            if isStart:
+            if isStart:  # Start of a new test
                 testname = isStart.group(1)
                 initlines += [l for l in lines if l.strip()]
                 lines = [l]
                 comments = []
 
-            elif isEnd:
+            elif isEnd:  # End of a new test -> Join lines + run
                 lines.append(l)
 
                 # Create test file

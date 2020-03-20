@@ -29,16 +29,15 @@ example config
 
 import fileinput
 import json
+import os
 import random
 import re
-import sys
+from typing import Dict, Optional
 
 from prologGeneral import swipl, removeMountDir, removeFile
 
-FALENTREE = """<svg xmlns="http://www.w3.org/2000/svg" width="201" height="100" version="1"><path d="M42 56l31 5" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M189 1c-13 7-31 12-49 14-2 2-2 5-1 8-8-4-17 1-21 12-2-4-12-5-18 2-10-1-24 2-25 17l-3 6c-7 0-10 4-8 11-3 5-2 9 1 14-4 1-10 7-10 14h140c7-36 6-72-6-98z" fill="#0e5d2d" fill-rule="evenodd" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 91c2-5-4-10-10-14l-4-16c-5 3-11 3-16 1-3 5-2 10-4 16C2 84 0 90 2 94c5-2 9-8 16-7l13 7c3-1 4-6 2-9 6 1 9 4 13 6zM36 44l-5 16 49 10h1c5-4 13-4 16 3 1-6 8-12 16-8 3-5 11-7 17-6l6-6c1-3-1-6-5-8-12 1-22 6-30 12-28-8-45-9-65-13z" fill="#784421" fill-rule="evenodd" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 61c0 1-4 3-8 3s-8-2-8-3c0-2 5-3 8-6l8 6zm3-17c2 0 2 3 2 8-1 4-3 7-5 7-1 0-1-5-4-9l7-6z" fill="#ba805a" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M113 64c-7-3-14 1-16 7-6-3-9-5-14-4-6 2-9 7-8 13 2-5 3-7 9-11 6-2 10 2 14 8 1-7 5-15 16-10 3-6 9-7 15-7 5 1 11 3 11 8h3c-1-7-8-9-14-10s-12 1-16 6zM68 53c8 1 16 2 25 5-19-2-20-3-25-5zm-29 5c11 1 21 2 31 6-23-2-24-4-31-6z" fill-rule="evenodd"/><path d="M73 63c7 1 15 1 23 4-17-1-18-3-23-4zM17 81c0-5 0-10 2-15 1 11-1 12-2 15zm13 1c0-5 0-9-2-15-1 11 1 12 2 15zm106 4c-6 1-9 5-10 11 2-5 5-8 10-9 5 0 9 2 11 7 0-7-5-10-11-9zm-47-4c-6 1-9 6-9 12 2-5 5-8 10-9s9 2 11 7c0-8-5-10-12-10zm28-47c-6 1-9 5-10 11 2-5 5-8 10-9 5 0 9 2 11 7 0-7-5-10-11-9z" fill-rule="evenodd"/><path d="M100 43c-6 1-8 4-9 9 2-4 5-6 9-6 5-1 8 1 9 4 1-5-4-8-9-7z" fill-rule="evenodd"/></svg>"""
-
 # This exact message confuses students, we will remove it from messages
-BAD_UNDEFINED_MESSAGE="""The predicates below are not defined. If these are defined
+BAD_UNDEFINED_MESSAGE = """The predicates below are not defined. If these are defined
 at runtime using assert/1, use :- dynamic Name/Arity.
 
 """
@@ -46,15 +45,17 @@ at runtime using assert/1, use :- dynamic Name/Arity.
 LANG = {
     "en": {
         "tabname": "Format",
-        "description": "Your submission could not be accepted because it has an incorrect form. \n\nYou should resolve the issues below before we can accept your submission.",
+        "description": ("Your submission could not be accepted because it has an incorrect form. \n\n"
+                        "You should resolve the issues below before we can accept your submission."),
         "tests": {
             "checkCut": {
                 "title": "Usage of cut",
-                "description": "The usage of cut (`!`) is not required for this exercise. Unneeded use of cut is considered to be bad style.",
+                "description": ("The usage of cut (`!`) is not required for this exercise. "
+                                "Unneeded use of cut is considered to be bad style."),
                 "treetext": "Save the tree, don't use cut <code>!</code>"
             },
             "checkCheat": {
-                "title": "Cheaters",
+                "title": "Cheater",
                 "description": "Submissions may not use the module `dodonaevaluate`."
             },
             "checkChecker": {
@@ -64,11 +65,13 @@ LANG = {
     },
     "nl": {
         "tabname": "Vorm",
-        "description": "Je oplossing kon niet aanvaard worden, omdat ze niet van de juiste vorm was.\n\nLos de problemen hieronder op voordat je opnieuw indient.",
+        "description": ("Je oplossing kon niet aanvaard worden, omdat ze niet van de juiste vorm was.\n\n"
+                        "Los de problemen hieronder op voordat je opnieuw indient."),
         "tests": {
             "checkCut": {
                 "title": "Gebruik van cut",
-                "description": "Het gebruik van de cut (`!`) is niet nodig voor deze oefening. Het is slechte stijl het te gebruiken als dat niet nodig is.",
+                "description": ("Het gebruik van de cut (`!`) is niet nodig voor deze oefening. "
+                                "Het is slechte stijl het te gebruiken als dat niet nodig is."),
                 "treetext": "Red de boom, gebruik geen cut <code>!</code>"
             },
             "checkCheat": {
@@ -88,20 +91,21 @@ class FormCheck(object):
         self.config = config
         self.words = LANG[config["natural_language"]]
         self.tabname = self.words["tabname"]
-        self.result = False
+        self.result = False  # type: Union[False,Optional[Dict]]
         self.annotations = []
 
         # Read input
         self.data = [x for x in fileinput.input(config["source"])]
         fileinput.close()
 
+        # Add required tests
         self.tests = [self.checkCheat]
         if "predefined" in config:
             self.tests.append(self.checkChecker)
         if "cutallowed" in config and not config["cutallowed"]:
             self.tests.append(self.checkCut)
 
-    def getResult(self):
+    def getResult(self) -> Dict:
         if self.result is False:
             self._doTest()
         return self.result
@@ -139,21 +143,25 @@ class FormCheck(object):
     def checkCut(self):
         texts = self.words["tests"]["checkCut"]
         if any(["!" in line.split("%")[0] for line in self.data]):
-            doTree = random.random() > 0.9
+            if random.random() > 0.9:
+                # Fallen tree easter egg
+                with open(os.sep.join([self.config["judge"], "fallen_tree.svg"])) as f:
+                    msg = {
+                        "format": "html",
+                        "description": "<H2>" + texts["treetext"] + "</H2><br/>" + ("".join(f.readlines()))
+                    }
+            else:
+                msg = {
+                    "format": "markdown",
+                    "description": texts["description"]
+                }
             return {
                 "accepted": False,
                 "description": {
                     "format": "markdown",
                     "description": "#### " + texts["title"],
                 },
-                "messages": [
-                    {
-                        "format": "html" if doTree else "markdown",
-                        "description": (
-                            "<H2>" +
-                            texts["treetext"] +
-                            "</H2><br/>" +
-                            FALENTREE) if doTree else texts["description"]}],
+                "messages": [msg],
             }
         return None
 
@@ -188,10 +196,10 @@ class FormCheck(object):
             ))
 
         def oh(stdout, testname, timeout, **kwargs):
-            testcases = []
+            cases = []
             lints = []
             if timeout:
-                testcases.append({
+                cases.append({
                     "accepted": False,
                     "description": "Timeout " + testname,
                     "messages": [{
@@ -205,14 +213,14 @@ class FormCheck(object):
             if stdout:
                 plFile = re.compile(re.escape(self.config["source"]))
                 plResult = re.compile(
-                    r"^(ERROR|Warning):\s+"+re.escape(self.config["source"])+":([0-9]+)(:([0-9]+))?:(.*)")
+                    r"^(ERROR|Warning):\s+" + re.escape(self.config["source"]) + ":([0-9]+)(:([0-9]+))?:(.*)")
                 curRes = {}
                 for line in stdout:
                     isResult = plResult.match(line)
                     line = line.strip()
                     if isResult:
                         if curRes:
-                            curRes["message"] = re.sub(plFile,"submission.pl",curRes["message"])
+                            curRes["message"] = re.sub(plFile, "submission.pl", curRes["message"])
                             lints.append(curRes)
                         curRes = {
                             "location": isResult.group(2),
@@ -223,53 +231,52 @@ class FormCheck(object):
                         if curRes:
                             curRes["message"] += "\n" + line
                 if curRes:
-                    curRes["message"] = re.sub(plFile,"submission.pl",curRes["message"])
+                    curRes["message"] = re.sub(plFile, "submission.pl", curRes["message"])
                     lints.append(curRes)
 
-            return testcases, lints
+            return cases, lints
+
         jsonOutputFile = self.config["workdir"] + "/result.json"
-        removeFile(jsonOutputFile)
-        testcases, lints = swipl(
+        removeFile(jsonOutputFile) # ensure that the file is removed
+        testCases, lints = swipl(
             scriptfile=testfilename,
             testname="check:check",
             goal="'dodona lint'",
             outputHandler=oh,
             timeout=1,
             config=self.config,
-            removeMounts = False)
+            removeMounts=False)
 
+        jsonRes = None
         try:
             with open(jsonOutputFile, 'r') as f:
                 try:
-                    res = json.load(f)
-                    removeFile(self.config["workdir"] + "/result.json")
-                    plResult = re.compile(re.escape(self.config["source"]) +r":([0-9]+)(:([0-9]+))?:?",)
-
-                    print(res, file=sys.stderr)
-
-                    for p in res:
-                        m = re.sub(plResult, "", p["msg"].strip())
-                        m = removeMountDir(m).strip()
-                        m = p["type"].replace("_"," ").title() +": " + m
-
-                        if p["type"] == "undefined":
-                            m = m.replace(BAD_UNDEFINED_MESSAGE, "",1)
-
-
-                        errType = "error" if p["type"] in ["undefined", "error"] else "info"
-
-                        for x in plResult.finditer(p["msg"]):
-                            lints.append({
-                                "location": x.group(1),
-                                "message": m,
-                                "type": errType
-                            })
+                    jsonRes = json.load(f)
                 except json.decoder.JSONDecodeError:
-                    exit(5)
                     pass
         except IOError:
-            exit(5)
             pass
+        removeFile(jsonOutputFile)
+
+        plResult = re.compile(re.escape(self.config["source"]) + r":([0-9]+)(:([0-9]+))?:?", )
+        
+        if jsonRes:
+            for p in jsonRes:
+                m = re.sub(plResult, "", p["msg"].strip())
+                m = removeMountDir(m).strip()
+                m = p["type"].replace("_", " ").title() + ": " + m
+
+                if p["type"] == "undefined":
+                    m = m.replace(BAD_UNDEFINED_MESSAGE, "", 1)
+
+                errType = "error" if p["type"] in ["undefined", "error"] else "info"
+
+                for x in plResult.finditer(p["msg"]):
+                    lints.append({
+                        "location": x.group(1),
+                        "message": m,
+                        "type": errType
+                    })
 
         for l in lints:
             errType = l["type"].lower()
@@ -284,12 +291,12 @@ class FormCheck(object):
 
             self.annotations.append(r)
 
-        if testcases:
+        if testCases:
             return {
                 "accepted": False,
                 "description": {
                     "format": "markdown",
                     "description": "#### " + self.words["tests"]["checkChecker"]["title"]},
-                "groups": testcases,
+                "groups": testCases,
             }
         return None
