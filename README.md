@@ -27,9 +27,9 @@ prop_reverse_twice(L:list(integer)) :-
 PLUnit testfiles should be named with a name ending in `.unit.pl`. The name
 before the extension will be used as tabname.
 
-The testfile will be splitted up in parts between the tags
+The testfile will be split up into the parts between the tags
 `:- begin_tests(...).` and `:- end_tests(...).`. All the lines specified before
-the `begin_tests` and not in an other part can be used.
+the `begin_tests` and not in another part can be used.
 
 ```prolog
 :- consult(database).
@@ -46,7 +46,7 @@ can be used
 
 ## Form check
 
-The form check checks the form of submissions. This is basicly a linter.
+The form check checks the form of submissions. This is basically a linter.
 
 ### Test specification
 
@@ -54,11 +54,11 @@ It is not driven by a test file, but by the exercise configuration. Following
 keys can be inclused in the `evaluation` directive:
 
 - `cutallowed`: A boolean value indicationg if cuts are allowed (default false)
-- `predefined`: List of predefined predicates in `Name/Arrity` form, if this is
+- `predefined`: List of predefined predicates in `Name/Arity` form, if this is
   set, `check:check` will be executed (may be the empty list)
 
 The checkCheat test is always executed, it looks for ocurrences of
-`dodonaevaluate` and marks them as errorous.
+`dodonaevaluate` and marks them as erronous.
 
 example config
 
@@ -99,7 +99,7 @@ The `test/6` predicate has 6 arguments
 2. The functor name of a correct implementation (mostly of the form
    `dodonaevaluate:....`)
 3. The functor name of the student implementation
-4. A Boolean value indicating is cuts are allowed (does not work properly yet)
+4. A Boolean value indicating whether cuts are allowed (does not work properly yet)
 5. An inference limit
 6. A list of argument lists
    - Example for a one argument predicate : [[1],[2],[3]]
@@ -120,7 +120,7 @@ lines
 ### Implementation
 
 The prolog checker code is contained in
-[simpletest/checker.pl](simpletest/checker.pl) it is loaded together with the
+[simpletest/checker.pl](simpletest/checker.pl). It is loaded together with the
 student code as follows, with a copy of the workspace folder as workspace and
 `dotests` as goals for `swipl`.
 
