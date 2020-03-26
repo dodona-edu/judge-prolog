@@ -13,8 +13,6 @@ contain empty lines in its definition (you may use comments to fill the space).
 Tests may contain comments. Comments within the test will be shown to the
 student, comments outside it wil not.
 
-The name of the QuickCheck predicates should start with `prop_`
-
 ```prolog
 prop_reverse_twice(L:list(integer)) :-
     % This comment is shown to students
