@@ -205,7 +205,7 @@ class FormCheck(object):
                     "messages": [{
                         "format": "code",
                         "description":
-                            "The test timed out (more than 1s)!" +
+                            "The test timed out (more than 2s)!" +
                             "\n\nstdOut:\n" + ("".join(stdout))
                     }]
                 })
@@ -243,7 +243,7 @@ class FormCheck(object):
             testname="check:check",
             goal="'dodona lint'",
             outputHandler=oh,
-            timeout=1,
+            timeout=2,
             config=self.config,
             removeMounts=False)
 
@@ -259,7 +259,7 @@ class FormCheck(object):
         removeFile(jsonOutputFile)
 
         plResult = re.compile(re.escape(self.config["source"]) + r":([0-9]+)(:([0-9]+))?:?", )
-        
+
         if jsonRes:
             for p in jsonRes:
                 m = re.sub(plResult, "", p["msg"].strip())
