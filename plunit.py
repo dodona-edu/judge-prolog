@@ -70,9 +70,9 @@ class PLUnit(object):
             :- style_check(-singleton). % <- these errors are reported by FormCheck
             :- style_check(-discontiguous). % <- also reported by FormCheck
             :- consult(STUDENT_SOURCE_FILE).
-            
+
             LINES OF ONE plUnit test in the file
-        
+
         Run it and accumulate the results
 
         """
@@ -152,7 +152,7 @@ class PLUnit(object):
                     "description": "Timeout " + testname,
                     "messages": [{
                         "format": "code",
-                        "description": "The test timed out!\n\nstdOut:\n" + ("".join(stdout))
+                        "description": "The test timed out (5s)!\n\nstdOut:\n" + ("".join(stdout))
                     }]
                 })
 
@@ -166,7 +166,7 @@ class PLUnit(object):
             testname=testname,
             goal="run_tests",
             outputHandler=oh,
-            timeout=1,
+            timeout=5,
             config=self.config
         )
 
