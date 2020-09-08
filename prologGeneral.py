@@ -92,8 +92,8 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
          '-s', scriptfile,
          '-t', goal,
          '-q',
-         '+tty',
-         '--nosignals',
+         '--tty=yes',
+         '--signals=no',
          "-L" + config["prolog_local_stack"],
          "-G" + config["prolog_global_stack"],
          "-T" + config["prolog_trail_stack"]
