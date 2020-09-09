@@ -89,14 +89,12 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
 
     runner = subprocess.Popen(
         ['swipl',
-         '-s', scriptfile,
          '-t', goal,
-         '-q',
+         '--quiet=yes',
          '--tty=yes',
          '--signals=no',
-         "-L" + config["prolog_local_stack"],
-         "-G" + config["prolog_global_stack"],
-         "-T" + config["prolog_trail_stack"]
+         "--stack_limit=" + config["prolog_stack_limit"],
+         scriptfile,
          ],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
@@ -125,7 +123,8 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
     else:
         resStdOut = resStdOut.splitlines(True)
         resStdErr = resStdErr.splitlines(True)
-
+    # import sys
+    # print("CAL", scriptfile, file=sys.stderr)
     # print("STD", "".join(resStdOut), file=sys.stderr)
     # print("ERR", "".join(resStdErr), file=sys.stderr)
 

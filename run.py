@@ -30,9 +30,7 @@ time_limit = int(config['time_limit'])
 memory_limit = int(config['memory_limit'])
 programming_language = config['programming_language']
 
-config.setdefault("prolog_local_stack", "128M")
-config.setdefault("prolog_global_stack", "128M")
-config.setdefault("prolog_trail_stack", "128M")
+config.setdefault("prolog_stack_limit", "256m")
 
 # Fallback for natural lanugage
 if config.get("natural_language", None) not in ["en", "nl"]:
