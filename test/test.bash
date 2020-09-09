@@ -3,10 +3,12 @@ if [ "$#" -ne "1" -a "$#" -ne "2" ]; then
 	echo "Usage: $0 EXDIR [SOLFILE]"
 	echo "  Will run the judge for the excersise with the given solution."
 	echo "  If no SOLFILE is given soluion/solution.pl will be used"
-    echo ""
-    echo "  To run with docker set the env var"
-    echo "  - WITH_DOCKER_IMAGE=specificimage"
-    echo "  - WITH_DOCKER=1   (to run with dodona/dodona-prolog)"
+	echo ""
+	echo "  To run with docker set the env var"
+	echo "  - WITH_DOCKER_IMAGE=specificimage"
+	echo "  - WITH_DOCKER=1   (to run with dodona/dodona-prolog)"
+	echo "  - WAIT=1   (don't start the tests. To run tests execute          )"
+	echo "             (cd /home/runner; cat /mnt/init.json | /mnt/judge/run )"
 	exit 1
 fi
 
@@ -33,12 +35,7 @@ cp -r $1/* /tmp/dodona-test
 if [ -n "$WITH_DOCKER" -o -n "$WITH_DOCKER_IMAGE" ]; then
 	mkdir /tmp/dodona-test/judge
 	cp -r "$DIR/../"* /tmp/dodona-test/judge
-	set -x
-	docker run -i --rm \
-		-v "/tmp/dodona-test/:/mnt:rw" \
-		${WITH_DOCKER_IMAGE:-dodona/dodona-prolog} \
-		/main.sh /mnt/judge/run \
-		<<HERE
+	cat <<HERE >/tmp/dodona-test/init.json
 {
     "resources": "/mnt/evaluation",
     "judge": "/mnt/judge",
@@ -49,6 +46,23 @@ if [ -n "$WITH_DOCKER" -o -n "$WITH_DOCKER_IMAGE" ]; then
     "programming_language":"prolog"
 }
 HERE
+
+	if [ -n "$WAIT" ]; then
+		set -x
+		docker run -it --rm \
+			-v "/tmp/dodona-test/:/mnt:rw" \
+			-v "/tmp/dodona-test/workdir/:/home/runner/workdir:rw" \
+			${WITH_DOCKER_IMAGE:-dodona/dodona-prolog} \
+			/bin/bash
+	else
+		set -x
+		cat /tmp/dodona-test/init.json |
+			docker run -i --rm \
+				-v "/tmp/dodona-test/:/mnt:rw" \
+				-v "/tmp/dodona-test/workdir/:/home/runner/workdir:rw" \
+				${WITH_DOCKER_IMAGE:-dodona/dodona-prolog} \
+				/main.sh /mnt/judge/run
+	fi
 else
 	$DIR/../run <<HERE
 {
