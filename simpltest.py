@@ -231,7 +231,7 @@ class SimpleTest(object):
 
     def translate(self, text, result):
         """
-        Translate the output of the checker program to results that the 
+        Translate the output of the checker program to results that the
         repl would show
         """
         translations = {
@@ -303,6 +303,10 @@ class SimpleTest(object):
                 "messages": [{
                     "format": "markdown",
                     "description": "No results found"
+                },{
+                    "format": "markdown",
+                    "description": "This may be caused by a stack overflow",
+                    "permission": "staff"
                 }],
             })
         return contexts, numTests, numBadTotal
