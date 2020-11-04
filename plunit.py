@@ -16,7 +16,8 @@ http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%2
 import fileinput
 import re
 
-from prologGeneral import checkErrors, swipl, CondFormatString
+from prologGeneral import checkErrors, swipl
+from util import CondFormatString
 
 plUnitInfo = {
     "nl": CondFormatString(

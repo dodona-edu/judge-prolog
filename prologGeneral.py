@@ -1,8 +1,6 @@
-import sys
 import re
 import subprocess
-import os
-from util import SilentLimitedBuffer, CondFormatString, removeFile
+from util import SilentLimitedBuffer
 
 testfileName = '/tmp/tmp-testfile.pl'
 
