@@ -55,7 +55,6 @@ HERE
 			${WITH_DOCKER_IMAGE:-dodona/dodona-prolog} \
 			/bin/bash
 	else
-		set -x
 		cat /tmp/dodona-test/init.json |
 			docker run -i --rm \
 				-v "/tmp/dodona-test/:/mnt:rw" \

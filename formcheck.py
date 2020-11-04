@@ -34,7 +34,8 @@ import random
 import re
 from typing import Dict, Optional
 
-from prologGeneral import swipl, removeMountDir, removeFile
+from prologGeneral import swipl, removeMountDir
+from util import removeFile
 
 # This exact message confuses students, we will remove it from messages
 BAD_UNDEFINED_MESSAGE = """The predicates below are not defined. If these are defined
@@ -220,7 +221,8 @@ class FormCheck(object):
                     line = line.strip()
                     if isResult:
                         if curRes:
-                            curRes["message"] = re.sub(plFile, "submission.pl", curRes["message"])
+                            curRes["message"] = re.sub(
+                                plFile, "submission.pl", curRes["message"])
                             lints.append(curRes)
                         curRes = {
                             "location": isResult.group(2),
@@ -231,13 +233,14 @@ class FormCheck(object):
                         if curRes:
                             curRes["message"] += "\n" + line
                 if curRes:
-                    curRes["message"] = re.sub(plFile, "submission.pl", curRes["message"])
+                    curRes["message"] = re.sub(
+                        plFile, "submission.pl", curRes["message"])
                     lints.append(curRes)
 
             return cases, lints
 
         jsonOutputFile = self.config["workdir"] + "/result.json"
-        removeFile(jsonOutputFile) # ensure that the file is removed
+        removeFile(jsonOutputFile)  # ensure that the file is removed
         testCases, lints = swipl(
             scriptfile=testfilename,
             testname="check:check",
@@ -258,7 +261,8 @@ class FormCheck(object):
             pass
         removeFile(jsonOutputFile)
 
-        plResult = re.compile(re.escape(self.config["source"]) + r":([0-9]+)(:([0-9]+))?:?", )
+        plResult = re.compile(
+            re.escape(self.config["source"]) + r":([0-9]+)(:([0-9]+))?:?", )
 
         if jsonRes:
             for p in jsonRes:
@@ -269,7 +273,8 @@ class FormCheck(object):
                 if p["type"] == "undefined":
                     m = m.replace(BAD_UNDEFINED_MESSAGE, "", 1)
 
-                errType = "error" if p["type"] in ["undefined", "error"] else "info"
+                errType = "error" if p["type"] in [
+                    "undefined", "error"] else "info"
 
                 for x in plResult.finditer(p["msg"]):
                     lints.append({

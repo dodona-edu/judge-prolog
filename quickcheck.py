@@ -3,7 +3,9 @@ import html
 import json
 import re
 
-from prologGeneral import checkErrors, removeFile, swipl, CondFormatString
+from prologGeneral import checkErrors, swipl
+from util import removeFile
+from util import CondFormatString
 
 reProperty = re.compile(r"(prop_[^(]*)\((.*)\)\s*:-")
 reBody = re.compile(r"^\s")
@@ -158,7 +160,8 @@ class QuickCheck(object):
         def oh(stdout, stderr, testname, timeout, **_):
             testcases = []
             if timeout:
-                messages = [LANG[self.lang]["timeout"].format(timeout=self.timeout)]
+                messages = [LANG[self.lang]
+                            ["timeout"].format(timeout=self.timeout)]
                 if stdout:
                     messages.append("StdOut:\n" + "\n".join(stdout))
                 if stderr:

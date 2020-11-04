@@ -60,7 +60,8 @@ import fileinput
 import re
 import json
 import random
-from prologGeneral import checkErrors, swipl, CondFormatString
+from prologGeneral import checkErrors, swipl
+from util import CondFormatString
 
 
 LANG = {
@@ -303,7 +304,7 @@ class SimpleTest(object):
                 "messages": [{
                     "format": "markdown",
                     "description": "No results found"
-                },{
+                }, {
                     "format": "markdown",
                     "description": "This may be caused by a stack overflow",
                     "permission": "staff"
