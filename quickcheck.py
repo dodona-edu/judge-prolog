@@ -4,8 +4,7 @@ import json
 import re
 
 from prologGeneral import checkErrors, swipl
-from util import removeFile
-from util import CondFormatString
+from util import CondFormatString, removeFile
 
 reProperty = re.compile(r"(prop_[^(]*)\((.*)\)\s*:-")
 reBody = re.compile(r"^\s")
