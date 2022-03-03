@@ -57,7 +57,7 @@ class QuickCheck(object):
     def __init__(self, config, filename, tabname="QuickCheck"):
         self.config = config
         self.tabname = tabname
-        self.timeout = 5
+        self.timeout = 10
         self.lang = config["natural_language"]
         self.result = None
         self.properties = {}
