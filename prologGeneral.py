@@ -12,6 +12,7 @@ plInfo = re.compile(r"^(ERROR: {5}|\t)(.*)")
 plBeginTest = re.compile(r":- +begin_tests\(([^,]*)(,.*)?\)")
 plEndTest = re.compile(r":- +end_tests\((.*)\)")
 plComment = re.compile(r"%!(.*)")
+plTestResult = re.compile(r"^\[[0-9]+/[0-9]+\] .*") # "[2/3] testname ..."
 
 plMountdir = re.compile(r"/mnt/[^/]*/")
 
@@ -61,7 +62,11 @@ def checkErrors(lines, testname):
     for line in lines:
         line = removePath(line.rstrip(), testname)
         isStatus = plStatus.match(line)
-        if isStatus:
+        # We will ignore test results "[2/3] testname ..."
+        # if a test fails it will give an "ERROR:     test testname failed" which we already catch
+        isTestResult = plTestResult.match(line)
+        isComment = line.startswith("%") # Similar to plComment but without the required !
+        if isStatus or isTestResult or isComment:
             analyse(errorType, data, testcases)
             data = []
         else:
