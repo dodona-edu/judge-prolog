@@ -3,7 +3,7 @@
           ]).
 :- dynamic test_result/1.
 
-% I don't realy know why I've put these here anymore
+% Enable catching
 :- set_prolog_flag(unknown, error). 
 :- set_prolog_flag(report_error, true).
 % Print a one line trace in case an error occurs
@@ -30,33 +30,34 @@ dotests() :-
     dotests(Tests).
 
 
-% When everyting is parsed the testresults are the results.
-% All tets are executed and the result is stored in a test_result(Res) using asertz/1.
-% This is needed because backtracking out of setup_call_catcher_cleanup/4 destroys
-% all choisepoints taken in the catcher.
-dotests([]) :-
-    findall(R,test_result(R), Res),
+dotests(Tests) :-
+    dotests(Tests,Res),
     open('result.json', write, Stream),
     json_write(Stream,Res),
     close(Stream).
 
+% When everyting is parsed the testresults are the results.
+% All tets are executed and the result is stored in a test_result(Res) using asertz/1.
+% This is needed because backtracking out of setup_call_catcher_cleanup/4 destroys
+% all choisepoints taken in the catcher.
+dotests([],[]).
 
-dotests([[Name, ImplOk,ImplStud,AllowCP,Limit,Cases]|Xs]) :-
-    verified(Name, ImplOk,ImplStud,AllowCP,Limit,Cases),
-    dotests(Xs). 
+
+dotests([[Name, ImplOk,ImplStud,AllowCP,Limit,Cases]|Xs],[R|Rs]) :-
+    verified(Name, ImplOk,ImplStud,AllowCP,Limit,Cases, R),
+    dotests(Xs,Rs). 
 
 
 % Start with an empty result list
-verified(Name, ImplOk, ImplStud, AllowCP,Limit, List) :-
-    verified(Name, ImplOk, ImplStud, AllowCP,Limit, List, []).
+verified(Name, ImplOk, ImplStud, AllowCP,Limit, List,Results) :-
+    verified(Name, ImplOk, ImplStud, AllowCP,Limit, List, Results).
 
 % When all cases are handled write the result to a file
 :- use_module(library(http/json)).
-verified(Name, _, _, AllowCP,Limit, [], Result) :-
-    assertz(test_result(res{name: Name,allowcp:AllowCP, inferencelimit:Limit, result:Result})).
+verified(Name, _, _, AllowCP,Limit, [], []).
 
 % Checks what the result is of the correct code
-verified(Name, ImplOk, ImplStud, AllowCP,Limit, [Arg|RemArgs], Result) :-
+verified(Name, ImplOk, ImplStud, AllowCP,Limit, [Arg|RemArgs], Rs) :-
     ignore(catch(setup_call_catcher_cleanup(true,
         call_with_inference_limit(
                 catch(apply(ImplOk,Arg),Exception,true),
@@ -65,12 +66,12 @@ verified(Name, ImplOk, ImplStud, AllowCP,Limit, [Arg|RemArgs], Result) :-
         Caught,
         (
             mkresult(Caught, LimitResult,Exception, Smry), 
-            verified_student(Smry, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, Result)
+            verified_student(Smry, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, Rs)
         )),_,true)).
 
 % checks the result of the students code
 % Extra catches required
-verified_student(Expected, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, Result) :-
+verified_student(Expected, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, [R|Rs]) :-
     ignore(setup_call_catcher_cleanup(true,
             call_with_inference_limit(
                 catch(apply(ImplStud,Arg),Exception,true),
@@ -80,8 +81,8 @@ verified_student(Expected, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, 
         (
             H=..[ImplStud|Arg], swritef(C, '%q', [H]), 
             mkresult(Caught, LimitResult, Exception, Smry), 
-            verified(Name, ImplOk, ImplStud, AllowCP,Limit, RemArgs, 
-                [res{expected:Expected, got:Smry, term:C}|Result])
+            R = res{expected:Expected, got:Smry, term:C},
+            verified(Name, ImplOk, ImplStud, AllowCP,Limit, RemArgs, Rs)
         ))).
 
 
@@ -108,7 +109,7 @@ mkresult(external_exception(Exception),_,Summary) :- !,
     swritef(Summary, '%q', [Exception]). 
 
 mkresult(fail,_,Summary) :- !,
-    swritef(Summary, '%q', [fail]). 
+    swritef(Summary, '%q', [false]). 
 
 mkresult(exit,!,Summary) :- !,
     swritef(Summary, '%q', [exit]). 
