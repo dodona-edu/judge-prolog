@@ -1,0 +1,13 @@
+# Paths Dodona leaves out when syncing this repository to the judge's files
+# directory, which is copied into the sandbox for every submission. Only
+# run, run.py and the modules it imports, and the Prolog helpers in linter/, quicktest/ and simpletest/ that they load are read at judging time.
+# Patterns are rsync exclude patterns, anchored to the repository root.
+# See https://github.com/dodona-edu/dodona/issues/8763
+
+/test/
+/README.md
+/dockerfile
+/fallen_tree.svg
+/example.out.json
+/.gitignore
+/quicktest/README.md
