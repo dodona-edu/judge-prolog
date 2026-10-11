@@ -1,0 +1,248 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 10,
+      "description": "test",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "We checked **100 facts**, **10** of them were incorrect."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*Test Last*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(9,9)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(8,8)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(7,7)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(6,6)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(5,5)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(4,4)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(3,3)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(2,2)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(1,1)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(0,0)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true; (choice point remaining)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(8,0)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(1,9)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(9,0)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(6,3)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(8,2)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "markdown",
+                "description": "Another *85 succeeded* tests are not listed."
+              },
+              "accepted": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(10).",
+  "annotations": []
+}

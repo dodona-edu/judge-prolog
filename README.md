@@ -131,6 +131,29 @@ student code as follows, with a copy of the workspace folder as workspace and
 The results stored in `workspace/results.json` are then consulted to build the
 feedback table
 
+## Tests
+
+`tests/` runs the judge on the submissions in `tests/exercises/*/submissions`
+and compares its feedback with `tests/exercises/*/expected`. The suite runs as
+root inside the judge image: `devel/run-tests.sh` runs it there, as CI does,
+and `devel/run-tests-in-image.sh` starts the image and runs it locally:
+
+```
+devel/run-tests-in-image.sh                            # ghcr.io/dodona-edu/dodona-prolog:latest
+IMAGE=my-image devel/run-tests-in-image.sh -v -k echo  # another image, unittest arguments
+UPDATE_EXPECTED=1 devel/run-tests-in-image.sh          # rewrite the expected output
+```
+
+Each exercise has an `evaluation/` directory, an optional `workdir/` and an
+optional `config.json` with the `evaluation` keys Dodona merges into the run
+configuration. A submission named `<case>.nl.pl` runs with Dutch as natural
+language.
+
+The suite sets `random_seed` in the run configuration, which seeds the judge's
+own random choices. QuickCheck picks its values inside SWI-Prolog, so cases of
+an exercise with a `*.qc.pl` run five times and must give the same output
+every time.
+
 ## Todos
 
 - [ ] Using the partial format

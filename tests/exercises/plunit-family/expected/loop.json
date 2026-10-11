@@ -1,0 +1,89 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 1,
+      "description": "family",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "**PLUnit** ran  **3 tests**, **1** of them failed."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "realhug: Passed"
+          },
+          "messages": [
+            {
+              "format": "plain",
+              "description": " realhug/2 holds when two people hug each other."
+            },
+            {
+              "format": "prolog",
+              "description": "%! realhug/2 holds when two people hug each other.\ntest(mutual) :-\n    assertion(realhug(jan, fien)).\n\ntest(one_sided, [fail]) :-\n    realhug(tom, fien).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "brohug: Failed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(friends) :-\n    assertion(brohug(jan, tom)).\n\ntest(not_friends, [fail]) :-\n    brohug(jan, fien).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "Timeout brohug",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "The test timed out (5s)!\n\nstdOut:\n"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "all_realhugs: Passed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(all, [set(X-Y == [fien-jan, jan-fien, jan-tom, tom-jan])]) :-\n    realhug(X, Y).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(1).",
+  "annotations": []
+}

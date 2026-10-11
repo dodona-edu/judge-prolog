@@ -1,0 +1,79 @@
+{
+  "accepted": true,
+  "groups": [
+    {
+      "accepted": true,
+      "badgeCount": 0,
+      "description": "reverse",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "**Quickcheck** validated **3 predicates** and could not find a counterexample."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "description": "#### Reverse Twice",
+            "format": "markdown"
+          },
+          "groups": [
+            {
+              "accepted": true,
+              "description": "All 100 tests passed, no counterexample found "
+            }
+          ],
+          "messages": [
+            {
+              "format": "prolog",
+              "description": " \nprop_reverse_twice(L:list(integer)) :-\n    my_reverse(L, R),\n    my_reverse(R, L).\n\n"
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "description": "#### Reverse Length",
+            "format": "markdown"
+          },
+          "groups": [
+            {
+              "accepted": true,
+              "description": "All 100 tests passed, no counterexample found "
+            }
+          ],
+          "messages": [
+            {
+              "format": "prolog",
+              "description": " \nprop_reverse_length(L:list(integer)) :-\n    % A reversed list is as long as the original.\n    my_reverse(L, R),\n    length(L, N),\n    length(R, N).\n\n"
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "description": "#### Reverse Append",
+            "format": "markdown"
+          },
+          "groups": [
+            {
+              "accepted": true,
+              "description": "All 100 tests passed, no counterexample found "
+            }
+          ],
+          "messages": [
+            {
+              "format": "prolog",
+              "description": " \nprop_reverse_append(A:list(integer), B:list(integer)) :-\n    append(A, B, AB),\n    my_reverse(AB, R),\n    my_reverse(A, RA),\n    my_reverse(B, RB),\n    append(RB, RA, R).\n\n"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "correct",
+  "messages": [],
+  "description": "true.",
+  "annotations": []
+}

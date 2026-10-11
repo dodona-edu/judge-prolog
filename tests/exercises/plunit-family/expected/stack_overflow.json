@@ -1,0 +1,141 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 2,
+      "description": "family",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "**PLUnit** ran  **3 tests**, **2** of them failed."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "realhug: Failed"
+          },
+          "messages": [
+            {
+              "format": "plain",
+              "description": " realhug/2 holds when two people hug each other."
+            },
+            {
+              "format": "prolog",
+              "description": "%! realhug/2 holds when two people hug each other.\ntest(mutual) :-\n    assertion(realhug(jan, fien)).\n\ntest(one_sided, [fail]) :-\n    realhug(tom, fien).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:8:\ntest realhug:mutual: assertion",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:8:\ntest realhug:mutual: assertion at line 9 raised \"Stack limit (0.2Gb) exceeded\n  Stack sizes: <sizes>\n  Stack depth: <depth>\n  Possible non-terminating recursion:\n    [<depth>] user:realhug(jan, fien)\n    [<depth>] user:realhug(fien, jan)\"\nAssertion: realhug(jan,fien)\n",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:11:\ntest realhug:one_sided: received error: Stack limit (0.2Gb) exceeded\n  Stack sizes: <sizes>\n  Stack depth: <depth>\n  Possible non-terminating recursion:\n    [<depth>] user:realhug(tom, fien)\n    [<depth>] user:realhug(fien, tom)",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "2 tests failed",
+                  "permission": "student"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "brohug: Passed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(friends) :-\n    assertion(brohug(jan, tom)).\n\ntest(not_friends, [fail]) :-\n    brohug(jan, fien).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "all_realhugs: Failed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(all, [set(X-Y == [fien-jan, jan-fien, jan-tom, tom-jan])]) :-\n    realhug(X, Y).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:7:\ntest all_realhugs:all: received error: Stack limit (0.2Gb) exceeded\n  Stack sizes: <sizes>\n  Stack depth: <depth>\n  Probable infinite recursion (cycle):\n    [<depth>] user:realhug(_, _)\n    [<depth>] user:realhug(_, _)",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "1 test failed",
+                  "permission": "student"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(2).",
+  "annotations": []
+}
