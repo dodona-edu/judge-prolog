@@ -1,0 +1,12 @@
+ERROR: /mnt/sandbox/submission/source:1:27: Syntax error: Operator expected
+% [1/2] realhug:mutual ............................ **FAILED (0.037 sec)
+ERROR: /mnt/sandbox/resources/family.unit.pl-slice.pl:8:
+ERROR:     test realhug:mutual: assertion
+ERROR: /mnt/sandbox/resources/family.unit.pl-slice.pl:8:
+ERROR:     test realhug:mutual: assertion at line 9 raised "catch/3: Unknown procedure: plunit_realhug:realhug/2"
+	Assertion: plunit_realhug:realhug(jan,fien)
+
+% [2/2] realhug:one_sided ......................... **FAILED (0.000 sec)
+ERROR: /mnt/sandbox/resources/family.unit.pl-slice.pl:11:
+ERROR:     test realhug:one_sided: received error: time:run_alarm_goal/2: Unknown procedure: plunit_realhug:realhug/2
+ERROR: 2 tests failed

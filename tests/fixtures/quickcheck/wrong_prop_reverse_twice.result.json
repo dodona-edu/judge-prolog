@@ -1,0 +1,7 @@
+{
+  "accepted":"false",
+  "counterparams": [ {"type":"list(integer)","value":"[0]"} ],
+  "counterterm":"prop_reverse_twice([0])",
+  "name":"prop_reverse_twice/1",
+  "testcount":100
+}

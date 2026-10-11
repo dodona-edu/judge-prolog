@@ -1,0 +1,2 @@
+ERROR: =:=/2: Arithmetic: `two/0' is not a function
+   Exception: (4) quickcheck:run_tests(100, user, prop_double, [_17324:oneof([21])], _17380) ? EOF: exit (status 4)
