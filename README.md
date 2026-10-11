@@ -149,6 +149,9 @@ optional `config.json` with the `evaluation` keys Dodona merges into the run
 configuration. A submission named `<case>.nl.pl` runs with Dutch as natural
 language.
 
+The unit tests in `tests/test_parsing.py` call the parsing functions directly
+and don't need Docker: `python3 -m unittest discover --start-directory tests -k test_parsing`.
+
 The suite sets `random_seed` in the run configuration, which seeds the judge's
 own random choices. QuickCheck picks its values inside SWI-Prolog, so cases of
 an exercise with a `*.qc.pl` run five times and must give the same output
