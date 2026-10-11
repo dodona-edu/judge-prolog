@@ -160,6 +160,10 @@ own random choices. QuickCheck picks its values inside SWI-Prolog, so cases of
 an exercise with a `*.qc.pl` run five times and must give the same output
 every time.
 
+`devel/run-tests.sh` also runs the PLUnit tests of the Prolog modules in
+`tests/prolog/`. To run only those, use
+`swipl -g run_tests -t halt tests/prolog/*.pl` in the image.
+
 ## Todos
 
 - [ ] Using the partial format
