@@ -143,30 +143,12 @@ class PLUnit(object):
         }
 
     def doRun(self, filename, testname, comments, code):
-
-        def oh(stdout, stderr, testname, scriptfile, config, timeout):
-            """Output handler"""
-            failedTests = []
-            if timeout:
-                failedTests.append({
-                    "accepted": False,
-                    "description": "Timeout " + testname,
-                    "messages": [{
-                        "format": "code",
-                        "description": "The test timed out (5s)!\n\nstdOut:\n" + ("".join(stdout))
-                    }]
-                })
-
-            failedTests += checkErrors(stderr, testname)
-            failedTests += checkErrors(stdout, testname)
-
-            return failedTests
-
         failedTests = swipl(
             scriptfile=filename,
             testname=testname,
             goal="run_tests",
-            outputHandler=oh,
+            outputHandler=lambda stdout, stderr, testname, timeout, **_:
+                plunitTestcases(stdout, stderr, testname, timeout),
             timeout=5,
             config=self.config
         )
@@ -196,3 +178,21 @@ class PLUnit(object):
             }
 
         return context
+
+
+def plunitTestcases(stdout, stderr, testname, timedOut):
+    failedTests = []
+    if timedOut:
+        failedTests.append({
+            "accepted": False,
+            "description": "Timeout " + testname,
+            "messages": [{
+                "format": "code",
+                "description": "The test timed out (5s)!\n\nstdOut:\n" + ("".join(stdout))
+            }]
+        })
+
+    failedTests += checkErrors(stderr, testname)
+    failedTests += checkErrors(stdout, testname)
+
+    return failedTests

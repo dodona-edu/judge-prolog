@@ -1,4 +1,5 @@
 from threading import Thread
+import json
 import os
 import io
 
@@ -150,3 +151,11 @@ def removeFile(filename):
         os.remove(filename)
     except OSError:
         pass
+
+
+def readJson(filename):
+    try:
+        with open(filename, 'r') as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
