@@ -1,0 +1,6 @@
+[
+  {
+    "msg":"The predicates below are not defined. If these are defined\nat runtime using assert/1, use :- dynamic Name/Arity.\n\nancestor/2, which is referenced by\n\t/mnt/sandbox/submission/source:1:35: 1-st clause of grandparent/2",
+    "type":"undefined"
+  }
+]

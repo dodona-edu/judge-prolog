@@ -61,7 +61,7 @@ import re
 import json
 import random
 from prologGeneral import checkErrors, swipl
-from util import CondFormatString
+from util import CondFormatString, readJson
 
 
 LANG = {
@@ -167,52 +167,16 @@ class SimpleTest(object):
             return "Simplecheck: {} issues".format(res["badgeCount"])
 
     def _doTest(self):
-        def oh(stdout, stderr, testname, scriptfile, config, timeout):
-            testcases = []
-            if timeout:
-                testcases.append({
-                    "accepted": False,
-                    "description": "Timeout",
-                    "messages": [{
-                        "format": "markdown",
-                        "description": self.words["timeout"].format(seconds=self.timeout)}]
-                })
-
-            testcases += checkErrors(stderr, testname)
-
-            if stderr:
-                testcases.append({
-                    "accepted": False,
-                    "description": "Stderr ",
-                    "messages": [{"format": "code", "description": "".join(stderr)}]
-                })
-
-            if stdout:
-                testcases.append({
-                    "accepted": False,
-                    "description": "Stdout ",
-                    "messages": [{"format": "code", "description": "".join(stdout)}]
-                })
-
-            return testcases
-
         outputContext = self._mkOutputContext(swipl(
             scriptfile=self.testfileName,
             testname="ll",
             goal="dodonacheck:dotests()",
-            outputHandler=oh,
+            outputHandler=lambda stdout, stderr, testname, timeout, **_:
+                simpletestTestcases(stdout, stderr, testname, timeout, self.timeout, self.words),
             timeout=self.timeout,
             config=self.config))
 
-        res = None
-        try:
-            with open(self.config["workdir"] + "/result.json", 'r') as f:
-                try:
-                    res = json.load(f)
-                except json.decoder.JSONDecodeError:
-                    pass
-        except IOError:
-            pass
+        res = readJson(self.config["workdir"] + "/result.json")
 
         resultContexts, numtests, failedTest = self._mkResultContext(res)
 
@@ -345,6 +309,36 @@ class SimpleTest(object):
                     },
                     "accepted": t,
                 }]
+
+
+def simpletestTestcases(stdout, stderr, testname, timedOut, timeout, words):
+    testcases = []
+    if timedOut:
+        testcases.append({
+            "accepted": False,
+            "description": "Timeout",
+            "messages": [{
+                "format": "markdown",
+                "description": words["timeout"].format(seconds=timeout)}]
+        })
+
+    testcases += checkErrors(stderr, testname)
+
+    if stderr:
+        testcases.append({
+            "accepted": False,
+            "description": "Stderr ",
+            "messages": [{"format": "code", "description": "".join(stderr)}]
+        })
+
+    if stdout:
+        testcases.append({
+            "accepted": False,
+            "description": "Stdout ",
+            "messages": [{"format": "code", "description": "".join(stdout)}]
+        })
+
+    return testcases
 
 
 if __name__ == '__main__':

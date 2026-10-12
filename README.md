@@ -149,10 +149,20 @@ optional `config.json` with the `evaluation` keys Dodona merges into the run
 configuration. A submission named `<case>.nl.pl` runs with Dutch as natural
 language.
 
+The unit tests in `tests/test_parsing.py` and `tests/test_output_handlers.py`
+call the parsing functions and output handlers directly and don't need Docker:
+`python3 -m unittest discover --start-directory tests -k test_parsing -k test_output_handlers`.
+The output handlers get the raw output of real swipl runs in `tests/fixtures/`,
+which `devel/capture-fixtures.sh` rewrites by running the judge in the image.
+
 The suite sets `random_seed` in the run configuration, which seeds the judge's
 own random choices. QuickCheck picks its values inside SWI-Prolog, so cases of
 an exercise with a `*.qc.pl` run five times and must give the same output
 every time.
+
+`devel/run-tests.sh` also runs the PLUnit tests of the Prolog modules in
+`tests/prolog/`. To run only those, use
+`swipl -g run_tests -t halt tests/prolog/*.pl` in the image.
 
 ## Todos
 

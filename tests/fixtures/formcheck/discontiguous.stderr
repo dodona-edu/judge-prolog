@@ -1,0 +1,5 @@
+Warning: /mnt/sandbox/submission/source:5:
+Warning:    Clauses of grandparent/2 are not together in the source-file
+Warning:    Earlier definition at /mnt/sandbox/submission/source:1
+Warning:    Current predicate: ancestor/2
+Warning:    Use :- discontiguous grandparent/2. to suppress this message

@@ -1,10 +1,9 @@
 import fileinput
 import html
-import json
 import re
 
 from prologGeneral import checkErrors, swipl
-from util import CondFormatString, removeFile
+from util import CondFormatString, readJson, removeFile
 
 reProperty = re.compile(r"(prop_[^(]*)\((.*)\)\s*:-")
 reBody = re.compile(r"^\s")
@@ -156,84 +155,88 @@ class QuickCheck(object):
     def _run(self, testname):
         outputJsonFile = self.config["workdir"] + "/result.json"
 
-        def oh(stdout, stderr, testname, timeout, **_):
-            testcases = []
-            if timeout:
-                messages = [LANG[self.lang]
-                            ["timeout"].format(timeout=self.timeout)]
-                if stdout:
-                    messages.append("StdOut:\n" + "\n".join(stdout))
-                if stderr:
-                    messages.append("StdErr:\n" + "\n".join(stderr))
-
-                timeoutCase = {
-                    "accepted": False,
-                    "description": "Timeout " + testname,
-                    "messages": [{"format": "plain", "description": d} for d in messages]
-                }
-
-                testcases.append(timeoutCase)
-            else:
-                try:
-                    with open(outputJsonFile, 'r') as f:
-                        res = json.load(f)
+        def handleOutput(stdout, stderr, testname, timeout, **_):
+            res = None
+            if not timeout:
+                res = readJson(outputJsonFile)
+                if res is not None:
                     removeFile(outputJsonFile)
-                except (IOError, json.decoder.JSONDecodeError):
-                    testcases.append({
-                        "accepted": False,
-                        "description": LANG[self.lang]["no_results"],
-                        "messages": [{"format": "code", "description": "\n".join(stdout)}]
-                    })
-                else:
-                    testcases.append(self._handleResult(res))
-            testcases += checkErrors(stderr, testname)
-            return testcases
+            return quickcheckTestcases(stdout, stderr, testname, timeout, self.timeout, res, self.lang)
 
         removeFile(outputJsonFile)
         testcases = swipl(
             scriptfile=self.testfileName,
             testname=testname,
             goal="quickcheck({})".format(testname),
-            outputHandler=oh,
+            outputHandler=handleOutput,
             timeout=self.timeout,
             config=self.config)
         return testcases
 
-    def _handleResult(self, res):
-        if res["accepted"] == "true":
-            return {
-                "accepted": True,
-                "description": LANG[self.lang]["no_counter"].format(**res),
-            }
-        else:
-            rowfmt = "<tr><td>{i}</td><td class='code'>{type}</td><td class='code'>{value}</td></tr>"
-            body = "".join([
-                rowfmt.format(i=i,
-                              type=arg["type"],
-                              value=html.escape(arg["value"]))
-                for i, arg in enumerate(res["counterparams"])
-            ])
 
-            tbl = errorArgumentsTable[self.lang].format(body=body)
+def quickcheckTestcases(stdout, stderr, testname, timedOut, timeout, res, lang):
+    testcases = []
+    if timedOut:
+        messages = [LANG[lang]["timeout"].format(timeout=timeout)]
+        if stdout:
+            messages.append("StdOut:\n" + "\n".join(stdout))
+        if stderr:
+            messages.append("StdErr:\n" + "\n".join(stderr))
 
-            return {
-                "accepted": False,
-                "description": {
-                    "format": "prolog",
-                    "description": res["counterterm"] + "."
-                },
-                "tests": [{
-                    "generated": "false.",
-                    "expected": "true.",
-                    "accepted": False
-                }],
-                "messages": [
-                    {
-                        "description": tbl,
-                        "format": "html"
-                    }
-                ]
-            }
+        timeoutCase = {
+            "accepted": False,
+            "description": "Timeout " + testname,
+            "messages": [{"format": "plain", "description": d} for d in messages]
+        }
+
+        testcases.append(timeoutCase)
+    elif res is None:
+        testcases.append({
+            "accepted": False,
+            "description": LANG[lang]["no_results"],
+            "messages": [{"format": "code", "description": "\n".join(stdout)}]
+        })
+    else:
+        testcases.append(quickcheckResultTestcase(res, lang))
+    testcases += checkErrors(stderr, testname)
+    return testcases
+
+
+def quickcheckResultTestcase(res, lang):
+    if res["accepted"] == "true":
+        return {
+            "accepted": True,
+            "description": LANG[lang]["no_counter"].format(**res),
+        }
+    else:
+        rowfmt = "<tr><td>{i}</td><td class='code'>{type}</td><td class='code'>{value}</td></tr>"
+        body = "".join([
+            rowfmt.format(i=i,
+                          type=arg["type"],
+                          value=html.escape(arg["value"]))
+            for i, arg in enumerate(res["counterparams"])
+        ])
+
+        tbl = errorArgumentsTable[lang].format(body=body)
+
+        return {
+            "accepted": False,
+            "description": {
+                "format": "prolog",
+                "description": res["counterterm"] + "."
+            },
+            "tests": [{
+                "generated": "false.",
+                "expected": "true.",
+                "accepted": False
+            }],
+            "messages": [
+                {
+                    "description": tbl,
+                    "format": "html"
+                }
+            ]
+        }
 
 
 def countArgs(params):

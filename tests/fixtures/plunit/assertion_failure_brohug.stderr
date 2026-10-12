@@ -1,0 +1,9 @@
+% [1/2] brohug:friends ............................ **FAILED (0.035 sec)
+ERROR: /mnt/sandbox/resources/family.unit.pl-slice.pl:7:
+ERROR:     test brohug:friends: assertion
+ERROR: /mnt/sandbox/resources/family.unit.pl-slice.pl:7:
+ERROR:     test brohug:friends: assertion at line 8 failed
+	Assertion: plunit_brohug:brohug(jan,tom)
+
+% [2/2] brohug:not_friends .......................... passed (0.000 sec)
+ERROR: 1 test failed

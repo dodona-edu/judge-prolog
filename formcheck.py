@@ -28,14 +28,13 @@ example config
 """
 
 import fileinput
-import json
 import os
 import random
 import re
 from typing import Dict, Optional
 
 from prologGeneral import swipl, removeMountDir
-from util import removeFile
+from util import readJson, removeFile
 
 # This exact message confuses students, we will remove it from messages
 BAD_UNDEFINED_MESSAGE = """The predicates below are not defined. If these are defined
@@ -196,105 +195,22 @@ class FormCheck(object):
                 sumbissionPath=self.config["source"]
             ))
 
-        def oh(stdout, testname, timeout, **kwargs):
-            cases = []
-            lints = []
-            if timeout:
-                cases.append({
-                    "accepted": False,
-                    "description": "Timeout " + testname,
-                    "messages": [{
-                        "format": "code",
-                        "description":
-                            "The test timed out (more than 2s)!" +
-                            "\n\nstdOut:\n" + ("".join(stdout))
-                    }]
-                })
-
-            if stdout:
-                plFile = re.compile(re.escape(self.config["source"]))
-                plResult = re.compile(
-                    r"^(ERROR|Warning):\s+" + re.escape(self.config["source"]) + ":([0-9]+)(:([0-9]+))?:(.*)")
-                curRes = {}
-                for line in stdout:
-                    isResult = plResult.match(line)
-                    line = line.strip()
-                    if isResult:
-                        if curRes:
-                            curRes["message"] = re.sub(
-                                plFile, "submission.pl", curRes["message"])
-                            lints.append(curRes)
-                        curRes = {
-                            "location": isResult.group(2),
-                            "message": isResult.group(5).strip(),
-                            "type": isResult.group(1)
-                        }
-                    else:
-                        if curRes:
-                            curRes["message"] += "\n" + line
-                if curRes:
-                    curRes["message"] = re.sub(
-                        plFile, "submission.pl", curRes["message"])
-                    lints.append(curRes)
-
-            return cases, lints
-
         jsonOutputFile = self.config["workdir"] + "/result.json"
         removeFile(jsonOutputFile)  # ensure that the file is removed
-        testCases, lints = swipl(
+        testCases, stdout = swipl(
             scriptfile=testfilename,
             testname="check:check",
             goal="'dodona lint'",
-            outputHandler=oh,
+            outputHandler=lambda stdout, testname, timeout, **_:
+                (formcheckTestcases(stdout, testname, timeout), stdout),
             timeout=2,
             config=self.config,
             removeMounts=False)
 
-        jsonRes = None
-        try:
-            with open(jsonOutputFile, 'r') as f:
-                try:
-                    jsonRes = json.load(f)
-                except json.decoder.JSONDecodeError:
-                    pass
-        except IOError:
-            pass
+        jsonRes = readJson(jsonOutputFile)
         removeFile(jsonOutputFile)
 
-        plResult = re.compile(
-            re.escape(self.config["source"]) + r":([0-9]+)(:([0-9]+))?:?", )
-
-        if jsonRes:
-            for p in jsonRes:
-                m = re.sub(plResult, "", p["msg"].strip())
-                m = removeMountDir(m).strip()
-                m = p["type"].replace("_", " ").title() + ": " + m
-
-                if p["type"] == "undefined":
-                    m = m.replace(BAD_UNDEFINED_MESSAGE, "", 1)
-
-                errType = "error" if p["type"] in [
-                    "undefined", "error"] else "info"
-
-                for x in plResult.finditer(p["msg"]):
-                    lints.append({
-                        "location": x.group(1),
-                        "message": m,
-                        "type": errType
-                    })
-
-        for l in lints:
-            errType = l["type"].lower()
-            if errType not in ["error", "warning", "info"]:
-                errType = "warning"
-
-            r = {
-                "row": int(l["location"]) - 1,
-                "text": l["message"].strip(),
-                "type": errType,
-            }
-
-            self.annotations.append(r)
+        self.annotations += formcheckAnnotations(stdout, jsonRes, self.config["source"])
 
         if testCases:
             return {
@@ -305,3 +221,87 @@ class FormCheck(object):
                 "groups": testCases,
             }
         return None
+
+
+def formcheckTestcases(stdout, testname, timedOut):
+    cases = []
+    if timedOut:
+        cases.append({
+            "accepted": False,
+            "description": "Timeout " + testname,
+            "messages": [{
+                "format": "code",
+                "description":
+                    "The test timed out (more than 2s)!" +
+                    "\n\nstdOut:\n" + ("".join(stdout))
+            }]
+        })
+
+    return cases
+
+
+def formcheckAnnotations(stdout, jsonRes, source):
+    lints = []
+    if stdout:
+        plFile = re.compile(re.escape(source))
+        plResult = re.compile(
+            r"^(ERROR|Warning):\s+" + re.escape(source) + ":([0-9]+)(:([0-9]+))?:(.*)")
+        curRes = {}
+        for line in stdout:
+            isResult = plResult.match(line)
+            line = line.strip()
+            if isResult:
+                if curRes:
+                    curRes["message"] = re.sub(
+                        plFile, "submission.pl", curRes["message"])
+                    lints.append(curRes)
+                curRes = {
+                    "location": isResult.group(2),
+                    "message": isResult.group(5).strip(),
+                    "type": isResult.group(1)
+                }
+            else:
+                if curRes:
+                    curRes["message"] += "\n" + line
+        if curRes:
+            curRes["message"] = re.sub(
+                plFile, "submission.pl", curRes["message"])
+            lints.append(curRes)
+
+    plResult = re.compile(
+        re.escape(source) + r":([0-9]+)(:([0-9]+))?:?", )
+
+    if jsonRes:
+        for p in jsonRes:
+            m = re.sub(plResult, "", p["msg"].strip())
+            m = removeMountDir(m).strip()
+            m = p["type"].replace("_", " ").title() + ": " + m
+
+            if p["type"] == "undefined":
+                m = m.replace(BAD_UNDEFINED_MESSAGE, "", 1)
+
+            errType = "error" if p["type"] in [
+                "undefined", "error"] else "info"
+
+            for x in plResult.finditer(p["msg"]):
+                lints.append({
+                    "location": x.group(1),
+                    "message": m,
+                    "type": errType
+                })
+
+    annotations = []
+    for l in lints:
+        errType = l["type"].lower()
+        if errType not in ["error", "warning", "info"]:
+            errType = "warning"
+
+        r = {
+            "row": int(l["location"]) - 1,
+            "text": l["message"].strip(),
+            "type": errType,
+        }
+
+        annotations.append(r)
+
+    return annotations
