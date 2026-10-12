@@ -108,6 +108,11 @@ def diff(a, b, a_name, b_name):
         a.splitlines(True), b.splitlines(True), a_name, b_name))
 
 
+def swipl_major():
+    output = subprocess.run(["swipl", "--version"], capture_output=True, text=True, check=True).stdout
+    return re.search(r"version ([0-9]+)\.", output).group(1)
+
+
 def cases():
     for exercise in sorted(os.listdir(EXERCISES_DIR)):
         exercise_dir = os.path.join(EXERCISES_DIR, exercise)
@@ -124,6 +129,7 @@ class ExerciseTest(unittest.TestCase):
         cls.addClassCleanup(shutil.rmtree, cls.root)
         cls.judge = os.path.join(cls.root, "judge")
         shutil.copytree(REPO_DIR, cls.judge, ignore=judge_ignore())
+        cls.swipl_major = swipl_major()
 
     def run_judge(self, exercise_dir, submission, language):
         config = {
@@ -163,6 +169,15 @@ class ExerciseTest(unittest.TestCase):
             self.fail("judge output is not JSON ({})\nstdout:\n{}".format(e, process.stdout))
         return dump(normalise(feedback))
 
+    def expected_file(self, exercise_dir, case):
+        """<case>.swipl<major>.json when it exists for the running SWI-Prolog
+        major version, else <case>.json."""
+        expected_dir = os.path.join(exercise_dir, "expected")
+        versioned = os.path.join(expected_dir, "{}.swipl{}.json".format(case, self.swipl_major))
+        if os.path.exists(versioned):
+            return versioned
+        return os.path.join(expected_dir, case + ".json")
+
     def compare(self, expected_file, output):
         if not os.path.exists(expected_file):
             self.fail("no expected output, run with UPDATE_EXPECTED=1 to create "
@@ -176,7 +191,7 @@ class ExerciseTest(unittest.TestCase):
     def check_case(self, exercise, case):
         exercise_dir = os.path.join(EXERCISES_DIR, exercise)
         submission = os.path.join(exercise_dir, "submissions", case + ".pl")
-        expected_file = os.path.join(exercise_dir, "expected", case + ".json")
+        expected_file = self.expected_file(exercise_dir, case)
         suffix = os.path.splitext(case)[1].lstrip(".")
         language = suffix if suffix in LANGUAGES else "en"
         # QuickCheck picks its test values inside swipl, which random_seed doesn't reach.

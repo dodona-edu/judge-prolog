@@ -1,6 +1,4 @@
 :- use_module(library(plunit)).
-:- use_module(library(process)).
-:- use_module(library(readutil), [read_stream_to_codes/2]).
 :- use_module(support).
 
 % Runs the linter like formcheck.py does and returns the reported
@@ -18,15 +16,12 @@ lint(Submission, Messages, Stderr) :-
 lint(Predefined, Submission, Messages, Stderr) :-
     linter_file(Linter),
     with_temp_dir(( write_files(Predefined, Linter, Submission),
-                    run_swipl(Stderr),
+                    run_swipl('\'dodona lint\'', 'driver.pl', _, Stderr),
                     read_result(Messages)
                   )).
 
 write_files(Predefined, Linter, Submission) :-
-    setup_call_cleanup(
-        open('submission.pl', write, S),
-        write(S, Submission),
-        close(S)),
+    write_file('submission.pl', Submission),
     setup_call_cleanup(
         open('driver.pl', write, D),
         ( forall(member(P, Predefined), format(D, ":- dynamic ~w.~n", [P])),
@@ -35,20 +30,6 @@ write_files(Predefined, Linter, Submission) :-
           format(D, ":- consult('submission.pl').~n", [])
         ),
         close(D)).
-
-% Flags from swipl() in prologGeneral.py, keep in sync.
-run_swipl(Stderr) :-
-    current_prolog_flag(executable, Swipl),
-    setup_call_cleanup(
-        process_create(Swipl,
-                       [ '-t', '\'dodona lint\'', '--quiet=yes', '--tty=yes',
-                         '--signals=no', 'driver.pl'
-                       ],
-                       [stdout(null), stderr(pipe(Err))]),
-        ( read_stream_to_codes(Err, Codes),
-          string_codes(Stderr, Codes)
-        ),
-        close(Err)).
 
 contains(String, Part) :-
     sub_string(String, _, _, _, Part),
