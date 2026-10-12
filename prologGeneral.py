@@ -96,6 +96,7 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
          '--tty=yes',
          '--signals=no',
          "--stack_limit=" + config["prolog_stack_limit"],
+         '-f', config["judge"] + '/init.pl',
          scriptfile,
          ],
         stderr=subprocess.PIPE,

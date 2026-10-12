@@ -57,7 +57,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:11:\ntest realhug:one_sided: received error: Stack limit (0.2Gb) exceeded\n  Stack sizes: <sizes>\n  Stack depth: <depth>\n  Possible non-terminating recursion:\n    [<depth>] user:realhug(tom, fien)\n    [<depth>] user:realhug(fien, tom)",
+                  "description": "resources/family.unit.pl-slice.pl:11:\ntest realhug:one_sided: received error: Stack limit (0.2Gb) exceeded\n  Stack sizes: <sizes>\n  Stack depth: <depth>\n  Possible non-terminating recursion:\n    [<depth>] user:realhug(fien, tom)\n    [<depth>] user:realhug(tom, fien)",
                   "permission": "student"
                 }
               ]

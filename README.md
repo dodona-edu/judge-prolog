@@ -147,7 +147,9 @@ UPDATE_EXPECTED=1 devel/run-tests-in-image.sh          # rewrite the expected ou
 Each exercise has an `evaluation/` directory, an optional `workdir/` and an
 optional `config.json` with the `evaluation` keys Dodona merges into the run
 configuration. A submission named `<case>.nl.pl` runs with Dutch as natural
-language.
+language. When `expected/<case>.swipl<major>.json` exists for the running
+SWI-Prolog major version, the suite compares against (and `UPDATE_EXPECTED`
+rewrites) that file instead of `expected/<case>.json`.
 
 The unit tests in `tests/test_parsing.py` and `tests/test_output_handlers.py`
 call the parsing functions and output handlers directly and don't need Docker:
