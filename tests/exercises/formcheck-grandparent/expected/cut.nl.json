@@ -1,0 +1,67 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 1,
+      "description": "Vorm",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "Je oplossing kon niet aanvaard worden, omdat ze niet van de juiste vorm was.\n\nLos de problemen hieronder op voordat je opnieuw indient."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "format": "markdown",
+            "description": "#### Gebruik van cut"
+          },
+          "messages": [
+            {
+              "format": "markdown",
+              "description": "Het gebruik van de cut (`!`) is niet nodig voor deze oefening. Het is slechte stijl het te gebruiken als dat niet nodig is."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "accepted": true,
+      "badgeCount": 0,
+      "description": "grandparent",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "Alle **PLUnit** testen slaagden."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "grandparent: Passed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(ann_cid) :-\n    assertion(grandparent(ann, cid)).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(1).",
+  "annotations": []
+}

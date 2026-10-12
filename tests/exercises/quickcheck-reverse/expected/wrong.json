@@ -1,0 +1,111 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 2,
+      "description": "reverse",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "**Quickcheck** validated  **3 predicates** that should always be true. However, **2 counterexamples** were found.\n\nThe results below show the code that represents the predicates. If they fail, a counterexample is shown."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "description": "#### Reverse Twice",
+            "format": "markdown"
+          },
+          "groups": [
+            {
+              "accepted": false,
+              "description": {
+                "format": "prolog",
+                "description": "prop_reverse_twice([0])."
+              },
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ],
+              "messages": [
+                {
+                  "description": "\n<table class=\"table\">\n    <caption>Counter example arguments</caption>\n    <thead> <tr> <th>#</th> <th>Type</th> <th>Value</th></tr> </thead>\n    <tbody><tr><td>0</td><td class='code'>list(integer)</td><td class='code'>[0]</td></tr></tbody>\n</table>",
+                  "format": "html"
+                }
+              ]
+            }
+          ],
+          "messages": [
+            {
+              "format": "prolog",
+              "description": " \nprop_reverse_twice(L:list(integer)) :-\n    my_reverse(L, R),\n    my_reverse(R, L).\n\n"
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "description": "#### Reverse Length",
+            "format": "markdown"
+          },
+          "groups": [
+            {
+              "accepted": false,
+              "description": {
+                "format": "prolog",
+                "description": "prop_reverse_length([0])."
+              },
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ],
+              "messages": [
+                {
+                  "description": "\n<table class=\"table\">\n    <caption>Counter example arguments</caption>\n    <thead> <tr> <th>#</th> <th>Type</th> <th>Value</th></tr> </thead>\n    <tbody><tr><td>0</td><td class='code'>list(integer)</td><td class='code'>[0]</td></tr></tbody>\n</table>",
+                  "format": "html"
+                }
+              ]
+            }
+          ],
+          "messages": [
+            {
+              "format": "prolog",
+              "description": " \nprop_reverse_length(L:list(integer)) :-\n    % A reversed list is as long as the original.\n    my_reverse(L, R),\n    length(L, N),\n    length(R, N).\n\n"
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "description": "#### Reverse Append",
+            "format": "markdown"
+          },
+          "groups": [
+            {
+              "accepted": true,
+              "description": "All 100 tests passed, no counterexample found "
+            }
+          ],
+          "messages": [
+            {
+              "format": "prolog",
+              "description": " \nprop_reverse_append(A:list(integer), B:list(integer)) :-\n    append(A, B, AB),\n    my_reverse(AB, R),\n    my_reverse(A, RA),\n    my_reverse(B, RB),\n    append(RB, RA, R).\n\n"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(2).",
+  "annotations": []
+}

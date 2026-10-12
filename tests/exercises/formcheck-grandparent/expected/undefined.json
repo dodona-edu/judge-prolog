@@ -1,0 +1,76 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 1,
+      "description": "grandparent",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "**PLUnit** ran  **1 tests**, **1** of them failed."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "grandparent: Failed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(ann_cid) :-\n    assertion(grandparent(ann, cid)).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/grandparent.unit.pl-slice.pl:8:\ntest grandparent:ann_cid: assertion",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/grandparent.unit.pl-slice.pl:8:\ntest grandparent:ann_cid: assertion at line 9 raised \"catch/3: Unknown procedure: ancestor/2\"\nAssertion: grandparent(ann,cid)\n",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "1 test failed",
+                  "permission": "student"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "compilation error",
+  "messages": [],
+  "description": "issues(1).",
+  "annotations": [
+    {
+      "row": 0,
+      "text": "Undefined: ancestor/2, which is referenced by\n\t 1-st clause of grandparent/2",
+      "type": "error"
+    }
+  ]
+}

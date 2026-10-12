@@ -13,6 +13,7 @@ Also executes the formatcheck for linting
 import os
 import sys
 import json
+import random
 import itertools
 from plunit import PLUnit
 from quickcheck import QuickCheck
@@ -31,6 +32,10 @@ memory_limit = int(config['memory_limit'])
 programming_language = config['programming_language']
 
 config.setdefault("prolog_stack_limit", "256m")
+
+# Lets tests reproduce the random choices of the sub-judges.
+if "random_seed" in config:
+    random.seed(config["random_seed"])
 
 # Fallback for natural lanugage
 if config.get("natural_language", None) not in ["en", "nl"]:

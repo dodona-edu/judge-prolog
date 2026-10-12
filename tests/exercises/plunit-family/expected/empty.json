@@ -1,0 +1,181 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 3,
+      "description": "family",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "**PLUnit** ran  **3 tests**, **3** of them failed."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "realhug: Failed"
+          },
+          "messages": [
+            {
+              "format": "plain",
+              "description": " realhug/2 holds when two people hug each other."
+            },
+            {
+              "format": "prolog",
+              "description": "%! realhug/2 holds when two people hug each other.\ntest(mutual) :-\n    assertion(realhug(jan, fien)).\n\ntest(one_sided, [fail]) :-\n    realhug(tom, fien).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:8:\ntest realhug:mutual: assertion",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:8:\ntest realhug:mutual: assertion at line 9 raised \"catch/3: Unknown procedure: realhug/2\"\nAssertion: realhug(jan,fien)\n",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:11:\ntest realhug:one_sided: received error: time:run_alarm_goal/2: Unknown procedure: realhug/2",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "2 tests failed",
+                  "permission": "student"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "brohug: Failed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(friends) :-\n    assertion(brohug(jan, tom)).\n\ntest(not_friends, [fail]) :-\n    brohug(jan, fien).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:7:\ntest brohug:friends: assertion",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:7:\ntest brohug:friends: assertion at line 8 raised \"catch/3: Unknown procedure: brohug/2\"\nAssertion: brohug(jan,tom)\n",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:10:\ntest brohug:not_friends: received error: time:run_alarm_goal/2: Unknown procedure: brohug/2",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "2 tests failed",
+                  "permission": "student"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "plain",
+            "description": "all_realhugs: Failed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(all, [set(X-Y == [fien-jan, jan-fien, jan-tom, tom-jan])]) :-\n    realhug(X, Y).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "resources/family.unit.pl-slice.pl:7:\ntest all_realhugs:all: received error: findall_loop/4: Unknown procedure: realhug/2",
+                  "permission": "student"
+                }
+              ]
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "1 test failed",
+                  "permission": "student"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(3).",
+  "annotations": []
+}

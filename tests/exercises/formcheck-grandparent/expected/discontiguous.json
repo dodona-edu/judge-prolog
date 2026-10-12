@@ -1,0 +1,47 @@
+{
+  "accepted": true,
+  "groups": [
+    {
+      "accepted": true,
+      "badgeCount": 0,
+      "description": "grandparent",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "All **PLUnit** tests passed."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "grandparent: Passed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(ann_cid) :-\n    assertion(grandparent(ann, cid)).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "correct",
+  "messages": [],
+  "description": "warnings(1).",
+  "annotations": [
+    {
+      "row": 4,
+      "text": "Warning:    Clauses of grandparent/2 are not together in the source-file\nWarning:    Earlier definition at submission.pl:1\nWarning:    Current predicate: ancestor/2\nWarning:    Use :- discontiguous grandparent/2. to suppress this message",
+      "type": "warning"
+    }
+  ]
+}

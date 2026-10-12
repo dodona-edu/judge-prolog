@@ -1,0 +1,108 @@
+{
+  "accepted": true,
+  "groups": [
+    {
+      "accepted": true,
+      "badgeCount": 0,
+      "description": "test",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "We checked **100 facts**, they were all correct."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*Test Last*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(8,2)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(2,7)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(0,2)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(9,1)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "echo(6,7)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "markdown",
+                "description": "Another *95 succeeded* tests are not listed."
+              },
+              "accepted": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "correct",
+  "messages": [],
+  "description": "true.",
+  "annotations": []
+}

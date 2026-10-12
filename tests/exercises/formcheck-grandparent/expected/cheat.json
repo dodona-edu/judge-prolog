@@ -1,0 +1,67 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 1,
+      "description": "Format",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "Your submission could not be accepted because it has an incorrect form. \n\nYou should resolve the issues below before we can accept your submission."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "format": "markdown",
+            "description": "#### Cheater"
+          },
+          "messages": [
+            {
+              "format": "markdown",
+              "description": "Submissions may not use the module `dodonaevaluate`."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "accepted": true,
+      "badgeCount": 0,
+      "description": "grandparent",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "All **PLUnit** tests passed."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "grandparent: Passed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(ann_cid) :-\n    assertion(grandparent(ann, cid)).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(1).",
+  "annotations": []
+}

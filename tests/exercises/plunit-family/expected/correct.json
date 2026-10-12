@@ -1,0 +1,83 @@
+{
+  "accepted": true,
+  "groups": [
+    {
+      "accepted": true,
+      "badgeCount": 0,
+      "description": "family",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "All **PLUnit** tests passed."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "realhug: Passed"
+          },
+          "messages": [
+            {
+              "format": "plain",
+              "description": " realhug/2 holds when two people hug each other."
+            },
+            {
+              "format": "prolog",
+              "description": "%! realhug/2 holds when two people hug each other.\ntest(mutual) :-\n    assertion(realhug(jan, fien)).\n\ntest(one_sided, [fail]) :-\n    realhug(tom, fien).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "brohug: Passed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(friends) :-\n    assertion(brohug(jan, tom)).\n\ntest(not_friends, [fail]) :-\n    brohug(jan, fien).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "format": "plain",
+            "description": "all_realhugs: Passed"
+          },
+          "messages": [
+            {
+              "format": "prolog",
+              "description": "test(all, [set(X-Y == [fien-jan, jan-fien, jan-tom, tom-jan])]) :-\n    realhug(X, Y).\n"
+            }
+          ],
+          "groups": [
+            {
+              "accepted": true,
+              "description": "Ok"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "correct",
+  "messages": [],
+  "description": "true.",
+  "annotations": []
+}

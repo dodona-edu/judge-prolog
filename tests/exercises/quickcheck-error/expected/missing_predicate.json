@@ -1,0 +1,47 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 1,
+      "description": "double",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "**Quickcheck** validated  **1 predicates** that should always be true. However, **1 counterexamples** were found.\n\nThe results below show the code that represents the predicates. If they fail, a counterexample is shown."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "description": "#### Double",
+            "format": "markdown"
+          },
+          "groups": [
+            {
+              "accepted": false,
+              "description": "Could not execute test",
+              "messages": [
+                {
+                  "format": "code",
+                  "description": "ERROR: call/1: Unknown procedure: double/2\n\n   Exception: (7) double(21, 42) ? EOF: exit (status 4)\n"
+                }
+              ]
+            }
+          ],
+          "messages": [
+            {
+              "format": "prolog",
+              "description": " \nprop_double(X:oneof([21])) :-\n    double(X, 42).\n\n"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(1).",
+  "annotations": []
+}
