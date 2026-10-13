@@ -133,6 +133,10 @@ feedback table
 
 ## Tests
 
+The judge image is built from
+[`dodona-prolog.dockerfile`](https://github.com/dodona-edu/docker-images/blob/master/dodona-prolog.dockerfile)
+in docker-images and published as `ghcr.io/dodona-edu/dodona-prolog`.
+
 `tests/` runs the judge on the submissions in `tests/exercises/*/submissions`
 and compares its feedback with `tests/exercises/*/expected`. The suite runs as
 root inside the judge image: `devel/run-tests.sh` runs it there, as CI does,

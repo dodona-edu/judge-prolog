@@ -8,7 +8,6 @@
 /devel/
 /.github/
 /README.md
-/dockerfile
 /example.out.json
 /.gitignore
 /quicktest/README.md
