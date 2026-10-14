@@ -112,7 +112,10 @@ run_tests(_, _, _, _, ok).
 
 % separate a property argument into a variable and a type
 generate_argument(_:Type, Value:Type) :-
-    arbitrary(Type, Value).
+    (   arbitrary(Type, Value)
+    ->  true
+    ;   existence_error(arbitrary_type, Type)
+    ).
 
 
 % shrink a typed argument

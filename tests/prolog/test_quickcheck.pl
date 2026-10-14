@@ -50,8 +50,7 @@ test(error_in_property_is_not_caught,
      throws(error(instantiation_error, _))) :-
     run(throws_error, [_:integer], _).
 
-test(unsupported_type_is_not_ok,
-     [fixme('#34: reports ok')]) :-
+test(unsupported_type_is_not_ok) :-
     catch(run(unsupported, [_:no_such_type], Result), _, Result = error),
     Result \== ok.
 
