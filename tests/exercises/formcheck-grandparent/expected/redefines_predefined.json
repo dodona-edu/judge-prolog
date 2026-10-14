@@ -31,17 +31,6 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/grandparent.unit.pl-slice.pl:5:",
-                  "permission": "student"
-                }
-              ]
-            },
-            {
-              "accepted": false,
-              "description": "Warning",
-              "messages": [
-                {
-                  "format": "code",
                   "description": "Redefined static procedure parent/2",
                   "permission": "student"
                 }

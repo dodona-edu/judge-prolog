@@ -54,7 +54,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:7:\ntest brohug:friends: assertion",
+                  "description": "test brohug:friends: assertion",
                   "permission": "student"
                 }
               ]
@@ -65,7 +65,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:7:\ntest brohug:friends: assertion at line 8 raised \"catch/3: Unknown procedure: brohug/2\"\nAssertion: brohug(jan,tom)\n",
+                  "description": "test brohug:friends: assertion at line 8 raised \"catch/3: Unknown procedure: brohug/2\"\nAssertion: brohug(jan,tom)\n",
                   "permission": "student"
                 }
               ]
@@ -76,7 +76,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:10:\ntest brohug:not_friends: received error: time:run_alarm_goal/2: Unknown procedure: brohug/2",
+                  "description": "test brohug:not_friends: received error: time:run_alarm_goal/2: Unknown procedure: brohug/2",
                   "permission": "student"
                 }
               ]

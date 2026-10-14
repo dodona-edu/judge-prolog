@@ -31,7 +31,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/grandparent.unit.pl-slice.pl:8:\ntest grandparent:ann_cid: assertion",
+                  "description": "test grandparent:ann_cid: assertion",
                   "permission": "student"
                 }
               ]
@@ -42,7 +42,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/grandparent.unit.pl-slice.pl:8:\ntest grandparent:ann_cid: assertion at line 9 raised \"catch/3: Unknown procedure: ancestor/2\"\nAssertion: grandparent(ann,cid)\n",
+                  "description": "test grandparent:ann_cid: assertion at line 9 raised \"catch/3: Unknown procedure: ancestor/2\"\nAssertion: grandparent(ann,cid)\n",
                   "permission": "student"
                 }
               ]

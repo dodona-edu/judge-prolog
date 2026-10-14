@@ -56,17 +56,6 @@ class PLUnitTestcasesTest(unittest.TestCase):
     def test_passing_tests_give_no_testcases(self):
         self.assertEqual(self.feedback("correct_realhug", "realhug"), [])
 
-    def test_failed_assertion(self):
-        self.assertEqual(self.feedback("assertion_failure_brohug", "brohug"), [
-            error_case("ERROR", "resources/family.unit.pl-slice.pl:7:\ntest brohug:friends: assertion"),
-            error_case("ERROR", "resources/family.unit.pl-slice.pl:7:\n"
-                                "test brohug:friends: assertion at line 8 failed\n"
-                                "Assertion: brohug(jan,tom)\n"),
-            error_case("ERROR", "1 test failed"),
-        ])
-
-    # Bug #26: PLUnit feedback shows the path of the generated test file
-    @unittest.expectedFailure
     def test_failed_assertion_without_the_test_file_path(self):
         self.assertEqual(self.feedback("assertion_failure_brohug", "brohug"), [
             error_case("ERROR", "test brohug:friends: assertion"),
@@ -78,13 +67,11 @@ class PLUnitTestcasesTest(unittest.TestCase):
     def test_syntax_error_in_the_submission(self):
         self.assertEqual(self.feedback("syntax_error_realhug", "realhug"), [
             error_case("ERROR", "submission/source:1:27: Syntax error: Operator expected"),
-            error_case("ERROR", "resources/family.unit.pl-slice.pl:8:\ntest realhug:mutual: assertion"),
-            error_case("ERROR", "resources/family.unit.pl-slice.pl:8:\n"
-                                "test realhug:mutual: assertion at line 9 raised "
+            error_case("ERROR", "test realhug:mutual: assertion"),
+            error_case("ERROR", "test realhug:mutual: assertion at line 9 raised "
                                 '"catch/3: Unknown procedure: realhug/2"\n'
                                 "Assertion: realhug(jan,fien)\n"),
-            error_case("ERROR", "resources/family.unit.pl-slice.pl:11:\n"
-                                "test realhug:one_sided: received error: "
+            error_case("ERROR", "test realhug:one_sided: received error: "
                                 "time:run_alarm_goal/2: Unknown procedure: realhug/2"),
             error_case("ERROR", "2 tests failed"),
         ])

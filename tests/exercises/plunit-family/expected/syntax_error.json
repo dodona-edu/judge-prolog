@@ -46,7 +46,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:8:\ntest realhug:mutual: assertion",
+                  "description": "test realhug:mutual: assertion",
                   "permission": "student"
                 }
               ]
@@ -57,7 +57,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:8:\ntest realhug:mutual: assertion at line 9 raised \"catch/3: Unknown procedure: realhug/2\"\nAssertion: realhug(jan,fien)\n",
+                  "description": "test realhug:mutual: assertion at line 9 raised \"catch/3: Unknown procedure: realhug/2\"\nAssertion: realhug(jan,fien)\n",
                   "permission": "student"
                 }
               ]
@@ -68,7 +68,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:11:\ntest realhug:one_sided: received error: time:run_alarm_goal/2: Unknown procedure: realhug/2",
+                  "description": "test realhug:one_sided: received error: time:run_alarm_goal/2: Unknown procedure: realhug/2",
                   "permission": "student"
                 }
               ]
@@ -142,7 +142,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:7:\ntest all_realhugs:all: received error: findall_loop/4: Unknown procedure: realhug/2",
+                  "description": "test all_realhugs:all: received error: findall_loop/4: Unknown procedure: realhug/2",
                   "permission": "student"
                 }
               ]

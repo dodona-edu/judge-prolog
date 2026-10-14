@@ -35,7 +35,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:11:\ntest realhug:one_sided: succeeded",
+                  "description": "test realhug:one_sided: succeeded",
                   "permission": "student"
                 }
               ]
@@ -72,7 +72,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:7:\ntest brohug:friends: assertion",
+                  "description": "test brohug:friends: assertion",
                   "permission": "student"
                 }
               ]
@@ -83,7 +83,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:7:\ntest brohug:friends: assertion at line 8 failed\nAssertion: brohug(jan,tom)\n",
+                  "description": "test brohug:friends: assertion at line 8 failed\nAssertion: brohug(jan,tom)\n",
                   "permission": "student"
                 }
               ]
@@ -120,7 +120,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/family.unit.pl-slice.pl:7:\ntest all_realhugs:all:",
+                  "description": "test all_realhugs:all:",
                   "permission": "student"
                 }
               ]

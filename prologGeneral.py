@@ -2,9 +2,8 @@ import re
 import subprocess
 from util import SilentLimitedBuffer
 
-testfileName = '/tmp/tmp-testfile.pl'
-
-plTestfile = re.compile(testfileName.replace(".", "\\.") + r"(:[0-9]*)?:?")
+# The slice of the test file that PLUnit.testfile names.
+plTestfile = re.compile(r"[^\s'\"]*\.unit\.pl-slice\.pl(:[0-9]*)?:?")
 plStatus = re.compile(r"^[A.!+-]+$")
 plResult = re.compile(r"^(ERROR|Warning): (.*)")
 plDone = re.compile(r"done$")

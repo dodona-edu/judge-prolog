@@ -33,13 +33,14 @@ class RemoveMountDirTest(unittest.TestCase):
 
 class RemovePathTest(unittest.TestCase):
     def test_strips_test_file_with_line(self):
-        self.assertEqual(removePath("ERROR: /tmp/tmp-testfile.pl:12: boom", "t"), "ERROR:  boom")
+        self.assertEqual(removePath("ERROR: resources/x.unit.pl-slice.pl:12: boom", "t"), "ERROR:  boom")
 
     def test_strips_test_file_without_line(self):
-        self.assertEqual(removePath("in /tmp/tmp-testfile.pl here", "t"), "in  here")
+        self.assertEqual(removePath("in resources/x.unit.pl-slice.pl here", "t"), "in  here")
 
     def test_keeps_files_that_only_look_like_the_test_file(self):
-        self.assertEqual(removePath("/tmp/tmp-testfileXpl:7: x", "t"), "/tmp/tmp-testfileXpl:7: x")
+        self.assertEqual(removePath("resources/x.unit.pl-sliceXpl:7: x", "t"), "resources/x.unit.pl-sliceXpl:7: x")
+        self.assertEqual(removePath("resources/x.pl:7: x", "t"), "resources/x.pl:7: x")
 
     def test_strips_mount_dir_first(self):
         self.assertEqual(removePath("/mnt/tmpx/submission/source:3: x", "t"), "submission/source:3: x")
@@ -84,7 +85,7 @@ class CheckErrorsTest(unittest.TestCase):
 
     def test_test_file_header_line_has_no_message_of_its_own(self):
         lines = [
-            "ERROR: /tmp/tmp-testfile.pl:8:\n",
+            "ERROR: resources/a.unit.pl-slice.pl:8:\n",
             "ERROR:     test a:b: assertion\n",
         ]
         self.assertEqual(checkErrors(lines, "a"), [error_case("ERROR", "test a:b: assertion")])
