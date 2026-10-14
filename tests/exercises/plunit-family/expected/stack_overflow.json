@@ -31,45 +31,11 @@
           "groups": [
             {
               "accepted": false,
-              "description": "ERROR",
+              "description": "Timeout realhug",
               "messages": [
                 {
                   "format": "code",
-                  "description": "test realhug:mutual: assertion",
-                  "permission": "student"
-                }
-              ]
-            },
-            {
-              "accepted": false,
-              "description": "ERROR",
-              "messages": [
-                {
-                  "format": "code",
-                  "description": "test realhug:mutual: assertion at line 9 raised \"Stack limit (0.2Gb) exceeded\n  Stack sizes: <sizes>\n  Stack depth: <depth>\n  Possible non-terminating recursion:\n    [<depth>] user:realhug(jan, fien)\n    [<depth>] user:realhug(fien, jan)\"\nAssertion: realhug(jan,fien)\n",
-                  "permission": "student"
-                }
-              ]
-            },
-            {
-              "accepted": false,
-              "description": "ERROR",
-              "messages": [
-                {
-                  "format": "code",
-                  "description": "test realhug:one_sided: received error: Stack limit (0.2Gb) exceeded\n  Stack sizes: <sizes>\n  Stack depth: <depth>\n  Possible non-terminating recursion:\n    [<depth>] user:realhug(fien, tom)\n    [<depth>] user:realhug(tom, fien)",
-                  "permission": "student"
-                }
-              ]
-            },
-            {
-              "accepted": false,
-              "description": "ERROR",
-              "messages": [
-                {
-                  "format": "code",
-                  "description": "2 tests failed",
-                  "permission": "student"
+                  "description": "The test timed out (5s)!\n\nstdErr:\n"
                 }
               ]
             }
@@ -109,23 +75,11 @@
           "groups": [
             {
               "accepted": false,
-              "description": "ERROR",
+              "description": "Timeout all_realhugs",
               "messages": [
                 {
                   "format": "code",
-                  "description": "test all_realhugs:all: received error: Stack limit (0.2Gb) exceeded\n  Stack sizes: <sizes>\n  Stack depth: <depth>\n  Probable infinite recursion (cycle):\n    [<depth>] user:realhug(_, _)\n    [<depth>] user:realhug(_, _)",
-                  "permission": "student"
-                }
-              ]
-            },
-            {
-              "accepted": false,
-              "description": "ERROR",
-              "messages": [
-                {
-                  "format": "code",
-                  "description": "1 test failed",
-                  "permission": "student"
+                  "description": "The test timed out (5s)!\n\nstdErr:\n"
                 }
               ]
             }
