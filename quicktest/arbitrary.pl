@@ -111,7 +111,9 @@ arbitrary(positive_integer, X) :-
 
 arbitrary(rational, X) :-
     arbitrary(integer, Numerator),
-    arbitrary(integer, Denominator),
+    random_between(1, 30000, Magnitude),
+    random_member(Sign, [1, -1]),
+    Denominator is Sign * Magnitude,
     X is Numerator rdiv Denominator.
 
 arbitrary(string, X) :-
