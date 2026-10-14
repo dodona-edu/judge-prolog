@@ -431,7 +431,6 @@ class SilentLimitedBufferTest(unittest.TestCase):
         self.assertEqual(self.read_all(text.encode("utf-8")), text)
 
     # Bug #28: output loses a multi-byte character cut off by a 100-byte read
-    @unittest.expectedFailure
     def test_multibyte_character_split_over_two_reads(self):
         text = "a" * 99 + "é" + "b" * 5
         self.assertEqual(self.read_all(text.encode("utf-8")), text)
