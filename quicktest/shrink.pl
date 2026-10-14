@@ -16,13 +16,15 @@ shrink(code, _, 0' ).
 shrink(codes, Codes0, Codes) :-
     shrink(list(code), Codes0, Codes).
 
-shrink(integer, _, 0).  % zero often triggers bugs
+shrink(integer, X, 0) :-  % zero often triggers bugs
+    X =\= 0.
 shrink(integer, X, Y) :-
     % bisect from 1 towards the integer
     X > 0,
     MaxExponent is floor(log(abs(X))),
     between(0,MaxExponent,Exponent),
-    Y is sign(X) * round(exp(Exponent)).
+    Y is sign(X) * round(exp(Exponent)),
+    Y =\= X.
 shrink(integer, X, Y) :-
     % try a positive version of a negative integer
     X < 0,

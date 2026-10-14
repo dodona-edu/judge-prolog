@@ -30,8 +30,7 @@ test(positive_integer_bisects_towards_zero) :-
 test(negative_integer_tries_its_positive_version) :-
     candidates(integer, -7, [0, 7]).
 
-test(integers_do_not_shrink_to_themselves,
-     [fixme('#31: yields 0 and 1 for themselves')]) :-
+test(integers_do_not_shrink_to_themselves) :-
     \+ shrink(integer, 0, _),
     candidates(integer, 1, [0]).
 
