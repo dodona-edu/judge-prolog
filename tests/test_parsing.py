@@ -115,8 +115,6 @@ class CheckErrorsTest(unittest.TestCase):
             error_case("ERROR", "submission/source:2: boom"),
         ])
 
-    # Bug #27: multi-line warnings are split into separate messages
-    @unittest.expectedFailure
     def test_warning_continuation_lines_are_one_message(self):
         lines = [
             "Warning: submission/source:5:\n",
