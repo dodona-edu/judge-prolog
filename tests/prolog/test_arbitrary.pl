@@ -106,8 +106,7 @@ test(negative_integer_is_negative,
     set_random(seed(1)),
     all_draws_are(negative_integer, negative).
 
-test(rational_draws_never_throw,
-     [fixme('#33: can throw zero_divisor')]) :-
+test(rational_draws_never_throw) :-
     % With seed 3 the first zero denominator is draw 64443.
     set_random(seed(3)),
     forall(between(1, 65000, _),
