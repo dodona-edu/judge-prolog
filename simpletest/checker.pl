@@ -1,15 +1,15 @@
 :- module(dodonacheck,
           [ dotests/0
           ]).
-:- dynamic test_result/1.
 
 % I don't realy know why I've put these here anymore
-:- set_prolog_flag(unknown, error). 
+:- set_prolog_flag(unknown, error).
 :- set_prolog_flag(report_error, true).
 % Print a one line trace in case an error occurs
 % (More messes with the inference limit)
 :- use_module(library(prolog_stack)).
 :- use_module(library(error)).
+:- use_module(library(http/json)).
 
 user:prolog_exception_hook(Exception, Exception, Frame, _) :-
     (   Exception=error(Term)
@@ -23,106 +23,61 @@ user:prolog_exception_hook(Exception, Exception, Frame, _) :-
     true. %don't stop at errors
 
 
-% The exported term dotests evaluates all tests in the dodonaevaluate module
-% Todo, allow for multiple statements
-dotests() :-
-    findall([Name, ImplOk,ImplStud,AllowCP,Limit,Cases],dodonaevaluate:tests(Name,ImplOk,ImplStud,AllowCP,Limit,Cases),Tests),
-    dotests(Tests).
+% Runs every test in the dodonaevaluate module and writes the results to result.json.
+dotests :-
+    findall(test(Name, ImplOk, ImplStud, AllowCP, Limit, Cases),
+            dodonaevaluate:tests(Name, ImplOk, ImplStud, AllowCP, Limit, Cases),
+            Tests),
+    convlist(test_result, Tests, Results),
+    setup_call_cleanup(
+        open('result.json', write, Stream),
+        json_write(Stream, Results),
+        close(Stream)).
 
+% A test that raises an exception outside the predicates it calls is left out.
+test_result(test(Name, ImplOk, ImplStud, AllowCP, Limit, Cases), Result) :-
+    catch(maplist(case_result(ImplOk, ImplStud, Limit), Cases, CaseResults), _, fail),
+    % Last case first, as before: simpltest.py's sampling of shown cases depends on the order.
+    reverse(CaseResults, Reversed),
+    Result = res{name:Name, allowcp:AllowCP, inferencelimit:Limit, result:Reversed}.
 
-% When everyting is parsed the testresults are the results.
-% All tets are executed and the result is stored in a test_result(Res) using asertz/1.
-% This is needed because backtracking out of setup_call_catcher_cleanup/4 destroys
-% all choisepoints taken in the catcher.
-dotests([]) :-
-    findall(R,test_result(R), Res),
-    open('result.json', write, Stream),
-    json_write(Stream,Res),
-    close(Stream).
+% Bindings of a predicate that succeeds stay: the student predicate is called
+% with the answer of the reference solution, and later cases see both.
+case_result(ImplOk, ImplStud, Limit, Arg, res{expected:Expected, got:Got, term:Term}) :-
+    run(ImplOk, Arg, Limit, Expected),
+    run(ImplStud, Arg, Limit, Got),
+    Goal =.. [ImplStud|Arg],
+    swritef(Term, '%q', [Goal]).
 
+% Errors of Impl, inference_limit_exceeded included, end up in Error.
+run(Impl, Arg, Limit, Summary) :-
+    outcome(catch(apply(Impl, Arg), Error, true), Limit, Outcome),
+    summary(Outcome, Error, Summary).
 
-dotests([[Name, ImplOk,ImplStud,AllowCP,Limit,Cases]|Xs]) :-
-    verified(Name, ImplOk,ImplStud,AllowCP,Limit,Cases),
-    dotests(Xs). 
-
-
-% Start with an empty result list
-verified(Name, ImplOk, ImplStud, AllowCP,Limit, List) :-
-    verified(Name, ImplOk, ImplStud, AllowCP,Limit, List, []).
-
-% When all cases are handled write the result to a file
-:- use_module(library(http/json)).
-verified(Name, _, _, AllowCP,Limit, [], Result) :-
-    assertz(test_result(res{name: Name,allowcp:AllowCP, inferencelimit:Limit, result:Result})).
-
-% Checks what the result is of the correct code
-verified(Name, ImplOk, ImplStud, AllowCP,Limit, [Arg|RemArgs], Result) :-
-    ignore(catch(setup_call_catcher_cleanup(true,
-        call_with_inference_limit(
-                catch(apply(ImplOk,Arg),Exception,true),
-                Limit,
-                LimitResult),
-        Caught,
-        (
-            mkresult(Caught, LimitResult,Exception, Smry), 
-            verified_student(Smry, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, Result)
-        )),_,true)).
-
-% checks the result of the students code
-% Extra catches required
-verified_student(Expected, Name, ImplOk, ImplStud, AllowCP,Limit, Arg, RemArgs, Result) :-
-    ignore(setup_call_catcher_cleanup(true,
-            call_with_inference_limit(
-                catch(apply(ImplStud,Arg),Exception,true),
-                Limit,
-                LimitResult),
-        Caught,
-        (
-            H=..[ImplStud|Arg], swritef(C, '%q', [H]), 
-            mkresult(Caught, LimitResult, Exception, Smry), 
-            verified(Name, ImplOk, ImplStud, AllowCP,Limit, RemArgs, 
-                [res{expected:Expected, got:Smry, term:C}|Result])
-        ))).
-
+% Outcome is the result of call_with_inference_limit/3, fail or exception(E).
+% Cutting a remaining choice point can run a cleanup handler that throws, hence the catch around ->.
+outcome(Goal, Limit, Outcome) :-
+    catch(( call_with_inference_limit(Goal, Limit, Result)
+          ->  Outcome = Result
+          ;   Outcome = fail
+          ),
+          E,
+          Outcome = exception(E)).
 
 % Format a testresult that is JSON stringifiable
-
-
-mkresult(_, _,error(Exception,Context),Summary) :- ground(Exception),!,
-    swritef(Summary, '%q in %q', [Exception,Context]).
-
-mkresult(_, _,error(Exception),Summary) :- ground(Exception),!,
+summary(_, error(Exception, Context), Summary) :- ground(Exception), !,
+    swritef(Summary, '%q in %q', [Exception, Context]).
+summary(_, error(Exception), Summary) :- ground(Exception), !,
     swritef(Summary, '%q', [Exception]).
-
-mkresult(_, _, Exception, Summary) :- ground(Exception),!,
+summary(_, Exception, Summary) :- ground(Exception), !,
     swritef(Summary, '%q', [Exception]).
+summary(exception(Exception), _, Summary) :- !,
+    swritef(Summary, '%q', [Exception]).
+summary(Outcome, _, Summary) :-
+    port(Outcome, Port),
+    swritef(Summary, '%q', [Port]).
 
-
-mkresult(Caught, LimitResult,_,Summary) :- !,
-    mkresult(Caught, LimitResult,Summary).
-
-mkresult(exception(Exception),_,Summary) :- !,
-    swritef(Summary, '%q', [Exception]). 
-
-mkresult(external_exception(Exception),_,Summary) :- !,
-    swritef(Summary, '%q', [Exception]). 
-
-mkresult(fail,_,Summary) :- !,
-    swritef(Summary, '%q', [fail]). 
-
-mkresult(exit,!,Summary) :- !,
-    swritef(Summary, '%q', [exit]). 
-
-mkresult(!,true,Summary) :- !,
-    swritef(Summary, '%q', [true]). 
-
-mkresult(_,inference_limit_exceeded, Summary) :- !,
-    swritef(Summary, '%q', [inference_limit_exceeded]). 
-
-mkresult(Catched, LimitResult, Summary) :-
-    (   ground(LimitResult)
-    ->  swritef(LimitStr, '%q', [LimitResult])
-    ;   LimitStr=null
-    ),
-    swritef(CatchedStr, '%q', [Catched]),
-    Summary=testres{limitresult:LimitStr, returncode:CatchedStr}.
+port(!, exit).
+port(true, true).
+port(fail, fail).
+port(inference_limit_exceeded, inference_limit_exceeded).
