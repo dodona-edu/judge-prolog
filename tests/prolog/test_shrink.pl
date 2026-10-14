@@ -82,8 +82,7 @@ test(codes_shrink_like_lists_of_codes) :-
     candidates(codes, [0'a, 0'b], Codes),
     candidates(list(code), [0'a, 0'b], Codes).
 
-test(string_candidates_come_from_the_string,
-     [fixme('#30: ignores its input')]) :-
+test(string_candidates_come_from_the_string) :-
     string_codes("abc", Codes),
     candidates(codes, Codes, CodeCandidates),
     maplist(string_codes, Expected, CodeCandidates),
