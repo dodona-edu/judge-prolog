@@ -107,18 +107,7 @@
           "groups": [
             {
               "accepted": false,
-              "description": "compilation",
-              "messages": [
-                {
-                  "format": "code",
-                  "description": "0123456789",
-                  "permission": "student"
-                }
-              ]
-            },
-            {
-              "accepted": false,
-              "description": "Stderr ",
+              "description": "Stdout ",
               "messages": [
                 {
                   "format": "code",

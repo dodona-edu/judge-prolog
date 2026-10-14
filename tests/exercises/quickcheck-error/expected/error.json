@@ -21,11 +21,16 @@
           "groups": [
             {
               "accepted": false,
-              "description": "Could not execute test",
+              "description": "Could not execute test"
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
               "messages": [
                 {
                   "format": "code",
-                  "description": "ERROR: =:=/2: Arithmetic: `two/0' is not a function\n\n   Exception: (4) quickcheck:run_tests(100, user, prop_double, [_:oneof([21])], _) ? EOF: exit (status 4)\n"
+                  "description": "=:=/2: Arithmetic: `two/0' is not a function\n   Exception: (4) quickcheck:run_tests(100, user, prop_double, [_:oneof([21])], _) ? EOF: exit (status 4)",
+                  "permission": "student"
                 }
               ]
             }

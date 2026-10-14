@@ -188,11 +188,11 @@ def plunitTestcases(stdout, stderr, testname, timedOut):
             "description": "Timeout " + testname,
             "messages": [{
                 "format": "code",
-                "description": "The test timed out (5s)!\n\nstdOut:\n" + ("".join(stdout))
+                "description": "The test timed out (5s)!\n\nstdErr:\n" + ("".join(stderr))
             }]
         })
 
-    failedTests += checkErrors(stderr, testname)
     failedTests += checkErrors(stdout, testname)
+    failedTests += checkErrors(stderr, testname)
 
     return failedTests

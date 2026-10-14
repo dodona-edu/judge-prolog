@@ -37,9 +37,8 @@ def read_fixture(name):
 def swipl_output(case, removeMounts=True):
     """The stdout and stderr prologGeneral.swipl gives the output handler for
     a captured run."""
-    # The process's stderr is passed on as stdout and vice versa, see #29.
-    stdout = read_fixture(case + ".stderr")
-    stderr = read_fixture(case + ".stdout")
+    stdout = read_fixture(case + ".stdout")
+    stderr = read_fixture(case + ".stderr")
     if removeMounts:
         stdout, stderr = removeMountDir(stdout), removeMountDir(stderr)
     return {"stdout": stdout.splitlines(True), "stderr": stderr.splitlines(True)}
@@ -76,19 +75,19 @@ class PLUnitTestcasesTest(unittest.TestCase):
             error_case("ERROR", "2 tests failed"),
         ])
 
-    def test_stderr_comes_before_stdout(self):
+    def test_stdout_comes_before_stderr(self):
         self.assertEqual(
             plunitTestcases(["ERROR: on stdout\n"], ["ERROR: on stderr\n"], "t", False),
-            [error_case("ERROR", "on stderr"), error_case("ERROR", "on stdout")])
+            [error_case("ERROR", "on stdout"), error_case("ERROR", "on stderr")])
 
     def test_timeout_comes_first_with_the_output_so_far(self):
-        self.assertEqual(plunitTestcases(["% [1/2] t:a ... passed\n", "ERROR: boom\n"], [], "t", True), [
+        self.assertEqual(plunitTestcases([], ["% [1/2] t:a ... passed\n", "ERROR: boom\n"], "t", True), [
             {
                 "accepted": False,
                 "description": "Timeout t",
                 "messages": [{
                     "format": "code",
-                    "description": "The test timed out (5s)!\n\nstdOut:\n% [1/2] t:a ... passed\nERROR: boom\n",
+                    "description": "The test timed out (5s)!\n\nstdErr:\n% [1/2] t:a ... passed\nERROR: boom\n",
                 }],
             },
             error_case("ERROR", "boom"),
@@ -109,6 +108,12 @@ class QuickCheckTestcasesTest(unittest.TestCase):
         "\n"
         "   Exception: (4) quickcheck:run_tests(100, user, prop_double, "
         "[_17324:oneof([21])], _17380) ? EOF: exit (status 4)\n")
+    PARSED_ARITHMETIC_ERROR = error_case(
+        "ERROR",
+        "=:=/2: Arithmetic: `two/0' is not a function\n"
+        "   Exception: (4) quickcheck:run_tests(100, user, prop_double, "
+        "[_17324:oneof([21])], _17380) ? EOF: exit (status 4)")
+    NO_RESULT = {"accepted": False, "description": "Could not execute test"}
 
     def result(self, case):
         return readJson(fixture_path("quickcheck/{}.result.json".format(case)))
@@ -154,14 +159,19 @@ class QuickCheckTestcasesTest(unittest.TestCase):
     def test_without_result_the_output_is_shown(self):
         # The lines keep their newline and are joined with another one.
         self.assertEqual(
+            quickcheckTestcases(["hello\n", "world\n"], [], self.TESTNAME, False, 10, None, "en"),
+            [output_case("Could not execute test", "hello\n\nworld\n")])
+
+    def test_without_result_the_error_is_parsed(self):
+        self.assertEqual(
             quickcheckTestcases(timedOut=False, timeout=10, res=None, lang="en", testname="prop_double/1",
                                 **swipl_output("quickcheck/arithmetic_error")),
-            [output_case("Could not execute test", self.ARITHMETIC_ERROR)])
+            [self.NO_RESULT, self.PARSED_ARITHMETIC_ERROR])
 
     def test_without_result_or_output(self):
         self.assertEqual(
             quickcheckTestcases([], [], self.TESTNAME, False, 10, None, "en"),
-            [output_case("Could not execute test", "")])
+            [self.NO_RESULT])
 
     def test_without_result_in_dutch(self):
         testcase, = quickcheckTestcases(["x\n"], [], self.TESTNAME, False, 10, None, "nl")
@@ -176,9 +186,9 @@ class QuickCheckTestcasesTest(unittest.TestCase):
                 "description": "Timeout prop_double/1",
                 "messages": [
                     {"format": "plain", "description": "The execution of this test exceeded the time limit (10s)!"},
-                    {"format": "plain", "description": "StdOut:\n" + self.ARITHMETIC_ERROR},
+                    {"format": "plain", "description": "StdErr:\n" + self.ARITHMETIC_ERROR},
                 ],
-            }])
+            }, self.PARSED_ARITHMETIC_ERROR])
 
     def test_timeout_shows_and_parses_stderr(self):
         self.assertEqual(quickcheckTestcases([], ["Warning: late\n"], "prop/1", True, 7, None, "nl"), [
@@ -193,8 +203,6 @@ class QuickCheckTestcasesTest(unittest.TestCase):
             error_case("Warning", "late"),
         ])
 
-    # Bug #29: syntax errors in SimpleTest and QuickCheck are shown as raw output
-    @unittest.expectedFailure
     def test_syntax_error_is_parsed(self):
         self.assertIn(
             error_case("ERROR", "submission/source:1:23: Syntax error: Operator expected"),
@@ -212,17 +220,15 @@ class SimpleTestTestcasesTest(unittest.TestCase):
 
     def test_output_of_the_submission(self):
         self.assertEqual(self.feedback("echo_output"), [
-            error_case("compilation", "0123456789"),
-            output_case("Stderr ", "0123456789"),
+            output_case("Stdout ", "0123456789"),
         ])
 
-    def test_syntax_error_is_shown_as_is(self):
+    def test_syntax_error_is_parsed_and_shown_as_is(self):
         self.assertEqual(self.feedback("consult_syntax_error"), [
-            output_case("Stdout ", "ERROR: submission/source:1:12: Syntax error: Operator expected\n"),
+            error_case("ERROR", "submission/source:1:12: Syntax error: Operator expected"),
+            output_case("Stderr ", "ERROR: submission/source:1:12: Syntax error: Operator expected\n"),
         ])
 
-    # Bug #29: syntax errors in SimpleTest and QuickCheck are shown as raw output
-    @unittest.expectedFailure
     def test_syntax_error_is_parsed(self):
         self.assertIn(
             error_case("ERROR", "submission/source:1:12: Syntax error: Operator expected"),
@@ -243,17 +249,17 @@ class SimpleTestTestcasesTest(unittest.TestCase):
 
 class FormCheckTestcasesTest(unittest.TestCase):
     def test_no_timeout_gives_no_testcases(self):
-        stdout = swipl_output("formcheck/singleton", removeMounts=False)["stdout"]
-        self.assertEqual(formcheckTestcases(stdout, "check:check", False), [])
+        stderr = swipl_output("formcheck/singleton", removeMounts=False)["stderr"]
+        self.assertEqual(formcheckTestcases(stderr, "check:check", False), [])
 
     def test_timeout_shows_the_output(self):
-        stdout = swipl_output("formcheck/singleton", removeMounts=False)["stdout"]
-        self.assertEqual(formcheckTestcases(stdout, "check:check", True), [{
+        stderr = swipl_output("formcheck/singleton", removeMounts=False)["stderr"]
+        self.assertEqual(formcheckTestcases(stderr, "check:check", True), [{
             "accepted": False,
             "description": "Timeout check:check",
             "messages": [{
                 "format": "code",
-                "description": "The test timed out (more than 2s)!\n\nstdOut:\n"
+                "description": "The test timed out (more than 2s)!\n\nstdErr:\n"
                                "Warning: /mnt/sandbox/submission/source:1:\n"
                                "Warning:    Singleton variables: [Unused]\n",
             }],
@@ -262,8 +268,8 @@ class FormCheckTestcasesTest(unittest.TestCase):
 
 class FormCheckAnnotationsTest(unittest.TestCase):
     def annotations(self, case=None, jsonRes=None):
-        stdout = swipl_output("formcheck/" + case, removeMounts=False)["stdout"] if case else []
-        return formcheckAnnotations(stdout, jsonRes, SOURCE)
+        stderr = swipl_output("formcheck/" + case, removeMounts=False)["stderr"] if case else []
+        return formcheckAnnotations(stderr, jsonRes, SOURCE)
 
     def test_nothing_found(self):
         self.assertEqual(self.annotations(), [])
@@ -283,19 +289,19 @@ class FormCheckAnnotationsTest(unittest.TestCase):
         }])
 
     def test_each_output_message_is_an_annotation(self):
-        stdout = [
+        stderr = [
             "Warning: {}:5:\n".format(SOURCE),
             "Warning:    Earlier definition at {}:1\n".format(SOURCE),
             "ERROR: {}:3:7: Syntax error: Operator expected\n".format(SOURCE),
         ]
-        self.assertEqual(formcheckAnnotations(stdout, None, SOURCE), [
+        self.assertEqual(formcheckAnnotations(stderr, None, SOURCE), [
             {"row": 4, "text": "Warning:    Earlier definition at submission.pl:1", "type": "warning"},
             {"row": 2, "text": "Syntax error: Operator expected", "type": "error"},
         ])
 
     def test_output_about_other_files_is_ignored(self):
-        stdout = ["Warning: /mnt/sandbox/resources/x.pl:3:\n", "Warning:    other\n"]
-        self.assertEqual(formcheckAnnotations(stdout, None, SOURCE), [])
+        stderr = ["Warning: /mnt/sandbox/resources/x.pl:3:\n", "Warning:    other\n"]
+        self.assertEqual(formcheckAnnotations(stderr, None, SOURCE), [])
 
     def test_undefined_predicate_is_an_error(self):
         jsonRes = readJson(fixture_path("formcheck/undefined.result.json"))

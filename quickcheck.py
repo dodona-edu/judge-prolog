@@ -191,11 +191,13 @@ def quickcheckTestcases(stdout, stderr, testname, timedOut, timeout, res, lang):
 
         testcases.append(timeoutCase)
     elif res is None:
-        testcases.append({
+        noResultCase = {
             "accepted": False,
             "description": LANG[lang]["no_results"],
-            "messages": [{"format": "code", "description": "\n".join(stdout)}]
-        })
+        }
+        if stdout:
+            noResultCase["messages"] = [{"format": "code", "description": "\n".join(stdout)}]
+        testcases.append(noResultCase)
     else:
         testcases.append(quickcheckResultTestcase(res, lang))
     testcases += checkErrors(stderr, testname)

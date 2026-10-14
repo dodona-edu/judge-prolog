@@ -104,9 +104,8 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
         cwd=config["workdir"])
 
     # Keep reading bufffer while only saving the top bufsize bytes
-    # The process's stderr is passed on as stdout and vice versa, see #29.
-    stdBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stderr)
-    errBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stdout)
+    stdBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stdout)
+    errBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stderr)
 
     didTimeout = True
     try:
