@@ -35,7 +35,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "The test timed out (5s)!\n\nstdOut:\n"
+                  "description": "The test timed out (5s)!\n\nstdErr:\n"
                 }
               ]
             }
@@ -79,7 +79,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "The test timed out (5s)!\n\nstdOut:\n"
+                  "description": "The test timed out (5s)!\n\nstdErr:\n"
                 }
               ]
             }

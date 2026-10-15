@@ -21,11 +21,16 @@
           "groups": [
             {
               "accepted": false,
-              "description": "Could not execute test",
+              "description": "Could not execute test"
+            },
+            {
+              "accepted": false,
+              "description": "ERROR",
               "messages": [
                 {
                   "format": "code",
-                  "description": "ERROR: call/1: Unknown procedure: double/2\n\n   Exception: (7) double(21, 42) ? EOF: exit (status 4)\n"
+                  "description": "call/1: Unknown procedure: double/2\n   Exception: (7) double(21, 42) ? EOF: exit (status 4)",
+                  "permission": "student"
                 }
               ]
             }

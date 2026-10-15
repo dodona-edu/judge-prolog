@@ -31,29 +31,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "resources/grandparent.unit.pl-slice.pl:5:",
-                  "permission": "student"
-                }
-              ]
-            },
-            {
-              "accepted": false,
-              "description": "Warning",
-              "messages": [
-                {
-                  "format": "code",
-                  "description": "Redefined static procedure parent/2",
-                  "permission": "student"
-                }
-              ]
-            },
-            {
-              "accepted": false,
-              "description": "Warning",
-              "messages": [
-                {
-                  "format": "code",
-                  "description": "Previously defined at submission/source:1",
+                  "description": "Redefined static procedure parent/2\nPreviously defined at submission/source:1",
                   "permission": "student"
                 }
               ]

@@ -197,12 +197,12 @@ class FormCheck(object):
 
         jsonOutputFile = self.config["workdir"] + "/result.json"
         removeFile(jsonOutputFile)  # ensure that the file is removed
-        testCases, stdout = swipl(
+        testCases, stderr = swipl(
             scriptfile=testfilename,
             testname="check:check",
             goal="'dodona lint'",
-            outputHandler=lambda stdout, testname, timeout, **_:
-                (formcheckTestcases(stdout, testname, timeout), stdout),
+            outputHandler=lambda stderr, testname, timeout, **_:
+                (formcheckTestcases(stderr, testname, timeout), stderr),
             timeout=2,
             config=self.config,
             removeMounts=False)
@@ -210,7 +210,7 @@ class FormCheck(object):
         jsonRes = readJson(jsonOutputFile)
         removeFile(jsonOutputFile)
 
-        self.annotations += formcheckAnnotations(stdout, jsonRes, self.config["source"])
+        self.annotations += formcheckAnnotations(stderr, jsonRes, self.config["source"])
 
         if testCases:
             return {
@@ -223,7 +223,7 @@ class FormCheck(object):
         return None
 
 
-def formcheckTestcases(stdout, testname, timedOut):
+def formcheckTestcases(stderr, testname, timedOut):
     cases = []
     if timedOut:
         cases.append({
@@ -233,21 +233,21 @@ def formcheckTestcases(stdout, testname, timedOut):
                 "format": "code",
                 "description":
                     "The test timed out (more than 2s)!" +
-                    "\n\nstdOut:\n" + ("".join(stdout))
+                    "\n\nstdErr:\n" + ("".join(stderr))
             }]
         })
 
     return cases
 
 
-def formcheckAnnotations(stdout, jsonRes, source):
+def formcheckAnnotations(stderr, jsonRes, source):
     lints = []
-    if stdout:
+    if stderr:
         plFile = re.compile(re.escape(source))
         plResult = re.compile(
             r"^(ERROR|Warning):\s+" + re.escape(source) + ":([0-9]+)(:([0-9]+))?:(.*)")
         curRes = {}
-        for line in stdout:
+        for line in stderr:
             isResult = plResult.match(line)
             line = line.strip()
             if isResult:
