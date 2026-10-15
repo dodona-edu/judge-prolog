@@ -42,17 +42,19 @@ type_error_double(X, _) :-
     atom_length(X, _),
     X = f(_).
 
+cleanup_throwing(_, Y) :-
+    setup_call_cleanup(true, member(Y, [1, 2]), throw(cleanup_error)).
+
 printing_double(X, Y) :-
     format("hello~n"),
     Y is X * 2.
 
-:- begin_tests(checker, [cleanup(retractall(dodonacheck:test_result(_)))]).
+:- begin_tests(checker).
 
 check(Tests, Results) :-
     check(Tests, Results, _).
 
 check(Tests, Results, Output) :-
-    retractall(dodonacheck:test_result(_)),
     setup_call_cleanup(
         forall(member(T, Tests), assertz(dodonaevaluate:T)),
         with_temp_dir(( with_output_to(string(Output), dodonacheck:dotests()),
@@ -104,6 +106,10 @@ test(remaining_choice_point_is_reported) :-
 test(student_choice_point_differs_from_reference) :-
     check([tests("choice", dodonaevaluate:double, choice_double, true, 1000, [[1, _]])], Json),
     summaries(Json, ["exit"-"true"]).
+
+test(exception_when_cutting_a_choice_point_is_reported) :-
+    check([tests("cleanup", dodonaevaluate:member_twice, cleanup_throwing, true, 1000, [[1, _]])], Json),
+    summaries(Json, ["true"-"cleanup_error"]).
 
 test(inference_limit_is_reported) :-
     check([tests("loop", dodonaevaluate:double, looping, true, 1000, [[1, _]])], Json),

@@ -1,0 +1,184 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 5,
+      "description": "test",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "We checked **9 facts**, **5** of them were incorrect."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*Exceptions*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "checked_double(-1,-2)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "negative(-1)",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "checked_double(2,4)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "true.",
+                  "accepted": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*Choice points*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "digit(10)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "false.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "digit(5)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "true.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "digit(0)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "true.",
+                  "accepted": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*Inference limit*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "countdown(10)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "Exceeded inference limit of 1000",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "countdown(100000)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "Exceeded inference limit of 1000",
+                  "expected": "Exceeded inference limit of 1000",
+                  "accepted": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "accepted": false,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*Shared variables*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "first([a,c],a)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "first([a,b],a)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(5).",
+  "annotations": []
+}
