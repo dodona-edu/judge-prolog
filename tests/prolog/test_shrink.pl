@@ -30,8 +30,7 @@ test(positive_integer_bisects_towards_zero) :-
 test(negative_integer_tries_its_positive_version) :-
     candidates(integer, -7, [0, 7]).
 
-test(integers_do_not_shrink_to_themselves,
-     [fixme('#31: yields 0 and 1 for themselves')]) :-
+test(integers_do_not_shrink_to_themselves) :-
     \+ shrink(integer, 0, _),
     candidates(integer, 1, [0]).
 
@@ -82,8 +81,7 @@ test(codes_shrink_like_lists_of_codes) :-
     candidates(codes, [0'a, 0'b], Codes),
     candidates(list(code), [0'a, 0'b], Codes).
 
-test(string_candidates_come_from_the_string,
-     [fixme('#30: ignores its input')]) :-
+test(string_candidates_come_from_the_string) :-
     string_codes("abc", Codes),
     candidates(codes, Codes, CodeCandidates),
     maplist(string_codes, Expected, CodeCandidates),

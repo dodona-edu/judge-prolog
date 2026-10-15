@@ -94,7 +94,7 @@ arbitrary(list(T), X) :-
     maplist(arbitrary(T), X).
 
 arbitrary(negative_integer, X) :-
-    random_between(-30000, 1, X).
+    random_between(-30000, -1, X).
 
 arbitrary(nonneg, X) :-
     random_between(0, 30000, X).
@@ -111,7 +111,9 @@ arbitrary(positive_integer, X) :-
 
 arbitrary(rational, X) :-
     arbitrary(integer, Numerator),
-    arbitrary(integer, Denominator),
+    random_between(1, 30000, Magnitude),
+    random_member(Sign, [1, -1]),
+    Denominator is Sign * Magnitude,
     X is Numerator rdiv Denominator.
 
 arbitrary(string, X) :-
