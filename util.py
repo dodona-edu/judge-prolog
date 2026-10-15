@@ -1,4 +1,5 @@
 from threading import Thread
+import codecs
 import json
 import os
 import io
@@ -65,37 +66,15 @@ class SilentLimitedBuffer(io.StringIO):
         """
 
         def write_deamon(buff, stream):
-            danglingBytes = None  # will almost alway be None
+            decoder = codecs.getincrementaldecoder("utf-8")(errors="ignore")
 
             while not buff.done:
                 bytedata = stream.read(100)
                 if not bytedata:
                     break  # no more data
 
-                # If some byte were not parsed in the previous run, prepend
-                # them
-                if danglingBytes:
-                    bytedata = danglingBytes + bytedata
-                    danglingBytes = None
-
-                data = None
-                # Errors might be thrown when a multibyte char is chopped
-                try:
-                    data = bytedata.decode("utf-8")
-                    danglingBytes = None
-                except UnicodeDecodeError:
-                    for i in [-1, -2, -3]:
-                        try:
-                            data = bytedata[:i].decode("utf-8")
-                            danglingBytes = bytedata[:i]
-                            break
-                        except UnicodeDecodeError:
-                            pass
-                    else:
-                        # all failed (no break): ignore errors
-                        data = bytedata.decode("utf-8", errors="ignore")
-                        danglingBytes = None
-
+                # The decoder keeps the tail of a chopped multibyte char
+                data = decoder.decode(bytedata)
                 if data:
                     buff.write(data)
 
