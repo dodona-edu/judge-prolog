@@ -55,7 +55,6 @@ class QuickCheck(object):
         self.lang = config["natural_language"]
         self.result = None
         self.properties = {}
-        self.orderedProperties = []
 
         # get property definitions
         self.getPropertyDefinitions(filename)
@@ -88,7 +87,6 @@ class QuickCheck(object):
                 if curProperty in self.properties:
                     self.properties[curProperty] += data[startLine:i]
                 else:
-                    self.orderedProperties.append(curProperty)
                     self.properties[curProperty] = data[startLine:i]
                 curProperty = None
 
@@ -103,7 +101,7 @@ class QuickCheck(object):
     def _doTest(self):
         contexts = []
         failedTest = 0
-        for testname in self.orderedProperties:
+        for testname in self.properties:
             testcases = self._run(testname)
             numBad = sum([not t["accepted"] for t in testcases])
 
@@ -131,7 +129,7 @@ class QuickCheck(object):
             "messages": [{
                 "format": "markdown",
                 "description": LANG[self.lang]["info"].format(
-                    numtests=len(self.orderedProperties),
+                    numtests=len(self.properties),
                     failed=failedTest
                 )
             }],
