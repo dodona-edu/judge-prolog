@@ -1,4 +1,5 @@
 """Simple test: see "Format of Simple Test testfiles" in README.md."""
+import os
 import re
 import random
 from prologGeneral import checkErrors, swipl
@@ -72,7 +73,8 @@ class SimpleTest(object):
             for c in consults["public"]:
                 f2.write(':- consult({}).\n'.format(c))
             for c in consults["private"]:
-                f2.write(':- consult({}{}).\n'.format(config["resources"], c))
+                for name in re.findall(r'"([^"]+)"', c):
+                    f2.write(':- consult("{}").\n'.format(os.path.join(config["resources"], name)))
 
             f2.write("""
             :- use_module("{judgePath}/simpletest/checker.pl").

@@ -1,0 +1,101 @@
+{
+  "accepted": false,
+  "groups": [
+    {
+      "accepted": false,
+      "badgeCount": 3,
+      "description": "test",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "We checked **5 facts**, **3** of them were incorrect."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": false,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*demo*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "stuff(2,5)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "false.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "stuff(1,4)."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "false.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "stuff(3,panda(4))."
+              },
+              "accepted": false,
+              "tests": [
+                {
+                  "generated": "type_error(evaluable,panda/1) in context(system:(>)/2,_)",
+                  "expected": "true.",
+                  "accepted": false
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "stuff(5,2)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "stuff(0,0)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "wrong",
+  "messages": [],
+  "description": "issues(3).",
+  "annotations": []
+}
