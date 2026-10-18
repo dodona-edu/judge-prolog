@@ -196,7 +196,7 @@ def quickcheckResultTestcase(res, lang):
         rowfmt = "<tr><td>{i}</td><td class='code'>{type}</td><td class='code'>{value}</td></tr>"
         body = "".join([
             rowfmt.format(i=i,
-                          type=arg["type"],
+                          type=html.escape(arg["type"]),
                           value=html.escape(arg["value"]))
             for i, arg in enumerate(res["counterparams"])
         ])
