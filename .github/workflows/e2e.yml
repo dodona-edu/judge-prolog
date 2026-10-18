@@ -22,6 +22,9 @@ on:
         type: string
         default: master
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -34,5 +37,6 @@ jobs:
         with:
           repository: dodona-edu/judge-prolog
           ref: ${{ inputs.ref }}
+          persist-credentials: false
       - name: Run tests
         run: ./devel/run-tests.sh --verbose

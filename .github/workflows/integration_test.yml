@@ -3,6 +3,9 @@ name: Integration test
 on:
   push:
 
+permissions:
+  contents: read
+
 jobs:
   integration-test:
     uses: ./.github/workflows/e2e.yml
