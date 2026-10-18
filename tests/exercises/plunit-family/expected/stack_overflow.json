@@ -35,7 +35,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "The test timed out (5s)!\n\nstdErr:\n"
+                  "description": "The test timed out (5s)!\n\nstdErr:\n% [1/2] realhug:mutual .."
                 }
               ]
             }
@@ -79,7 +79,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "The test timed out (5s)!\n\nstdErr:\n"
+                  "description": "The test timed out (5s)!\n\nstdErr:\n% [1/1] all_realhugs:all .."
                 }
               ]
             }
