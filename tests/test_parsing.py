@@ -279,7 +279,7 @@ class SimpleTestHelpersTest(unittest.TestCase):
         self.assertEqual(len(contexts), 1)
         self.assertFalse(contexts[0]["accepted"])
         self.assertEqual(contexts[0]["messages"][0]["description"], "No results found")
-        self.assertEqual(contexts[0]["messages"][1]["permission"], "staff")
+        self.assertEqual(contexts[0]["messages"][1]["permission"], "educator")
 
     def test_result_context_counts_and_orders_rows(self):
         rows = [
