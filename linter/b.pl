@@ -1,1 +1,0 @@
-sfdjhfdhas(X) :- dwedwe.

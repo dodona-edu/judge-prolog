@@ -24,12 +24,6 @@ from formcheck import FormCheck
 # extract info from exercise configuration and set defaults
 config = json.load(sys.stdin)
 home = config['resources']
-source = config['source']
-workdir = config['workdir']
-judge = config['judge']
-time_limit = int(config['time_limit'])
-memory_limit = int(config['memory_limit'])
-programming_language = config['programming_language']
 
 config.setdefault("prolog_stack_limit", "256m")
 

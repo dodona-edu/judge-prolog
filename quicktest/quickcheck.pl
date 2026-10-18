@@ -100,7 +100,6 @@ quickcheck(Module:Property/Arity) :-
 run_tests(TestCount, Module, Property, Args, fail(Example)) :-
     between(1,TestCount,_),
     maplist(generate_argument, Args, Values),
-    % printviolating(Property, Values),
     Goal =.. [Property|Values],
     \+ Module:call(Goal),
     !,
@@ -135,10 +134,6 @@ shrink_example(Depth0, Module, Property, Values, Example) :-
     shrink_example(Depth, Module, Property, Shrunk, Example).
 shrink_example(_,_,_,Example, Example).
 
-
-warn(Format,Args) :-
-    format(user_error,Format,Args),
-    format(user_error,"~n",[]).
 
 :- use_module(library(http/json)).
 

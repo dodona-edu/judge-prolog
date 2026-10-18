@@ -107,8 +107,6 @@ class CondFormatString:  # pylint: disable=too-few-public-methods
     print(a.format(failed = 5, numtests = 9)) # -> 5 wrong of 9
     print(a.format(failed = 0, numtests = 9)) # -> All 9 tests correct
     """
-    _fun = None
-
     def __init__(self, cond, sTrue, sFalse):
         self._cond = cond
         self._sTrue = sTrue

@@ -54,13 +54,6 @@ class PLUnit(object):
     def getAnnotations(self):
         return None
 
-    def getSummary(self):
-        res = self.getResult()
-        if res["badgeCount"] == 0:
-            return "correct"
-        else:
-            return "PLUnit: {} issues".format(res["badgeCount"])
-
     def _doTest(self):
         """ Splits up the testfile in smaller parts and execute each of them.
 

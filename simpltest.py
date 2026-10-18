@@ -58,7 +58,6 @@ The results stored in `workspace/results.json` are then consulted to build the f
 """
 import fileinput
 import re
-import json
 import random
 from prologGeneral import checkErrors, swipl
 from util import CondFormatString, readJson
@@ -112,8 +111,6 @@ class SimpleTest(object):
         self.config = config
         self.tabname = tabname
         self.timeout = 10
-        self.bufsize = 2500
-        self.numlines = 250
         self.lang = config["natural_language"]
         self.result = None
         self.words = LANG[self.lang]
@@ -121,7 +118,6 @@ class SimpleTest(object):
         consults = {"public": [], "private": []}
         # Read input
         for l in fileinput.input(filename):
-            l.strip()
             isConsult = consultRe.match(l)
             if isConsult:
                 consults[isConsult.group(1)].append(isConsult.group(2))
@@ -158,13 +154,6 @@ class SimpleTest(object):
 
     def getAnnotations(self):
         return None
-
-    def getSummary(self):
-        res = self.getResult()
-        if res["badgeCount"] == 0:
-            return "correct"
-        else:
-            return "Simplecheck: {} issues".format(res["badgeCount"])
 
     def _doTest(self):
         outputContext = self._mkOutputContext(swipl(
@@ -290,7 +279,7 @@ class SimpleTest(object):
                 }]
             else:
                 return [{
-                    "accepted": len(testcases) == 0,
+                    "accepted": False,
                     "description": {
                         "format": "markdown", "description": self.words["stdnotempty"]
                     },
@@ -340,23 +329,3 @@ def simpletestTestcases(stdout, stderr, testname, timedOut, timeout, words):
 
     return testcases
 
-
-if __name__ == '__main__':
-    tabs = [SimpleTest({
-        "natural_language": "nl",
-        "workdir": "/tmp",
-        "source": "/home/beardhatcode/Documents/lp/judge/simpletest/example-submission.pl",
-        "judge": "/home/beardhatcode/Documents/lp/judge",
-        "prolog_local_stack": "128M",
-        "prolog_global_stack": "128M",
-        "prolog_trail_stack": "128M",
-    }, "/home/beardhatcode/Documents/lp/judge/simpletest/example-evaluate.pl").getResult()]
-
-    nb = sum([t["badgeCount"] for t in tabs])
-    feedback = {
-        "accepted": all([t["badgeCount"] == 0 for t in tabs]),
-        "groups": tabs,
-        "status": "correct answer" if nb == 0 else "wrong answer",
-        "description": "issues({}).".format(nb) if nb > 0 else "true."
-    }
-    print(json.dumps(feedback, indent=2, separators=(',', ': ')))

@@ -6,10 +6,6 @@ from prologGeneral import checkErrors, swipl
 from util import CondFormatString, readJson, removeFile
 
 reProperty = re.compile(r"(prop_[^(]*)\((.*)\)\s*:-")
-reBody = re.compile(r"^\s")
-
-reBraces = re.compile(r"\([^()]*\)")
-
 LANG = {
     "nl": {
         "info": CondFormatString(
@@ -105,15 +101,7 @@ class QuickCheck(object):
     def getAnnotations(self):
         return None
 
-    def getSummary(self):
-        res = self.getResult()
-        if res["badgeCount"] == 0:
-            return "correct"
-        else:
-            return "QuickCheck: {} issues".format(res["badgeCount"])
-
     def _doTest(self):
-        totalNumBad = 0
         contexts = []
         failedTest = 0
         for testname in self.orderedProperties:
@@ -136,7 +124,6 @@ class QuickCheck(object):
             failedTest += numBad > 0
 
             contexts.append(context)
-            totalNumBad += numBad
 
         self.result = {
             "accepted": failedTest == 0,
