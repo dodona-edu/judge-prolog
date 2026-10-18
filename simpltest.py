@@ -271,7 +271,7 @@ class SimpleTest(object):
                 }, {
                     "format": "markdown",
                     "description": "This may be caused by a stack overflow",
-                    "permission": "staff"
+                    "permission": "educator"
                 }],
             })
         return contexts, numTests, numBadTotal
