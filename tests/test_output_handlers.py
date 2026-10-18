@@ -150,6 +150,15 @@ class QuickCheckTestcasesTest(unittest.TestCase):
         self.assertIn("<td class='code'>atom</td><td class='code'>&lt;b&gt;&amp;</td>",
                       testcase["messages"][0]["description"])
 
+    def test_counterexample_type_is_escaped(self):
+        testcase = quickcheckResultTestcase({
+            "accepted": "false",
+            "counterterm": "prop(_)",
+            "counterparams": [{"type": "<b>&", "value": "x"}],
+        }, "en")
+        self.assertIn("<td class='code'>&lt;b&gt;&amp;</td><td class='code'>x</td>",
+                      testcase["messages"][0]["description"])
+
     def test_result_comes_before_the_parsed_stderr(self):
         res = self.result("correct_prop_reverse_twice")
         self.assertEqual(
