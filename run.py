@@ -15,6 +15,7 @@ import sys
 import json
 import random
 import itertools
+from collections import Counter
 from plunit import PLUnit
 from quickcheck import QuickCheck
 from simpltest import SimpleTest
@@ -63,16 +64,12 @@ description = "issues({}).".format(numBad)
 
 messages = []
 
+annotationCount = Counter(a["type"] for a in annotations)
 annotationDescription = None
-annotationCount = {"error": 0, "warning": 0, "info": 0}
-if annotations:
-    for a in annotations:
-        annotationCount[a["type"]] += 1
-
-    for t in ["error", "warning", "info"]:
-        if annotationCount[t] > 0:
-            annotationDescription = "{}s({}).".format(t, annotationCount[t])
-            break
+for t in ["error", "warning", "info"]:
+    if annotationCount[t] > 0:
+        annotationDescription = "{}s({}).".format(t, annotationCount[t])
+        break
 
 if accepted:
     description = "true."

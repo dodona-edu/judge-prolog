@@ -16,17 +16,14 @@ http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%2
 import re
 
 from prologGeneral import checkErrors, swipl
-from util import CondFormatString
 
 plUnitInfo = {
-    "nl": CondFormatString(
-        lambda **d: d["failed"] > 0,
-        "**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. Een test kan meerdere `assert`s bevatten.",
-        "Alle **PLUnit** testen slaagden."),
-    "en": CondFormatString(
-        lambda **d: d["failed"] > 0,
-        "**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed.",
-        "All **PLUnit** tests passed.")}
+    "nl": {
+        "failed": "**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. Een test kan meerdere `assert`s bevatten.",
+        "passed": "Alle **PLUnit** testen slaagden."},
+    "en": {
+        "failed": "**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed.",
+        "passed": "All **PLUnit** tests passed."}}
 
 
 plBeginTest = re.compile(r":- +begin_tests\(([^,]*)(,.*)?\)")
@@ -128,7 +125,7 @@ class PLUnit(object):
             "description": self.tabname,
             "messages": [{
                 "format": "markdown",
-                "description": plUnitInfo[self.lang].format(
+                "description": plUnitInfo[self.lang]["failed" if numBad else "passed"].format(
                     numtests=numTests,
                     failed=numBad)
             }],

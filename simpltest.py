@@ -59,15 +59,14 @@ The results stored in `workspace/results.json` are then consulted to build the f
 import re
 import random
 from prologGeneral import checkErrors, swipl
-from util import CondFormatString, readJson
+from util import readJson
 
 
 LANG = {
     "en": {
-        "description": CondFormatString(
-            lambda **d: d["failed"] > 0,
-            "We checked **{numtests} facts**, **{failed}** of them were incorrect.",
-            "We checked **{numtests} facts**, they were all correct."),
+        "description": {
+            "failed": "We checked **{numtests} facts**, **{failed}** of them were incorrect.",
+            "passed": "We checked **{numtests} facts**, they were all correct."},
         "hiddenrow": {
             True: "Another *{num} succeeded* tests are not listed.",
             False: "Another *{num} failed* tests are not listed."
@@ -78,10 +77,9 @@ LANG = {
         "timeout": "The test timed out ({seconds}s)"
     },
     "nl": {
-        "description": CondFormatString(
-            lambda **d: d["failed"] > 0,
-            "We controleerden **{numtests} feiten**, hievan waren er **{failed} niet correct**.",
-            "We controleerden **{numtests} feiten**, ze waren allemaal correct. "),
+        "description": {
+            "failed": "We controleerden **{numtests} feiten**, hievan waren er **{failed} niet correct**.",
+            "passed": "We controleerden **{numtests} feiten**, ze waren allemaal correct. "},
         "hiddenrow": {
             True: "*{num}* andere *geslaagde* testen worden niet getoond.",
             False: "*{num}* andere *gefaalde* testen worden niet getoond."
@@ -173,7 +171,7 @@ class SimpleTest(object):
             "description": self.tabname,
             "messages": [{
                 "format": "markdown",
-                "description": self.words["description"].format(
+                "description": self.words["description"]["failed" if failedTest else "passed"].format(
                     numtests=numtests,
                     failed=failedTest
                 )
