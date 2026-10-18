@@ -377,6 +377,35 @@ class SimpleTestHelpersTest(unittest.TestCase):
             tests[True][-1]["description"]["description"],
             "*3* andere *geslaagde* testen worden niet getoond.")
 
+    def consult_lines(self, consult):
+        with open(self.testfile, "w") as f:
+            f.write(consult + "\n")
+        st = SimpleTest({
+            "natural_language": "en",
+            "resources": self.dir,
+            "source": "/mnt/x/submission/source",
+            "judge": "/mnt/x/judge",
+            "workdir": self.dir,
+        }, self.testfile)
+        with open(st.testfileName) as f:
+            return [line.strip() for line in f
+                    if line.strip().startswith(":- consult(") and "/submission/" not in line]
+
+    def test_consult_private_loads_from_the_resources_directory(self):
+        self.assertEqual(
+            self.consult_lines('%- consult private "database.pl".'),
+            [':- consult("{}/database.pl").'.format(self.dir)])
+
+    def test_consult_private_list_loads_every_file(self):
+        self.assertEqual(
+            self.consult_lines('%- consult private ["a.pl","b.pl"].'),
+            [':- consult("{}/a.pl").'.format(self.dir), ':- consult("{}/b.pl").'.format(self.dir)])
+
+    def test_consult_public_is_written_as_is(self):
+        self.assertEqual(
+            self.consult_lines('%- consult public ["a.pl","b.pl"].'),
+            [':- consult(["a.pl","b.pl"]).'])
+
 
 class SilentLimitedBufferTest(unittest.TestCase):
     class Stream(io.BytesIO):
