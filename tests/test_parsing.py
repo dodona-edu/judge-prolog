@@ -8,6 +8,7 @@ import os
 import shutil
 import tempfile
 import threading
+import time
 import unittest
 
 from helpers import EXERCISES_DIR, error_case
@@ -468,6 +469,28 @@ class SilentLimitedBufferTest(unittest.TestCase):
 
     def test_empty_stream(self):
         self.assertEqual(self.read_all(b""), "")
+
+    def test_short_output_is_kept_after_waiting_for_the_end_of_the_stream(self):
+        readFd, writeFd = os.pipe()
+        with os.fdopen(readFd, "rb") as reader:
+            buffer = SilentLimitedBuffer().procces(reader)
+            os.write(writeFd, b"short output\n")
+            timer = threading.Timer(0.2, os.close, args=(writeFd,))
+            timer.start()
+            buffer.wait_done(timeout=5)
+            timer.join()
+            self.assertEqual(buffer.retreive_and_stop(), "short output\n")
+
+    def test_waiting_for_the_end_of_the_stream_is_bounded(self):
+        readFd, writeFd = os.pipe()
+        with os.fdopen(readFd, "rb") as reader:
+            buffer = SilentLimitedBuffer().procces(reader)
+            start = time.monotonic()
+            buffer.wait_done(timeout=0.1)
+            self.assertLess(time.monotonic() - start, 2)
+            self.assertEqual(buffer.retreive_and_stop(), "")
+            os.close(writeFd)
+            buffer.wait_done(timeout=5)
 
 
 if __name__ == "__main__":

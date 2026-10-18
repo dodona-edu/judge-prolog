@@ -108,7 +108,14 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, removeMoun
         didTimeout = False
     except subprocess.TimeoutExpired:
         runner.terminate()
+        try:
+            runner.wait(timeout=1)
+        except subprocess.TimeoutExpired:
+            runner.kill()
+            runner.wait()
 
+    stdBuf.wait_done()
+    errBuf.wait_done()
     resStdOut = stdBuf.retreive_and_stop()
     resStdErr = errBuf.retreive_and_stop()
     runner.stderr.close()

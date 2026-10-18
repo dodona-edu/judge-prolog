@@ -16,6 +16,7 @@ class SilentLimitedBuffer(io.StringIO):
         self.maxsize = maxsize
         self.tooMuch = False
         self.done = False
+        self.reader = None
 
     def write(self, s):
         size = len(s)
@@ -78,8 +79,19 @@ class SilentLimitedBuffer(io.StringIO):
                 if data:
                     buff.write(data)
 
-        Thread(target=write_deamon, args=(self, stream), daemon=True).start()
+        self.reader = Thread(target=write_deamon, args=(self, stream), daemon=True)
+        self.reader.start()
         return self
+
+    def wait_done(self, timeout=1):
+        """Wait until the reader has seen the end of the stream.
+
+        The wait is bounded because a process started by the student can keep
+        the stream open after swipl is gone.
+        """
+
+        if self.reader is not None:
+            self.reader.join(timeout=timeout)
 
     def retreive_and_stop(self):
         """get the value up to this point and and stop the reading procces.
