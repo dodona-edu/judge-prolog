@@ -1,4 +1,3 @@
-import fileinput
 import html
 import re
 
@@ -75,8 +74,8 @@ class QuickCheck(object):
                 self.config["judge"] + '/quicktest/quickcheck.pl'))
 
     def getPropertyDefinitions(self, filename):
-        data = [l for l in fileinput.input(filename)]
-        fileinput.close()
+        with open(filename) as f:
+            data = f.readlines()
         startLine = 0
         curProperty = None
         for i, l in enumerate(data + ["\n"]):

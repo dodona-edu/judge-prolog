@@ -56,7 +56,6 @@ together with the student code as follows, with a copy of the workspace folder a
 
 The results stored in `workspace/results.json` are then consulted to build the feedback table
 """
-import fileinput
 import re
 import random
 from prologGeneral import checkErrors, swipl
@@ -117,12 +116,11 @@ class SimpleTest(object):
 
         consults = {"public": [], "private": []}
         # Read input
-        for l in fileinput.input(filename):
-            isConsult = consultRe.match(l)
-            if isConsult:
-                consults[isConsult.group(1)].append(isConsult.group(2))
-
-        fileinput.close()
+        with open(filename) as f:
+            for l in f:
+                isConsult = consultRe.match(l)
+                if isConsult:
+                    consults[isConsult.group(1)].append(isConsult.group(2))
 
         # Make a new testfile that consults the users solution
         # and the check file

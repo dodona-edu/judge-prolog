@@ -27,7 +27,6 @@ example config
 ```
 """
 
-import fileinput
 import os
 import random
 import re
@@ -95,8 +94,8 @@ class FormCheck(object):
         self.annotations = []
 
         # Read input
-        self.data = [x for x in fileinput.input(config["source"])]
-        fileinput.close()
+        with open(config["source"]) as f:
+            self.data = f.readlines()
 
         # Add required tests
         self.tests = [self.checkCheat]

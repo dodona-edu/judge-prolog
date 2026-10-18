@@ -13,7 +13,6 @@ http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%2
 """
 
 
-import fileinput
 import re
 
 from prologGeneral import checkErrors, swipl
@@ -87,40 +86,41 @@ class PLUnit(object):
 
         # Go over the file,
         # At :-end_tests the test is executed
-        for l in fileinput.input(self.filename):
-            isStart = plBeginTest.match(l)
-            isEnd = plEndTest.match(l)
-            isComment = plComment.match(l)
+        with open(self.filename) as f:
+            for l in f:
+                isStart = plBeginTest.match(l)
+                isEnd = plEndTest.match(l)
+                isComment = plComment.match(l)
 
-            if isStart:  # Start of a new test
-                testname = isStart.group(1)
-                initlines += [l for l in lines if l.strip()]
-                lines = [l]
-                comments = []
+                if isStart:  # Start of a new test
+                    testname = isStart.group(1)
+                    initlines += [l for l in lines if l.strip()]
+                    lines = [l]
+                    comments = []
 
-            elif isEnd:  # End of a new test -> Join lines + run
-                lines.append(l)
+                elif isEnd:  # End of a new test -> Join lines + run
+                    lines.append(l)
 
-                # Create test file
-                with open(self.testfile, 'w') as out:
-                    out.writelines(initlines)
-                    out.writelines(lines)
+                    # Create test file
+                    with open(self.testfile, 'w') as out:
+                        out.writelines(initlines)
+                        out.writelines(lines)
 
-                ctx = self.doRun(self.testfile, testname, comments, lines)
-                contexts.append(ctx)
+                    ctx = self.doRun(self.testfile, testname, comments, lines)
+                    contexts.append(ctx)
 
-                numTests += 1
-                numBad += int(not ctx["accepted"])
+                    numTests += 1
+                    numBad += int(not ctx["accepted"])
 
-                testname = None
-                lines = []
+                    testname = None
+                    lines = []
 
-            elif isComment:
-                comments.append(isComment.group(1))
-                lines.append(l)
+                elif isComment:
+                    comments.append(isComment.group(1))
+                    lines.append(l)
 
-            else:
-                lines.append(l)
+                else:
+                    lines.append(l)
 
         return {
             "accepted": numBad == 0,
