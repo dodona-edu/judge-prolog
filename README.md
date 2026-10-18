@@ -76,8 +76,8 @@ a supplied correct solution.
 
 ### Test specification
 
-Test files ending in `.simple.pl` will automatically be be executed by this
-file. Such a test file should be a module that exports one predicate: `test/6`.
+Test files ending in `.simple.pl` will automatically be executed by the
+judge. Such a test file should be a module that exports one predicate: `tests/6`.
 The form is:
 
 ```prolog
@@ -91,7 +91,7 @@ tests("markdown name",dodonaevaluate:thepredicate,thepredicate,true,10000, L) :-
     setof([X,Y],(member(X,Pers),member(Y,Pers)),L).
 ```
 
-The `test/6` predicate has 6 arguments
+The `tests/6` predicate has 6 arguments
 
 1. The name, a string (double quotes), that is rendered as markdown
 2. The functor name of a correct implementation (mostly of the form
@@ -119,16 +119,18 @@ lines
 
 The prolog checker code is contained in
 [simpletest/checker.pl](simpletest/checker.pl). It is loaded together with the
-student code as follows, with a copy of the workspace folder as workspace and
-`dotests` as goals for `swipl`.
+student code as follows, with the workdir as working directory and
+`dodonacheck:dotests()` as goal for `swipl`.
 
 ```
 :- use_module("{judgePath}/simpletest/checker.pl").
+:- style_check(-singleton).
+:- style_check(-discontiguous).
 :- consult("/mnt/.../submission/submission.pl").
 :- use_module("/mnt/.../evaluation/.....simple.pl").
 ```
 
-The results stored in `workspace/results.json` are then consulted to build the
+The results stored in `result.json` in the workdir are then consulted to build the
 feedback table
 
 ## Tests

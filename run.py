@@ -1,7 +1,4 @@
 #!/usr/bin/python3
-# Name: Extract PLUnit results
-# By Robbert Gurdeep Singh
-##########################################################################
 """
 The runner called by run,
 
