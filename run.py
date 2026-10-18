@@ -1,7 +1,4 @@
 #!/usr/bin/python3
-# Name: Extract PLUnit results
-# By Robbert Gurdeep Singh
-##########################################################################
 """
 The runner called by run,
 
@@ -15,6 +12,7 @@ import sys
 import json
 import random
 import itertools
+from collections import Counter
 from plunit import PLUnit
 from quickcheck import QuickCheck
 from simpltest import SimpleTest
@@ -24,12 +22,6 @@ from formcheck import FormCheck
 # extract info from exercise configuration and set defaults
 config = json.load(sys.stdin)
 home = config['resources']
-source = config['source']
-workdir = config['workdir']
-judge = config['judge']
-time_limit = int(config['time_limit'])
-memory_limit = int(config['memory_limit'])
-programming_language = config['programming_language']
 
 config.setdefault("prolog_stack_limit", "256m")
 
@@ -69,16 +61,12 @@ description = "issues({}).".format(numBad)
 
 messages = []
 
+annotationCount = Counter(a["type"] for a in annotations)
 annotationDescription = None
-annotationCount = {"error": 0, "warning": 0, "info": 0}
-if annotations:
-    for a in annotations:
-        annotationCount[a["type"]] += 1
-
-    for t in ["error", "warning", "info"]:
-        if annotationCount[t] > 0:
-            annotationDescription = "{}s({}).".format(t, annotationCount[t])
-            break
+for t in ["error", "warning", "info"]:
+    if annotationCount[t] > 0:
+        annotationDescription = "{}s({}).".format(t, annotationCount[t])
+        break
 
 if accepted:
     description = "true."

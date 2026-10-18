@@ -6,11 +6,7 @@ from util import SilentLimitedBuffer
 plTestfile = re.compile(r"[^\s'\"]*\.unit\.pl-slice\.pl(:[0-9]*)?:?")
 plStatus = re.compile(r"^[A.!+-]+$")
 plResult = re.compile(r"^(ERROR|Warning): (.*)")
-plDone = re.compile(r"done$")
 plInfo = re.compile(r"^(ERROR: {5}|Warning: {4}|\t)(.*)")
-plBeginTest = re.compile(r":- +begin_tests\(([^,]*)(,.*)?\)")
-plEndTest = re.compile(r":- +end_tests\((.*)\)")
-plComment = re.compile(r"%!(.*)")
 plTestResult = re.compile(r"^\[[0-9]+/[0-9]+\] .*") # "[2/3] testname ..."
 
 plMountdir = re.compile(r"/mnt/[^/]*/")
@@ -87,7 +83,7 @@ def checkErrors(lines, testname):
     return testcases
 
 
-def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=2500, removeMounts=True):
+def swipl(scriptfile, testname, goal, outputHandler, timeout, config, removeMounts=True):
     runner = subprocess.Popen(
         ['swipl',
          '-t', goal,
@@ -100,12 +96,11 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
          ],
         stderr=subprocess.PIPE,
         stdout=subprocess.PIPE,
-        bufsize=None,
         cwd=config["workdir"])
 
-    # Keep reading bufffer while only saving the top bufsize bytes
-    stdBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stdout)
-    errBuf = SilentLimitedBuffer(maxsize=bufsize).procces(runner.stderr)
+    # Keep reading the buffers while only saving the first 2500 bytes
+    stdBuf = SilentLimitedBuffer(maxsize=2500).procces(runner.stdout)
+    errBuf = SilentLimitedBuffer(maxsize=2500).procces(runner.stderr)
 
     didTimeout = True
     try:
@@ -126,10 +121,6 @@ def swipl(scriptfile, testname, goal, outputHandler, timeout, config, bufsize=25
     else:
         resStdOut = resStdOut.splitlines(True)
         resStdErr = resStdErr.splitlines(True)
-    # import sys
-    # print("CAL", scriptfile, file=sys.stderr)
-    # print("STD", "".join(resStdOut), file=sys.stderr)
-    # print("ERR", "".join(resStdErr), file=sys.stderr)
 
     return outputHandler(
         stdout=resStdOut,

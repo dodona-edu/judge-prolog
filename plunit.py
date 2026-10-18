@@ -13,21 +13,17 @@ http://www.swi-prolog.org/pldoc/doc_for?object=section(%27packages/plunit.html%2
 """
 
 
-import fileinput
 import re
 
 from prologGeneral import checkErrors, swipl
-from util import CondFormatString
 
 plUnitInfo = {
-    "nl": CondFormatString(
-        lambda **d: d["failed"] > 0,
-        "**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. Een test kan meerdere `assert`s bevatten.",
-        "Alle **PLUnit** testen slaagden."),
-    "en": CondFormatString(
-        lambda **d: d["failed"] > 0,
-        "**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed.",
-        "All **PLUnit** tests passed.")}
+    "nl": {
+        "failed": "**PLUnit** voerde **{numtests} testen** uit, **{failed}** faalden. Een test kan meerdere `assert`s bevatten.",
+        "passed": "Alle **PLUnit** testen slaagden."},
+    "en": {
+        "failed": "**PLUnit** ran  **{numtests} tests**, **{failed}** of them failed.",
+        "passed": "All **PLUnit** tests passed."}}
 
 
 plBeginTest = re.compile(r":- +begin_tests\(([^,]*)(,.*)?\)")
@@ -53,13 +49,6 @@ class PLUnit(object):
 
     def getAnnotations(self):
         return None
-
-    def getSummary(self):
-        res = self.getResult()
-        if res["badgeCount"] == 0:
-            return "correct"
-        else:
-            return "PLUnit: {} issues".format(res["badgeCount"])
 
     def _doTest(self):
         """ Splits up the testfile in smaller parts and execute each of them.
@@ -94,40 +83,41 @@ class PLUnit(object):
 
         # Go over the file,
         # At :-end_tests the test is executed
-        for l in fileinput.input(self.filename):
-            isStart = plBeginTest.match(l)
-            isEnd = plEndTest.match(l)
-            isComment = plComment.match(l)
+        with open(self.filename) as f:
+            for l in f:
+                isStart = plBeginTest.match(l)
+                isEnd = plEndTest.match(l)
+                isComment = plComment.match(l)
 
-            if isStart:  # Start of a new test
-                testname = isStart.group(1)
-                initlines += [l for l in lines if l.strip()]
-                lines = [l]
-                comments = []
+                if isStart:  # Start of a new test
+                    testname = isStart.group(1)
+                    initlines += [l for l in lines if l.strip()]
+                    lines = [l]
+                    comments = []
 
-            elif isEnd:  # End of a new test -> Join lines + run
-                lines.append(l)
+                elif isEnd:  # End of a new test -> Join lines + run
+                    lines.append(l)
 
-                # Create test file
-                with open(self.testfile, 'w') as out:
-                    out.writelines(initlines)
-                    out.writelines(lines)
+                    # Create test file
+                    with open(self.testfile, 'w') as out:
+                        out.writelines(initlines)
+                        out.writelines(lines)
 
-                ctx = self.doRun(self.testfile, testname, comments, lines)
-                contexts.append(ctx)
+                    ctx = self.doRun(self.testfile, testname, comments, lines)
+                    contexts.append(ctx)
 
-                numTests += 1
-                numBad += int(not ctx["accepted"])
+                    numTests += 1
+                    numBad += int(not ctx["accepted"])
 
-                testname = None
-                lines = []
+                    testname = None
+                    lines = []
 
-            elif isComment:
-                comments.append(isComment.group(1))
-                lines.append(l)
+                elif isComment:
+                    comments.append(isComment.group(1))
+                    lines.append(l)
 
-            else:
-                lines.append(l)
+                else:
+                    lines.append(l)
 
         return {
             "accepted": numBad == 0,
@@ -135,7 +125,7 @@ class PLUnit(object):
             "description": self.tabname,
             "messages": [{
                 "format": "markdown",
-                "description": plUnitInfo[self.lang].format(
+                "description": plUnitInfo[self.lang]["failed" if numBad else "passed"].format(
                     numtests=numTests,
                     failed=numBad)
             }],

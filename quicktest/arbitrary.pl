@@ -2,31 +2,7 @@
 
 :- use_module(library(apply), [maplist/2]).
 
-:- if(\+ predicate_property(maplist(_,  _, _),_)).
-
-:- use_module(library(apply_macros), [maplist/3]).
-
-:- endif.
-
 :- use_module(library(random), [random_between/3, random_member/2, random/1]).
-:- if(\+predicate_property(random_between(_, _, _), _)).
-
-:- use_module(library(random), [random/3]).
-
-random_between(Lo, Hi, X) :-
-        random(Lo, Hi, X).
-
-:- endif.
-
-:- if(\+predicate_property(random_member(_, _), _)).
-
-random_member(X, Xs) :-
-        length(Xs, N),
-        random_between(1, N, I),
-        nth(I, Xs, X).
-
-:- endif.
-
 
 :- multifile error:has_type/2.
 error:has_type(arbitrary_type, Type) :-

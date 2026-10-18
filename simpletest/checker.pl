@@ -2,13 +2,9 @@
           [ dotests/0
           ]).
 
-% I don't realy know why I've put these here anymore
-:- set_prolog_flag(unknown, error).
-:- set_prolog_flag(report_error, true).
 % Print a one line trace in case an error occurs
 % (More messes with the inference limit)
 :- use_module(library(prolog_stack)).
-:- use_module(library(error)).
 :- use_module(library(http/json)).
 
 user:prolog_exception_hook(Exception, Exception, Frame, _) :-

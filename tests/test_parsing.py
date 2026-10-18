@@ -193,7 +193,7 @@ class GetPropertyDefinitionsTest(unittest.TestCase):
         with open(path) as f:
             qc = self.parse(f.read())
         self.assertEqual(
-            qc.orderedProperties,
+            list(qc.properties),
             ["prop_reverse_twice/1", "prop_reverse_length/1", "prop_reverse_append/2"])
         self.assertEqual(
             "".join(qc.properties["prop_reverse_length/1"]),
@@ -205,34 +205,34 @@ class GetPropertyDefinitionsTest(unittest.TestCase):
 
     def test_property_at_end_of_file_without_blank_line(self):
         qc = self.parse("prop_a(X:integer) :-\n    X >= 0.")
-        self.assertEqual(qc.orderedProperties, ["prop_a/1"])
+        self.assertEqual(list(qc.properties), ["prop_a/1"])
         self.assertEqual(qc.properties["prop_a/1"], ["prop_a(X:integer) :-\n", "    X >= 0."])
 
     def test_other_blocks_are_ignored(self):
         qc = self.parse(":- use_module(library(lists)).\nhelper(X) :- X > 1.\n\nprop_a(X:integer) :-\n    helper(X).\n")
-        self.assertEqual(qc.orderedProperties, ["prop_a/1"])
+        self.assertEqual(list(qc.properties), ["prop_a/1"])
 
     def test_same_name_and_arity_are_merged_in_order(self):
         qc = self.parse(
             "prop_a(X:integer) :-\n    X > 0.\n\n"
             "prop_b(X:integer, Y:integer) :-\n    X < Y.\n\n"
             "prop_a(X:integer) :-\n    X < 0.\n")
-        self.assertEqual(qc.orderedProperties, ["prop_a/1", "prop_b/2"])
+        self.assertEqual(list(qc.properties), ["prop_a/1", "prop_b/2"])
         self.assertEqual(
             qc.properties["prop_a/1"],
             ["prop_a(X:integer) :-\n", "    X > 0.\n", "prop_a(X:integer) :-\n", "    X < 0.\n"])
 
     def test_same_name_with_other_arity_is_another_property(self):
         qc = self.parse("prop_a(X:integer) :-\n    true.\n\nprop_a(X:integer, Y:integer) :-\n    true.\n")
-        self.assertEqual(qc.orderedProperties, ["prop_a/1", "prop_a/2"])
+        self.assertEqual(list(qc.properties), ["prop_a/1", "prop_a/2"])
 
     def test_arity_ignores_commas_in_compound_types(self):
         qc = self.parse("prop_a(L:list(oneof([a,b])), N:integer) :-\n    true.\n")
-        self.assertEqual(qc.orderedProperties, ["prop_a/2"])
+        self.assertEqual(list(qc.properties), ["prop_a/2"])
 
     def test_blank_lines_with_crlf(self):
         qc = self.parse("prop_a(X:integer) :-\r\n    true.\r\n\r\nprop_b(X:integer) :-\r\n    true.\r\n")
-        self.assertEqual(qc.orderedProperties, ["prop_a/1", "prop_b/1"])
+        self.assertEqual(list(qc.properties), ["prop_a/1", "prop_b/1"])
 
 
 class SimpleTestHelpersTest(unittest.TestCase):

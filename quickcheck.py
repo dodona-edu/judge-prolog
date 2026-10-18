@@ -1,34 +1,27 @@
-import fileinput
 import html
 import re
 
 from prologGeneral import checkErrors, swipl
-from util import CondFormatString, readJson, removeFile
+from util import readJson, removeFile
 
 reProperty = re.compile(r"(prop_[^(]*)\((.*)\)\s*:-")
-reBody = re.compile(r"^\s")
-
-reBraces = re.compile(r"\([^()]*\)")
-
 LANG = {
     "nl": {
-        "info": CondFormatString(
-            lambda **d: d["failed"] > 0,
-            "**Quickcheck** controleerde **{numtests} predikaten** die altijd waar zouden moeten zijn. "
-            " Er werden **{failed} tegenvoorbeelden** gevonden.\n\n"
-            "Hieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeelden.",
-            "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."),
+        "info": {
+            "failed": "**Quickcheck** controleerde **{numtests} predikaten** die altijd waar zouden moeten zijn. "
+                      " Er werden **{failed} tegenvoorbeelden** gevonden.\n\n"
+                      "Hieronder zie je de code die de predicaten voorstelt en de gevonden tegenvoorbeelden.",
+            "passed": "**Quickcheck** controleerde **{numtests} predikaten** en vond geen tegenvoorbeelden."},
         "no_counter": "Geen tegenvoorbeelden gevonden ({testcount} testen geslaagd)",
         "no_results": "Test kon niet worden uitgevoerd",
         "timeout": "De tijdslimiet ({timeout}s) voor deze test werd overschreden!"
     },
     "en": {
-        "info": CondFormatString(
-            lambda **d: d["failed"] > 0,
-            "**Quickcheck** validated  **{numtests} predicates** that should always be true. "
-            "However, **{failed} counterexamples** were found.\n\n"
-            "The results below show the code that represents the predicates. If they fail, a counterexample is shown.",
-            "**Quickcheck** validated **{numtests} predicates** and could not find a counterexample."),
+        "info": {
+            "failed": "**Quickcheck** validated  **{numtests} predicates** that should always be true. "
+                      "However, **{failed} counterexamples** were found.\n\n"
+                      "The results below show the code that represents the predicates. If they fail, a counterexample is shown.",
+            "passed": "**Quickcheck** validated **{numtests} predicates** and could not find a counterexample."},
         "no_counter": "All {testcount} tests passed, no counterexample found ",
         "no_results": "Could not execute test",
         "timeout": "The execution of this test exceeded the time limit ({timeout}s)!"
@@ -60,7 +53,6 @@ class QuickCheck(object):
         self.lang = config["natural_language"]
         self.result = None
         self.properties = {}
-        self.orderedProperties = []
 
         # get property definitions
         self.getPropertyDefinitions(filename)
@@ -79,8 +71,8 @@ class QuickCheck(object):
                 self.config["judge"] + '/quicktest/quickcheck.pl'))
 
     def getPropertyDefinitions(self, filename):
-        data = [l for l in fileinput.input(filename)]
-        fileinput.close()
+        with open(filename) as f:
+            data = f.readlines()
         startLine = 0
         curProperty = None
         for i, l in enumerate(data + ["\n"]):
@@ -93,7 +85,6 @@ class QuickCheck(object):
                 if curProperty in self.properties:
                     self.properties[curProperty] += data[startLine:i]
                 else:
-                    self.orderedProperties.append(curProperty)
                     self.properties[curProperty] = data[startLine:i]
                 curProperty = None
 
@@ -105,18 +96,10 @@ class QuickCheck(object):
     def getAnnotations(self):
         return None
 
-    def getSummary(self):
-        res = self.getResult()
-        if res["badgeCount"] == 0:
-            return "correct"
-        else:
-            return "QuickCheck: {} issues".format(res["badgeCount"])
-
     def _doTest(self):
-        totalNumBad = 0
         contexts = []
         failedTest = 0
-        for testname in self.orderedProperties:
+        for testname in self.properties:
             testcases = self._run(testname)
             numBad = sum([not t["accepted"] for t in testcases])
 
@@ -136,7 +119,6 @@ class QuickCheck(object):
             failedTest += numBad > 0
 
             contexts.append(context)
-            totalNumBad += numBad
 
         self.result = {
             "accepted": failedTest == 0,
@@ -144,8 +126,8 @@ class QuickCheck(object):
             "description": self.tabname,
             "messages": [{
                 "format": "markdown",
-                "description": LANG[self.lang]["info"].format(
-                    numtests=len(self.orderedProperties),
+                "description": LANG[self.lang]["info"]["failed" if failedTest else "passed"].format(
+                    numtests=len(self.properties),
                     failed=failedTest
                 )
             }],

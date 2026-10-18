@@ -27,11 +27,10 @@ example config
 ```
 """
 
-import fileinput
 import os
 import random
 import re
-from typing import Dict, Optional
+from typing import Dict
 
 from prologGeneral import swipl, removeMountDir
 from util import readJson, removeFile
@@ -91,12 +90,12 @@ class FormCheck(object):
         self.config = config
         self.words = LANG[config["natural_language"]]
         self.tabname = self.words["tabname"]
-        self.result = False  # type: Union[False,Optional[Dict]]
+        self.result = False
         self.annotations = []
 
         # Read input
-        self.data = [x for x in fileinput.input(config["source"])]
-        fileinput.close()
+        with open(config["source"]) as f:
+            self.data = f.readlines()
 
         # Add required tests
         self.tests = [self.checkCheat]
@@ -114,13 +113,6 @@ class FormCheck(object):
         if self.result is False:
             self._doTest()
         return self.annotations
-
-    def getSummary(self):
-        res = self.getResult()
-        if res["badgeCount"] == 0:
-            return "correct"
-        else:
-            return "FormCheck: {} issues".format(res["badgeCount"])
 
     def _doTest(self):
 

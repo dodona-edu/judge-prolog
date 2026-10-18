@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
-# Script that runs the Pythia judge inside a container that supports both Bash
-# and Python 3.5.
-# 
+# Entry point of the judge: runs run.py with the exercise configuration.
+#
 #   - stdin: run configuration (JSON)
 #   - stdout: evaluation results (JSON)
 #   - stderr: should be empty
