@@ -10,4 +10,5 @@ jobs:
   integration-test:
     uses: ./.github/workflows/e2e.yml
     with:
+      image: ghcr.io/dodona-edu/dodona-prolog:live
       ref: ${{ github.sha }}

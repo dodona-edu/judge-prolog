@@ -1,0 +1,36 @@
+name: E2E on latest
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    outputs:
+      differs: ${{ steps.compare.outputs.differs }}
+    steps:
+      - name: Compare the :latest and :live digests
+        id: compare
+        run: |
+          digest() { docker buildx imagetools inspect "$1" --format '{{.Manifest.Digest}}'; }
+          latest=$(digest ghcr.io/dodona-edu/dodona-prolog:latest)
+          live=$(digest ghcr.io/dodona-edu/dodona-prolog:live)
+          if [ "$latest" = "$live" ]; then
+            echo "differs=false" >> "$GITHUB_OUTPUT"
+            echo "Skipped: :latest and :live are both $live." | tee -a "$GITHUB_STEP_SUMMARY"
+          else
+            echo "differs=true" >> "$GITHUB_OUTPUT"
+            echo "Testing :latest ($latest); :live is $live." | tee -a "$GITHUB_STEP_SUMMARY"
+          fi
+
+  # Advisory, not a required check.
+  e2e-latest:
+    needs: compare
+    if: ${{ needs.compare.outputs.differs == 'true' }}
+    uses: ./.github/workflows/e2e.yml
+    with:
+      image: ghcr.io/dodona-edu/dodona-prolog:latest
+      ref: ${{ github.sha }}
