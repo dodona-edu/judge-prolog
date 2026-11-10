@@ -145,7 +145,7 @@ root inside the judge image: `devel/run-tests.sh` runs it there, as CI does,
 and `devel/run-tests-in-image.sh` starts the image and runs it locally:
 
 ```
-devel/run-tests-in-image.sh                            # ghcr.io/dodona-edu/dodona-prolog:latest
+devel/run-tests-in-image.sh                            # ghcr.io/dodona-edu/dodona-prolog:live
 IMAGE=my-image devel/run-tests-in-image.sh -v -k echo  # another image, unittest arguments
 UPDATE_EXPECTED=1 devel/run-tests-in-image.sh          # rewrite the expected output
 ```

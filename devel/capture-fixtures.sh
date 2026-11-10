@@ -2,7 +2,7 @@
 # Rewrites tests/fixtures: runs the judge on the cases below inside the judge
 # image and keeps the raw output of one swipl run per case.
 #
-#   IMAGE=...   judge image (default ghcr.io/dodona-edu/dodona-prolog:latest)
+#   IMAGE=...   judge image (default ghcr.io/dodona-edu/dodona-prolog:live)
 
 set -euo pipefail
 
@@ -11,7 +11,7 @@ repo="$(cd "$(dirname "$0")/.." && pwd)"
 docker run --rm --interactive --platform linux/amd64 --user root \
   --env PYTHONDONTWRITEBYTECODE=1 \
   --volume "$repo:/judge-prolog" \
-  "${IMAGE:-ghcr.io/dodona-edu/dodona-prolog:latest}" \
+  "${IMAGE:-ghcr.io/dodona-edu/dodona-prolog:live}" \
   python3 - <<'EOF'
 import json
 import os

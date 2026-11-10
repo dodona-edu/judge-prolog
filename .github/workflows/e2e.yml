@@ -6,7 +6,7 @@ on:
       image:
         description: Judge image to run the suite in
         type: string
-        default: ghcr.io/dodona-edu/dodona-prolog:latest
+        default: ghcr.io/dodona-edu/dodona-prolog:live
       ref:
         description: judge-prolog ref to test
         type: string
@@ -16,7 +16,7 @@ on:
       image:
         description: Judge image to run the suite in
         type: string
-        default: ghcr.io/dodona-edu/dodona-prolog:latest
+        default: ghcr.io/dodona-edu/dodona-prolog:live
       ref:
         description: judge-prolog ref to test
         type: string
