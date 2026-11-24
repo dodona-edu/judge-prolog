@@ -113,16 +113,6 @@ def swipl_major():
     return re.search(r"version ([0-9]+)\.", output).group(1)
 
 
-SWIPL_MAJOR = swipl_major()
-
-# (exercise, case, SWI-Prolog major) that fail on a known SWI-Prolog bug; the expected output is the correct one.
-KNOWN_BUGS = {
-    # SWI-Prolog 10.0.2 reports a false stack overflow as the expected value.
-    ("simple-wally", "correct", "10"),
-    ("simple-wally", "wrong", "10"),
-}
-
-
 def cases():
     for exercise in sorted(os.listdir(EXERCISES_DIR)):
         exercise_dir = os.path.join(EXERCISES_DIR, exercise)
@@ -139,7 +129,7 @@ class ExerciseTest(unittest.TestCase):
         cls.addClassCleanup(shutil.rmtree, cls.root)
         cls.judge = os.path.join(cls.root, "judge")
         shutil.copytree(REPO_DIR, cls.judge, ignore=judge_ignore())
-        cls.swipl_major = SWIPL_MAJOR
+        cls.swipl_major = swipl_major()
 
     def run_judge(self, exercise_dir, submission, language):
         config = {
@@ -224,8 +214,6 @@ class ExerciseTest(unittest.TestCase):
 
 for exercise, case in cases():
     test = lambda self, exercise=exercise, case=case: self.check_case(exercise, case)
-    if (exercise, case, SWIPL_MAJOR) in KNOWN_BUGS:
-        test = unittest.expectedFailure(test)
     setattr(ExerciseTest, re.sub(r"\W", "_", "test_{}_{}".format(exercise, case)), test)
 
 

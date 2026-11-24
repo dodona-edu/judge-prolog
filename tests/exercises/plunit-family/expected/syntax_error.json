@@ -35,7 +35,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "submission/source:1:27: Syntax error: Operator expected",
+                  "description": "submission/source:1:28: Syntax error: Operator expected",
                   "permission": "student"
                 }
               ]
@@ -105,7 +105,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "submission/source:1:27: Syntax error: Operator expected",
+                  "description": "submission/source:1:28: Syntax error: Operator expected",
                   "permission": "student"
                 }
               ]
@@ -131,7 +131,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "submission/source:1:27: Syntax error: Operator expected",
+                  "description": "submission/source:1:28: Syntax error: Operator expected",
                   "permission": "student"
                 }
               ]

@@ -29,7 +29,7 @@
               "messages": [
                 {
                   "format": "code",
-                  "description": "=:=/2: Arithmetic: `two/0' is not a function\n   Exception: (4) quickcheck:run_tests(100, user, prop_double, [_:oneof([21])], _) ? EOF: exit (status 4)",
+                  "description": "(=:=)/2: Arithmetic: `two/0' is not a function\n   Exception: (4) quickcheck:run_tests(100, user, prop_double, [_:oneof([21])], _) ? EOF: exit (status 4)",
                   "permission": "student"
                 }
               ]
