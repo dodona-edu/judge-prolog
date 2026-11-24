@@ -1,0 +1,366 @@
+{
+  "accepted": true,
+  "groups": [
+    {
+      "accepted": true,
+      "badgeCount": 0,
+      "description": "test",
+      "messages": [
+        {
+          "format": "markdown",
+          "description": "We checked **196 facts**, they were all correct."
+        }
+      ],
+      "groups": [
+        {
+          "accepted": true,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*`is_left_of`*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_left_of(wilma,wilma)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_left_of(swi,wilma)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "true.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_left_of(odlaw,odlaw)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_left_of(woof,waldo)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_left_of(whitebeard,whitebeard)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "markdown",
+                "description": "Another *44 succeeded* tests are not listed."
+              },
+              "accepted": true
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*`is_below_of`*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_below_of(wilma,woof)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_below_of(waldo,watchers)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_below_of(odlaw,odlaw)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_below_of(waldo,woof)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_below_of(waldo,whitebeard)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "markdown",
+                "description": "Another *44 succeeded* tests are not listed."
+              },
+              "accepted": true
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*`is_right_of`*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_right_of(swi,odlaw)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "true.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_right_of(watchers,watchers)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_right_of(wilma,odlaw)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_right_of(woof,odlaw)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_right_of(waldo,watchers)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "markdown",
+                "description": "Another *44 succeeded* tests are not listed."
+              },
+              "accepted": true
+            }
+          ]
+        },
+        {
+          "accepted": true,
+          "description": {
+            "format": "markdown",
+            "description": "#### Test results for \"*`is_above_of`*\""
+          },
+          "groups": [
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_above_of(woof,wilma)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_above_of(watchers,watchers)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_above_of(watchers,odlaw)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_above_of(swi,watchers)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "true.",
+                  "expected": "true.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "prolog",
+                "description": "is_above_of(odlaw,odlaw)."
+              },
+              "accepted": true,
+              "tests": [
+                {
+                  "generated": "false.",
+                  "expected": "false.",
+                  "accepted": true
+                }
+              ]
+            },
+            {
+              "description": {
+                "format": "markdown",
+                "description": "Another *44 succeeded* tests are not listed."
+              },
+              "accepted": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "correct",
+  "messages": [],
+  "description": "true.",
+  "annotations": []
+}
